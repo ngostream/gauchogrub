@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 
 #url = "https://apps.dining.ucsb.edu/menu/day"
-url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-01-26&m=breakfast&m=brunch&m=lunch&m=dinner&m=late-night&food="
+url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-01-27&m=Breakfast&m=brunch&m=Lunch&m=Dinner&food="
 '''
 change day you're looking at by changing url
 '''
@@ -23,10 +23,27 @@ dlgString = " ".join(str(dlg).split())
 ortegaString = " ".join(str(ortega).split())
 portolaString = " ".join(str(portola).split())
 
-#print(carrilloString)
 
+carrilloMeals = {
+    "Breakfast" : {}, 
+    "Lunch" : {},
+    "Dinner" : {}
+}
+dlgMeals = {
+    "Breakfast" : {},
+    "Lunch" : {},
+    "Dinner" : {}
+}
+ortegaMeals = {
+    "Lunch" : {},
+    "Dinner" : {}
+}
+portolaMeals = {
+    "Breakfast" : {},
+    "Lunch" : {},
+    "Dinner" : {}
+}
 
-i = 0
 
 '''
 dictionaries named after dining halls
@@ -35,36 +52,85 @@ key corresponds to a list of items
 '''
  #convert int o function 
 
-carrilloMap = {}
+#search for meal time (Breakfast ...), then run <dt> <dd> search through it? turn into function
 
-while i < len(carrilloString):
-    list = []
-    startSec = carrilloString.find("<dt>", i)
-    if startSec == -1: 
-        break
-    startSec += len("<dt>")
-    endSec = carrilloString.find("</dt>", startSec)
-    if endSec == -1: 
-        break
-    carrilloMap[carrilloString[startSec:endSec]] = None
-    i = endSec + len("</dt>") 
-    j = startSec
-    while j < carrilloString.find("</dl>", startSec):
-        startItem = carrilloString.find("<dd>", j)
-        if startItem == -1: 
+def parse(mealTime, diningHallString, diningHallDictionary):
+    #this function should never be called with args Breakfast, ortegaString, ortegaMeals
+    start = diningHallString.find(mealTime)
+    end = diningHallString.find("<small ", start + 27) if diningHallString.find("<small ", start + 27) != -1 else len(diningHallString)
+    #for debugging purposes -> will print section it's searching through
+
+    print(diningHallString[start : end])
+    
+    #search through mealtime for section
+    #search through section for items
+    i = start
+    while i < end:
+        print(start, " start")
+        print(end, " end")
+        print(i, " i")
+        startSec = diningHallString.find("<dt>", i)
+        if startSec == -1: 
             break
-        startItem += len("<dd>")
-        endItem = carrilloString.find("</dd>", startItem)
+        startSec += len("<dt>")
+        endSec = diningHallString.find("</dt>", startSec)
         if endSec == -1: 
             break
-        list.append(carrilloString[startItem:endItem])
-        j = endItem + len("</dd>") 
-    carrilloMap[carrilloString[startSec:endSec]] = list
+        i = endSec + len("</dt>") 
+        j = startSec
+        print(diningHallString[startSec:endSec])
+        list = []
+        while j < diningHallString.find("</dl>", startSec) and j < end: #
+            print(j, " j")
+            startItem = diningHallString.find("<dd>", j)
+            if startItem == -1: 
+                break
+            startItem += len("<dd>")
+            endItem = diningHallString.find("</dd>", startItem)
+            if endItem == -1: 
+                break
+            list.append(diningHallString[startItem:endItem])
+            j = endItem + len("</dd>") 
+            print(list)
+            print()
+        if len(list) != 0:
+            diningHallDictionary[mealTime][diningHallString[startSec:endSec]]= list
+        #item loop isn't being set far enough since it's adding the previous section's last item to the current section
+        #section loop is running one more time than it should be since it was resetting the carrillo deli section
 
-for i in carrilloMap:
-    print(i) 
-    for j in carrilloMap[i]:
-        print(j)
+
+#print(carrilloString)
+parse("Lunch", carrilloString, carrilloMeals)
+#parse("Lunch", dlgString, dlgMeals)
+print()
+print()
+print(carrilloMeals.items())
+#print(dlgMeals.items())
+"""
+        j = startSec
+        while j < diningHallString.find("</dl>", startSec): #
+            startItem = diningHallString.find("<dd>", j)
+            if startItem == -1: 
+                break
+            startItem += len("<dd>")
+            endItem = diningHallString.find("</dd>", startItem)
+            if endSec == -1: 
+                break
+            list.append(diningHallString[startItem:endItem])
+            j = endItem + len("</dd>") 
+
+
+        j = startSec
+        # while j < diningHallString.find("</dl>",startSec):
+        #     startItem = diningHallString.find("<dd>",j) + len("<dd>")
+        #     if startItem == -1:
+        #         break
+        #     endItem = diningHallString.find("</dd>", j)
+        #     if endItem == -1:
+        #         break
+        #     list.append(diningHallString[startItem:endItem])
+        #     j = endItem + 1
+        # diningHallDictionary[mealTime][diningHallString[startSec:endSec]]= list
 
 
 
@@ -72,27 +138,5 @@ for i in carrilloMap:
 
 
 
-'''
-class hierarchy->
-dining hall
-    private:
-        string name
-        Menu[3] menu (breakafast, lunch, dinner)
-    public:
-        getMenu
-        getName
 
-Menu
-    private:
-        string timeOfDay( ex: breakfast,lunch,dinner)
-        Section[] sections (mongolian grill, deli ...)
-    public:
-        getTime
-        getSection
-    
-Section
-    private:
-        string[] items
-    public
-        getItems
-'''
+"""
