@@ -54,6 +54,16 @@ key corresponds to a list of items
 
 #search for meal time (Breakfast ...), then run <dt> <dd> search through it? turn into function
 
+'''
+<dl>                                    
+    <dt>Deli</dt>                       startSec and endSec here. We're really just grabbing the title
+    <dd>Sliced Genoa Salami</dd>        item
+    <dd>Sliced Turkey</dd>              item
+    <dd>Sliced Jack Cheese (v)</dd>     item
+    <dd>Sliced Smoked Gouda</dd>        item
+</dl>                                   dlEnd
+'''
+
 def parse(mealTime, diningHallString, diningHallDictionary):
     #this function should never be called with args Breakfast, ortegaString, ortegaMeals
     start = diningHallString.find(mealTime)
@@ -66,9 +76,12 @@ def parse(mealTime, diningHallString, diningHallDictionary):
     #search through section for items
     i = start
     while i < end:
+        # for debugging:
         print(start, " start")
         print(end, " end")
         print(i, " i")
+
+        # find the bounds for the title
         startSec = diningHallString.find("<dt>", i)
         if startSec == -1: 
             break
@@ -76,25 +89,44 @@ def parse(mealTime, diningHallString, diningHallDictionary):
         endSec = diningHallString.find("</dt>", startSec)
         if endSec == -1: 
             break
-        i = endSec + len("</dt>") 
-        j = startSec
-        print(diningHallString[startSec:endSec])
+        
+        # reminder: j is the index of the item
+        # realistically, i should be updated at the end of the j loop so we don't run into i being ahead of j
+        j = endSec + len("</dt>")
+
+        # end of the <dl> section. we're using it a lot so why not call it once before the j loop to be more efficient
+        dlEnd = diningHallString.find("</dl>", startSec)
+
+        # reset the list that accumulates items to append
         list = []
-        while j < diningHallString.find("</dl>", startSec) and j < end: #
-            print(j, " j")
+
+        print(diningHallString[startSec:endSec]) # DEBUGGING
+
+        while j < dlEnd and j < end:
+            print(j, " j") # DEBUGGING
+
+            # find the bounds for menu items
             startItem = diningHallString.find("<dd>", j)
-            if startItem == -1: 
+            if startItem == -1 or startItem >= dlEnd:   # CHANGING THIS LINE FIXED IT! startItem was overshooting and finding the next <dd> even though it was a greater index than the end of the <dl>
                 break
             startItem += len("<dd>")
             endItem = diningHallString.find("</dd>", startItem)
-            if endItem == -1: 
+            if endItem == -1:
                 break
-            list.append(diningHallString[startItem:endItem])
-            j = endItem + len("</dd>") 
+
+            list.append(diningHallString[startItem:endItem])    # append the item to the accumulator list
+            j = endItem + len("</dd>")      # move to next item
+
+            # debugging:
             print(list)
             print()
-        if len(list) != 0:
+
+        if list:
             diningHallDictionary[mealTime][diningHallString[startSec:endSec]]= list
+            
+        i = dlEnd + len("</dl>") # move to the next <dl>
+
+        # Resolved?
         #item loop isn't being set far enough since it's adding the previous section's last item to the current section
         #section loop is running one more time than it should be since it was resetting the carrillo deli section
 
