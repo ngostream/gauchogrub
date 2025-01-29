@@ -55,7 +55,7 @@ key corresponds to a list of items
 #search for meal time (Breakfast ...), then run <dt> <dd> search through it? turn into function
 
 '''
-<dl>                                    
+<dl>                                    Start of <dl>. Can honestly ignore since we're looking for <dt>
     <dt>Deli</dt>                       startSec and endSec here. We're really just grabbing the title
     <dd>Sliced Genoa Salami</dd>        item
     <dd>Sliced Turkey</dd>              item
