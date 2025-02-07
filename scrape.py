@@ -1,17 +1,22 @@
 import requests
 from bs4 import BeautifulSoup
+import sqlite3
+
+# connect to database and move cursor to the beginning
+# conn = sqlite3.connect("dining_menu.db")
+# cursor = conn.cursor()
 
 #url = "https://apps.dining.ucsb.edu/menu/day"
 url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-01-27&m=Breakfast&m=brunch&m=Lunch&m=Dinner&food="
 '''
 change day you're looking at by changing url
 '''
-r = requests.get(url)
+response = requests.get(url)
 '''
 Note: Sometimes you may get error “Not accepted” so try adding a browser user agent like below. 
 Find your user agent based on device and browser from here https://deviceatlas.com/blog/list-of-user-agent-strings
 '''
-soup = BeautifulSoup(r.content, "html5lib")
+soup = BeautifulSoup(response.content, "html5lib")
 
 carrillo = soup.find(id="carrillo-body")
 dlg = soup.find(id="de-la-guerra-body")
