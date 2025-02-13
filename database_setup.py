@@ -32,4 +32,4 @@ cursor.execute("""
 conn.commit()
 conn.close()
 
-print("SQLite database and tables created successfully!")
+print("sqlite database created yay")
