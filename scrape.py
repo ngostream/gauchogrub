@@ -141,12 +141,16 @@ def parse(mealTime, diningHallString, diningHallDictionary):
 
 #print(carrilloString)
 parse("Lunch", carrilloString, carrilloMeals)
+parse("Dinner", carrilloString, carrilloMeals)
+print(carrilloMeals["Dinner"])
 #parse("Lunch", dlgString, dlgMeals)
 print()
 print()
 @app.route("/")
-def display_items():
-    message = carrilloMeals.items();
-    return render_template("index.html", message = message)
+def display_meals():
+    lunch = carrilloMeals["Lunch"]
+    dinner = carrilloMeals["Dinner"]
+    return render_template("index.html", lunch = lunch,dinner = dinner)
+
 if __name__ == "__main__": 
     app.run(debug=True)
