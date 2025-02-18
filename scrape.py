@@ -1,6 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 import sqlite3
+from flask import Flask
+from flask import render_template 
+app = Flask(__name__)
 
 # connect to database and move cursor to the beginning
 conn = sqlite3.connect("dining_menu.db")
@@ -75,16 +78,16 @@ def parse(mealTime, diningHallString, diningHallDictionary):
     end = diningHallString.find("<small ", start + 27) if diningHallString.find("<small ", start + 27) != -1 else len(diningHallString)
     #for debugging purposes -> will print section it's searching through
 
-    print(diningHallString[start : end])
+    #print(diningHallString[start : end])
     
     #search through mealtime for section
     #search through section for items
     i = start
     while i < end:
         # for debugging:
-        print(start, " start")
-        print(end, " end")
-        print(i, " i")
+        # print(start, " start")
+        # print(end, " end")
+        # print(i, " i")
 
         # find the bounds for the title
         startSec = diningHallString.find("<dt>", i)
@@ -105,10 +108,10 @@ def parse(mealTime, diningHallString, diningHallDictionary):
         # reset the list that accumulates items to append
         list = []
 
-        print(diningHallString[startSec:endSec]) # DEBUGGING
+       # print(diningHallString[startSec:endSec]) # DEBUGGING
 
         while j < dlEnd and j < end:
-            print(j, " j") # DEBUGGING
+            #print(j, " j") # DEBUGGING
 
             # find the bounds for menu items
             startItem = diningHallString.find("<dd>", j)
@@ -123,8 +126,8 @@ def parse(mealTime, diningHallString, diningHallDictionary):
             j = endItem + len("</dd>")      # move to next item
 
             # debugging:
-            print(list)
-            print()
+            # print(list)
+            # print()
 
         if list:
             diningHallDictionary[mealTime][diningHallString[startSec:endSec]]= list
@@ -141,39 +144,9 @@ parse("Lunch", carrilloString, carrilloMeals)
 #parse("Lunch", dlgString, dlgMeals)
 print()
 print()
-print(carrilloMeals.items())
-#print(dlgMeals.items())
-"""
-        j = startSec
-        while j < diningHallString.find("</dl>", startSec): #
-            startItem = diningHallString.find("<dd>", j)
-            if startItem == -1: 
-                break
-            startItem += len("<dd>")
-            endItem = diningHallString.find("</dd>", startItem)
-            if endSec == -1: 
-                break
-            list.append(diningHallString[startItem:endItem])
-            j = endItem + len("</dd>") 
-
-
-        j = startSec
-        # while j < diningHallString.find("</dl>",startSec):
-        #     startItem = diningHallString.find("<dd>",j) + len("<dd>")
-        #     if startItem == -1:
-        #         break
-        #     endItem = diningHallString.find("</dd>", j)
-        #     if endItem == -1:
-        #         break
-        #     list.append(diningHallString[startItem:endItem])
-        #     j = endItem + 1
-        # diningHallDictionary[mealTime][diningHallString[startSec:endSec]]= list
-
-
-
-
-
-
-
-
-"""
+@app.route("/")
+def display_items():
+    message = carrilloMeals.items();
+    return render_template("index.html", message = message)
+if __name__ == "__main__": 
+    app.run(debug=True)
