@@ -10,7 +10,7 @@ conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
 
 #url = "https://apps.dining.ucsb.edu/menu/day"
-url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-01-27&m=Breakfast&m=brunch&m=Lunch&m=Dinner&food="
+url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-02-18&m=breakfast&m=brunch&m=lunch&m=dinner&food="
 '''
 change day you're looking at by changing url
 '''
@@ -140,6 +140,7 @@ def parse(mealTime, diningHallString, diningHallDictionary):
 
 
 #print(carrilloString)
+parse("Breakfast", carrilloString, carrilloMeals)
 parse("Lunch", carrilloString, carrilloMeals)
 parse("Dinner", carrilloString, carrilloMeals)
 print(carrilloMeals["Dinner"])
@@ -148,9 +149,10 @@ print()
 print()
 @app.route("/")
 def display_meals():
+    breakfast = carrilloMeals["Breakfast"]
     lunch = carrilloMeals["Lunch"]
     dinner = carrilloMeals["Dinner"]
-    return render_template("index.html", lunch = lunch,dinner = dinner)
+    return render_template("index.html", breakfast = breakfast, lunch = lunch,dinner = dinner)
 
 if __name__ == "__main__": 
     app.run(debug=True)
