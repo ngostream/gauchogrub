@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import sqlite3
 
 # connect to database and move cursor to the beginning
-# conn = sqlite3.connect("dining_menu.db")
-# cursor = conn.cursor()
+conn = sqlite3.connect("dining_menu.db")
+cursor = conn.cursor()
 
 #url = "https://apps.dining.ucsb.edu/menu/day"
 url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-01-27&m=Breakfast&m=brunch&m=Lunch&m=Dinner&food="
@@ -70,8 +70,6 @@ key corresponds to a list of items
 '''
 
 def parse(mealTime, diningHallString, diningHallDictionary):
-    conn = sqlite3.connect("dining_menu.db")
-    cursor = conn.cursor()
     #this function should never be called with args Breakfast, ortegaString, ortegaMeals
     start = diningHallString.find(mealTime)
     end = diningHallString.find("<small ", start + 27) if diningHallString.find("<small ", start + 27) != -1 else len(diningHallString)

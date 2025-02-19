@@ -11,7 +11,7 @@ cursor.execute("""
         name TEXT NOT NULL,
         dining_hall TEXT NOT NULL,
         meal TEXT NOT NULL,
-        category TEXT
+        category TEXT,
         UNIQUE(name, dining_hall, meal)
     );
 """)
