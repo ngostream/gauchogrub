@@ -70,6 +70,8 @@ key corresponds to a list of items
 '''
 
 def parse(mealTime, diningHallString, diningHallDictionary):
+    conn = sqlite3.connect("dining_menu.db")
+    cursor = conn.cursor()
     #this function should never be called with args Breakfast, ortegaString, ortegaMeals
     start = diningHallString.find(mealTime)
     end = diningHallString.find("<small ", start + 27) if diningHallString.find("<small ", start + 27) != -1 else len(diningHallString)
