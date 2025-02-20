@@ -141,23 +141,38 @@ def parse(mealTime, diningHallString, diningHallDictionary):
         #section loop is running one more time than it should be since it was resetting the carrillo deli section
 
 
-#print(carrilloString)
 parse("Breakfast", carrilloString, carrilloMeals)
 parse("Lunch", carrilloString, carrilloMeals)
 parse("Dinner", carrilloString, carrilloMeals)
-print(carrilloMeals["Dinner"])
-#parse("Lunch", dlgString, dlgMeals)
-print()
-print()
+parse("Breakfast", dlgString, dlgMeals)
+parse("Lunch", dlgString, dlgMeals)
+parse("Dinner", dlgString, dlgMeals)
+parse("Breakfast", portolaString, portolaMeals)
+parse("Lunch", portolaString, portolaMeals)
+parse("Dinner", portolaString, portolaMeals)
+parse("Lunch", ortegaString, ortegaMeals)
+parse("Dinner", ortegaString, ortegaMeals)
 
 
-#clarify that this is currently using the 2/18/25 carrillo menu 
 @app.route("/")
 def display_meals():
-    breakfast = carrilloMeals["Breakfast"]
-    lunch = carrilloMeals["Lunch"]
-    dinner = carrilloMeals["Dinner"]
-    return render_template("index.html", breakfast = breakfast, lunch = lunch,dinner = dinner)
+    carrilloBreakfast = carrilloMeals["Breakfast"]
+    carrilloLunch = carrilloMeals["Lunch"]
+    carrilloDinner = carrilloMeals["Dinner"]
+    dlgBreakfast = dlgMeals["Breakfast"]
+    dlgLunch = dlgMeals["Lunch"]
+    dlgDinner = dlgMeals["Dinner"]
+    portolaBreakfast = portolaMeals["Breakfast"]
+    portolaLunch = portolaMeals["Lunch"]
+    portolaDinner = portolaMeals["Dinner"]
+    ortegaLunch = ortegaMeals["Lunch"]
+    ortegaDinner = ortegaMeals["Dinner"]
+    return render_template("index.html",
+    carrilloBreakfast = carrilloBreakfast, carrilloLunch = carrilloLunch, carrilloDinner = carrilloDinner,
+    dlgBreakfast = dlgBreakfast, dlgLunch = dlgLunch,dlgDinner = dlgDinner,
+    portolaBreakfast = portolaBreakfast, portolaLunch = portolaLunch,portolaDinner = portolaDinner,
+    ortegaLunch = ortegaLunch,ortegaDinner = ortegaDinner
+    )
 
 if __name__ == "__main__": 
     app.run(debug=True)
