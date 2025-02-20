@@ -1,16 +1,18 @@
 import requests
+import datetime
 from bs4 import BeautifulSoup
 import sqlite3
 from flask import Flask
 from flask import render_template 
 app = Flask(__name__)
 
+date = str(datetime.datetime.now())
+date = date[0:10]
 # connect to database and move cursor to the beginning
 conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
 
-#url = "https://apps.dining.ucsb.edu/menu/day"
-url = "https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d=2025-02-18&m=breakfast&m=brunch&m=lunch&m=dinner&food="
+url = f"https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d={date}&m=breakfast&m=brunch&m=lunch&m=dinner&food="
 '''
 change day you're looking at by changing url
 '''
