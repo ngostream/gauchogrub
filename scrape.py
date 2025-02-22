@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 import sqlite3
 from flask import Flask
 from flask import render_template 
+import html
 app = Flask(__name__)
 
 date = str(datetime.datetime.now())
@@ -27,11 +28,11 @@ d = soup.find(id="de-la-guerra-body")
 o = soup.find(id="ortega-body")
 p = soup.find(id="portola-body")
 
-carrilloString = " ".join(str(c).split())
-dlgString = " ".join(str(d).split())
-ortegaString = " ".join(str(o).split())
-portolaString = " ".join(str(p).split())
-
+# fix for the ampersands not showing up correctly
+carrilloString = html.unescape(" ".join(str(c).split()))
+dlgString = html.unescape(" ".join(str(d).split()))
+ortegaString = html.unescape(" ".join(str(o).split()))
+portolaString = html.unescape(" ".join(str(p).split()))
 
 carrillo = {
     "Breakfast" : {}, 
