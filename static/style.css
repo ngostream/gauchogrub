@@ -1,0 +1,11 @@
+.shadowExpand{ 
+    -webkit-transition: all .25s ease-in-out;
+	-moz-transition: all .25s ease-in-out;
+	-o-transition: all .25s ease-in-out;
+	-ms-transition: all .25s ease-in-out;
+}
+.cardShadow{
+	padding: 10px;
+	box-shadow: 15px 13px #e0dede;
+    z-index: 999;
+}
