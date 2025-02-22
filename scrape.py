@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 date = str(datetime.datetime.now())
 date = date[0:10]
+weekend = datetime.datetime.today().weekday() >= 5
 # connect to database and move cursor to the beginning
 conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
@@ -34,11 +35,13 @@ portolaString = " ".join(str(p).split())
 
 carrillo = {
     "Breakfast" : {}, 
+    "Brunch":{},
     "Lunch" : {},
     "Dinner" : {}
 }
 dlg = {
     "Breakfast" : {},
+    "Brunch":{},
     "Lunch" : {},
     "Dinner" : {}
 }
@@ -48,19 +51,14 @@ ortega = {
 }
 portola = {
     "Breakfast" : {},
+    "Brunch":{},
     "Lunch" : {},
     "Dinner" : {}
 }
 
+ 
 
-'''
-dictionaries named after dining halls
-each key holds a section of the dininghall 
-key corresponds to a list of items 
-'''
- #convert int o function 
-
-#search for meal time (Breakfast ...), then run <dt> <dd> search through it? turn into function
+#change scrape to add dictionaries of mealtime during scrape function instead of hardcoding the meal times into dininghall dict
 
 '''
 <dl>                                    Start of <dl>. Can honestly ignore since we're looking for <dt>
@@ -138,17 +136,26 @@ def parse(mealTime, diningHallString, diningHallDictionary):
         #item loop isn't being set far enough since it's adding the previous section's last item to the current section
         #section loop is running one more time than it should be since it was resetting the carrillo deli section
 
-parse("Breakfast", carrilloString, carrillo)
-parse("Lunch", carrilloString, carrillo)
+if weekend:
+    parse("Brunch",carrilloString, carrillo)
+    parse("Brunch",dlgString, dlg)
+    parse("Brunch", portolaString, portola)
+    print("weekend")
+else:
+    parse("Breakfast", carrilloString, carrillo)
+    parse("Lunch", carrilloString, carrillo)
+    parse("Breakfast", dlgString, dlg)
+    parse("Lunch", dlgString, dlg)
+    parse("Breakfast", portolaString, portola)
+    parse("Lunch", portolaString, portola)
+    parse("Lunch", ortegaString, ortega)
+    parse("Dinner", ortegaString, ortega)
+    print("weekday")
+
 parse("Dinner", carrilloString, carrillo)
-parse("Breakfast", dlgString, dlg)
-parse("Lunch", dlgString, dlg)
 parse("Dinner", dlgString, dlg)
-parse("Breakfast", portolaString, portola)
-parse("Lunch", portolaString, portola)
 parse("Dinner", portolaString, portola)
-parse("Lunch", ortegaString, ortega)
-parse("Dinner", ortegaString, ortega)
+
 
 diningHalls ={
     "Carrillo": carrillo,
@@ -161,6 +168,7 @@ diningHalls ={
 def display_meals():
     return render_template("index.html",
         halls = diningHalls,
+        weekend = weekend
 )
 
 if __name__ == "__main__": 

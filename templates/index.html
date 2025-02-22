@@ -12,7 +12,11 @@
         <div>
             {% for name, meals in halls.items() %}
                 <h1>{{name}} </h1>
+                {% if weekend and name == "Ortega" %}
+                    <h2>Ortega is closed on weekends.</h2>
+                {%else%}
                 {% for time,sections in meals.items() %}
+                    {% if sections and sections.items() %}
                     <h2>{{time}}</h2>
                     {% for area, foodList in sections.items() %}
                         <h3> {{area}} </h3>
@@ -20,7 +24,9 @@
                             <p> {{food}}</p>
                         {% endfor %}
                     {% endfor %}
+                    {% endif %}
                 {% endfor %}
+                {% endif %}
             {% endfor %}
         <script src="{{url_for('static', filename='i.js')}}"></script>
     </body>
