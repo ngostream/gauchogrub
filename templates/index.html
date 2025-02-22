@@ -10,19 +10,18 @@
     </head>
     <body>
         <div>
-            <h1>breakfast</h1>
-            <p>
-                {{breakfast}}
-            </p>
-            <h1>lunch</h1>
-            <p>
-                {{lunch}}
-            </p>
-            <h1>dinner</h1>
-            <p>
-                {{dinner}}
-            </p>
-        </div>
-        <script src="" async defer></script>
+            {% for name, meals in halls.items() %}
+                <h1>{{name}} </h1>
+                {% for time,sections in meals.items() %}
+                    <h2>{{time}}</h2>
+                    {% for area, foodList in sections.items() %}
+                        <h3> {{area}} </h3>
+                        {% for food in foodList %}
+                            <p> {{food}}</p>
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+        <script src="{{url_for('static', filename='i.js')}}"></script>
     </body>
 </html>

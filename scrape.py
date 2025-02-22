@@ -13,9 +13,7 @@ conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
 
 url = f"https://apps.dining.ucsb.edu/menu/day?dc=carrillo&dc=de-la-guerra&dc=ortega&dc=portola&d={date}&m=breakfast&m=brunch&m=lunch&m=dinner&food="
-'''
-change day you're looking at by changing url
-'''
+
 response = requests.get(url)
 '''
 Note: Sometimes you may get error “Not accepted” so try adding a browser user agent like below. 
@@ -23,32 +21,32 @@ Find your user agent based on device and browser from here https://deviceatlas.c
 '''
 soup = BeautifulSoup(response.content, "html5lib")
 
-carrillo = soup.find(id="carrillo-body")
-dlg = soup.find(id="de-la-guerra-body")
-ortega = soup.find(id="ortega-body")
-portola = soup.find(id="portola-body")
+c = soup.find(id="carrillo-body")
+d = soup.find(id="de-la-guerra-body")
+o = soup.find(id="ortega-body")
+p = soup.find(id="portola-body")
 
-carrilloString = " ".join(str(carrillo).split())
-dlgString = " ".join(str(dlg).split())
-ortegaString = " ".join(str(ortega).split())
-portolaString = " ".join(str(portola).split())
+carrilloString = " ".join(str(c).split())
+dlgString = " ".join(str(d).split())
+ortegaString = " ".join(str(o).split())
+portolaString = " ".join(str(p).split())
 
 
-carrilloMeals = {
+carrillo = {
     "Breakfast" : {}, 
     "Lunch" : {},
     "Dinner" : {}
 }
-dlgMeals = {
+dlg = {
     "Breakfast" : {},
     "Lunch" : {},
     "Dinner" : {}
 }
-ortegaMeals = {
+ortega = {
     "Lunch" : {},
     "Dinner" : {}
 }
-portolaMeals = {
+portola = {
     "Breakfast" : {},
     "Lunch" : {},
     "Dinner" : {}
@@ -140,39 +138,30 @@ def parse(mealTime, diningHallString, diningHallDictionary):
         #item loop isn't being set far enough since it's adding the previous section's last item to the current section
         #section loop is running one more time than it should be since it was resetting the carrillo deli section
 
+parse("Breakfast", carrilloString, carrillo)
+parse("Lunch", carrilloString, carrillo)
+parse("Dinner", carrilloString, carrillo)
+parse("Breakfast", dlgString, dlg)
+parse("Lunch", dlgString, dlg)
+parse("Dinner", dlgString, dlg)
+parse("Breakfast", portolaString, portola)
+parse("Lunch", portolaString, portola)
+parse("Dinner", portolaString, portola)
+parse("Lunch", ortegaString, ortega)
+parse("Dinner", ortegaString, ortega)
 
-parse("Breakfast", carrilloString, carrilloMeals)
-parse("Lunch", carrilloString, carrilloMeals)
-parse("Dinner", carrilloString, carrilloMeals)
-parse("Breakfast", dlgString, dlgMeals)
-parse("Lunch", dlgString, dlgMeals)
-parse("Dinner", dlgString, dlgMeals)
-parse("Breakfast", portolaString, portolaMeals)
-parse("Lunch", portolaString, portolaMeals)
-parse("Dinner", portolaString, portolaMeals)
-parse("Lunch", ortegaString, ortegaMeals)
-parse("Dinner", ortegaString, ortegaMeals)
-
+diningHalls ={
+    "Carrillo": carrillo,
+    "De La Guerra": dlg,
+    "Portola": portola,
+    "Ortega": ortega
+}
 
 @app.route("/")
 def display_meals():
-    carrilloBreakfast = carrilloMeals["Breakfast"]
-    carrilloLunch = carrilloMeals["Lunch"]
-    carrilloDinner = carrilloMeals["Dinner"]
-    dlgBreakfast = dlgMeals["Breakfast"]
-    dlgLunch = dlgMeals["Lunch"]
-    dlgDinner = dlgMeals["Dinner"]
-    portolaBreakfast = portolaMeals["Breakfast"]
-    portolaLunch = portolaMeals["Lunch"]
-    portolaDinner = portolaMeals["Dinner"]
-    ortegaLunch = ortegaMeals["Lunch"]
-    ortegaDinner = ortegaMeals["Dinner"]
     return render_template("index.html",
-    carrilloBreakfast = carrilloBreakfast, carrilloLunch = carrilloLunch, carrilloDinner = carrilloDinner,
-    dlgBreakfast = dlgBreakfast, dlgLunch = dlgLunch,dlgDinner = dlgDinner,
-    portolaBreakfast = portolaBreakfast, portolaLunch = portolaLunch,portolaDinner = portolaDinner,
-    ortegaLunch = ortegaLunch,ortegaDinner = ortegaDinner
-    )
+        halls = diningHalls,
+)
 
 if __name__ == "__main__": 
     app.run(debug=True)
