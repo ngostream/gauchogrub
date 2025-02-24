@@ -165,6 +165,19 @@ diningHalls ={
     "Ortega": ortega
 }
 
+# inserting into the database
+for hall_name, meals in diningHalls.items():
+    for meal_time, categories in meals.items():
+        for category, items in categories.items():
+            for item in items:
+                # insert or ignore ignores duplicates
+                cursor.execute("""
+                    INSERT OR IGNORE INTO Menu_Items (name, dining_hall, meal, category)
+                    VALUES (?, ?, ?, ?)
+                """, (item.strip(), hall_name, meal_time, category.strip()))
+conn.commit()
+conn.close()
+
 @app.route("/")
 def display_meals():
     return render_template("index.html",
