@@ -184,6 +184,9 @@ def display_meals():
         halls = diningHalls,
         weekend = weekend
 )
+@app.route("/food/<food_name>")
+def food_detail(food_name):
+    return render_template("food_detail.html", food_name = food_name)
 
 if __name__ == "__main__": 
     app.run(debug=True)
