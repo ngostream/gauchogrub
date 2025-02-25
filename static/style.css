@@ -9,3 +9,7 @@
 	box-shadow: 15px 13px #e0dede;
     z-index: 999;
 }
+a {
+	text-decoration: none;
+	color: black;
+  }

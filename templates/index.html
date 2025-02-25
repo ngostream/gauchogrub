@@ -24,7 +24,7 @@
                     {% for area, foodList in sections.items() %}
                         <h3 style = "font-weight: normal"> {{area}} </h3>
                         {% for food in foodList %}
-                            <p style = "cursor: pointer" class = "textOnlyShadow shadowExpand"> {{food}}</p>
+                            <p ><a class = "textOnlyShadow shadowExpand" href = "{{ url_for('food_detail', food_name=food) }}"> {{food}}</a></p>
                         {% endfor %}
                     {% endfor %}
                     {% endif %}
