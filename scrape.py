@@ -2,8 +2,7 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 import sqlite3
-from flask import Flask
-from flask import render_template 
+from flask import Flask, request, render_template
 import html
 app = Flask(__name__)
 
@@ -184,9 +183,38 @@ def display_meals():
         halls = diningHalls,
         weekend = weekend
 )
-@app.route("/food/<food_name>")
+@app.route("/food/<food_name>", methods=["GET", "POST"])
 def food_detail(food_name):
-    return render_template("food_detail.html", food_name = food_name)
+    conn = sqlite3.connect("dining_menu.db")
+    cursor = conn.cursor()
+
+    # find the menu item id
+    cursor.execute("SELECT id FROM Menu_Items WHERE name = ?", (food_name,))
+    menu_item = cursor.fetchone()
+    # close connection and throw error if menu item not found
+    if not menu_item:
+        conn.close()
+        return "Menu item not found", 404
+    
+    menu_item_id = menu_item[0]
+
+    if request.method == "POST":
+        review_text = request.form["review"]
+        rating = int(request.form["rating"])    # converts string rating to integer
+
+        cursor.execute(
+            "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (?, ?, ?)",
+            (menu_item_id, rating, review_text)
+        )
+        conn.commit()
+    
+    # get reviews for the item and update the page
+    cursor.execute("SELECT rating, comment FROM Reviews WHERE menu_item_id = ?", (menu_item_id,))
+    reviews = [{"rating": row[0], "comment": row[1]} for row in cursor.fetchall()]
+
+    conn.close()
+
+    return render_template("food_detail.html", food_name = food_name, reviews = reviews)
 
 if __name__ == "__main__": 
     app.run(debug=True)
