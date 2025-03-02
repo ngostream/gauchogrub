@@ -191,7 +191,6 @@ def food_detail(food_name):
     # find the menu item id
     cursor.execute("SELECT id FROM Menu_Items WHERE name = ?", (food_name,))
     menu_item = cursor.fetchone()
-
     # close connection and throw error if menu item not found
     if not menu_item:
         conn.close()
@@ -201,15 +200,17 @@ def food_detail(food_name):
 
     if request.method == "POST":
         review_text = request.form["review"]
+        rating = int(request.form["rating"])    # converts string rating to integer
+
         cursor.execute(
             "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (?, ?, ?)",
-            (menu_item_id, 5, review_text)
+            (menu_item_id, rating, review_text)
         )
         conn.commit()
     
     # get reviews for the item and update the page
-    cursor.execute("SELECT comment FROM Reviews WHERE menu_item_id = ?", (menu_item_id,))
-    reviews = [row[0] for row in cursor.fetchall()]
+    cursor.execute("SELECT rating, comment FROM Reviews WHERE menu_item_id = ?", (menu_item_id,))
+    reviews = [{"rating": row[0], "comment": row[1]} for row in cursor.fetchall()]
 
     conn.close()
 
