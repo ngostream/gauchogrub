@@ -14,10 +14,17 @@
             <h1> {{food_name}}</h1>
             <h2>Reviews:</h2>
             <!-- loop thru reviews here-->
-            <p>No reviews yet. Be the first to leave one!</p>
-        
+            {% if reviews %}
+                <ul>
+                    {% for review in reviews%}
+                        <li>{{ review}}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reviews yet. Be the first one to leave one!</p>
+            {% endif %}
             <h3>Leave a Review</h3>
-            <form action="" method="POST">
+            <form action="{{ url_for('food_detail', food_name=food_name) }}" method="POST">
                 <textarea name="review" rows="4" cols="50" placeholder="Write your review here..."></textarea>
                 <br>
                 <button type="submit">Submit</button>
