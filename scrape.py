@@ -216,8 +216,14 @@ def food_detail(food_name):
 
     conn.close()
 
+    # calculate average rating
+    if reviews:
+        avg_rating = sum(review["rating"] for review in reviews) / len(reviews)
+    else:
+        avg_rating = 0
+
     # update the page
-    return render_template("food_detail.html", food_name = food_name, reviews = reviews)
+    return render_template("food_detail.html", food_name = food_name, reviews = reviews, avg_rating = avg_rating)
 
 if __name__ == "__main__": 
     app.run(debug=True)
