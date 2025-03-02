@@ -190,12 +190,14 @@ def food_detail(food_name):
 
     # find the menu item id
     cursor.execute("SELECT id FROM Menu_Items WHERE name = ?", (food_name,))
+    # only retrive single row, thats all we're looking for
     menu_item = cursor.fetchone()
     # close connection and throw error if menu item not found
     if not menu_item:
         conn.close()
         return "Menu item not found", 404
     
+    # the first column of menu_item should be id
     menu_item_id = menu_item[0]
 
     if request.method == "POST":
@@ -208,12 +210,13 @@ def food_detail(food_name):
         )
         conn.commit()
     
-    # get reviews for the item and update the page
+    # get reviews for the item
     cursor.execute("SELECT rating, comment FROM Reviews WHERE menu_item_id = ?", (menu_item_id,))
-    reviews = [{"rating": row[0], "comment": row[1]} for row in cursor.fetchall()]
+    reviews = [{"rating": row[0], "comment": row[1]} for row in cursor.fetchall()]      # fetchall retrieves multiple items
 
     conn.close()
 
+    # update the page
     return render_template("food_detail.html", food_name = food_name, reviews = reviews)
 
 if __name__ == "__main__": 
