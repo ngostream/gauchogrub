@@ -12,6 +12,7 @@
     <body>
         <div class = "container">
             <h1> {{food_name}}</h1>
+            <h3>Average Rating: {{ avg_rating | round(2) }}/5</h3>
             <h2>Reviews:</h2>
             <!-- loop thru reviews here-->
             {% if reviews %}
