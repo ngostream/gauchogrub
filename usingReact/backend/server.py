@@ -15,7 +15,8 @@ def getResponse(date, diningCommon, mealCode):
     response = requests.get(link)
     return json.loads(response.text)
 
-test = getResponse(iso,"Carrillo","Brunch")
+# test = getResponse(iso,"Carrillo","Brunch")
+# print(type(test))
 #loop thru diningHalls and pass key into get Response
 #outer loop for mealCode?
 """
@@ -48,19 +49,27 @@ portola = {
 }
 diningHalls = {
     "Carrillo": carrillo,
-    "De La Guerra": dlg,
+    "De-La-Guerra": dlg,
     "Ortega": ortega,
     "Portola": portola
 }
-
-# if weekend:
-    
-# else:
+for diningHall in diningHalls:
+    for mealTime in diningHalls[diningHall]:
+        foods = {}
+        if weekend == False and mealTime != "Brunch":
+            foods = getResponse(iso,diningHall,mealTime)
+        elif (weekend == True and diningHall != "Ortega") and (mealTime == "Dinner" or mealTime == "Brunch"):
+            foods = getResponse(iso,diningHall, mealTime)
+        if isinstance(foods,list):
+            for k in foods:
+                if k["station"] not in diningHalls[diningHall][mealTime]:
+                    diningHalls[diningHall][mealTime][k["station"]] = []
+                diningHalls[diningHall][mealTime][k["station"]].append(k["name"])
+        
 app = Flask(__name__)
 #pass a dict to return statement
 @app.route("/menu")
 def menu():
-    return test#diningHalls
-
+    return diningHalls
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)
