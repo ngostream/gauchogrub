@@ -19,16 +19,3 @@ function App(){
   )
 }
 export default App
-
-/*
-
-<p>{data}</p>
-
-      {(typeof data.menu === "undefined")?(
-        <p>Loading...</p>
-      ) : (
-        data.menu.map((item,i)=>{
-          return <p key = {i}>{}</p>
-        })
-      )}
-*/
