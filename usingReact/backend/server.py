@@ -66,8 +66,8 @@ for diningHall in diningHalls:
                     diningHalls[diningHall][mealTime][k["station"]] = []
                 diningHalls[diningHall][mealTime][k["station"]].append(k["name"])
         
+
 app = Flask(__name__)
-#pass a dict to return statement
 @app.route("/menu")
 def menu():
     return diningHalls

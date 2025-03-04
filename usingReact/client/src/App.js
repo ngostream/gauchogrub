@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react'
-
+import DisplayMenu from './DisplayMenu.js'
 function App(){
   const [data,setData] = useState([{}])
-
   useEffect(()=>{
     fetch("/menu").then( //fetches from backend thru proxy in package.json
       res =>res.json()
@@ -15,14 +14,21 @@ function App(){
   },[])
   return(
     <div>
-      {(typeof data.menu === "undefined")?(
-        <p>Loading...</p>
-      ) : (
-        data.menu.map((item,i)=>{
-          return <p key = {i}>{item}</p>
-        })
-      )}
+      <DisplayMenu props = {data}/>
     </div>
   )
 }
 export default App
+
+/*
+
+<p>{data}</p>
+
+      {(typeof data.menu === "undefined")?(
+        <p>Loading...</p>
+      ) : (
+        data.menu.map((item,i)=>{
+          return <p key = {i}>{}</p>
+        })
+      )}
+*/
