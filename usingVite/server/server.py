@@ -1,8 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask
 from flask_cors import CORS, cross_origin
 import datetime
 import requests
-import json #might not be needed
+import json
 
 date = str(datetime.datetime.now())
 date = date[0:10]
@@ -14,8 +14,7 @@ def getResponse(date, diningCommon, mealCode):
     link = url
     link += date + "/" + diningCommon + "/" + mealCode + "?ucsb-api-key=rEoqAlcRz9hvsGMvSGnpnOEdY7gwjWSy"
     response = requests.get(link)
-    return json.loads(response.text)
-
+    return json.loads(response.text) #returns list
 # test = getResponse(iso,"Carrillo","Brunch")
 # print(type(test))
 #loop thru diningHalls and pass key into get Response
@@ -67,11 +66,10 @@ for diningHall in diningHalls:
                     diningHalls[diningHall][mealTime][k["station"]] = []
                 diningHalls[diningHall][mealTime][k["station"]].append(k["name"])
         
-
 app = Flask(__name__)
 cors = CORS(app, origins = "*")
 @app.route("/")
-def menu(METHODS = ["GET"]):
-    return jsonify(diningHalls)
+def menu(): #METHODS = ["GET"]
+    return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)
