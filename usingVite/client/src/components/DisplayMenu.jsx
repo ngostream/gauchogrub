@@ -26,7 +26,7 @@ function DisplayMenu(dict){
                                     <h3 style = {{fontWeight: "normal"}} key = {stations}>{stations}</h3>
                                     {food.map((items)=>(
                                         <div key = {items}>
-                                            <Link to={`/${items}`}><p style ={{color: "black", fontWeight: "normal"}} class = "hover-effect"> {items}</p></Link>
+                                            <Link to={`/${encodeURIComponent(items)}`}><p style ={{color: "black", fontWeight: "normal"}} class = "hover-effect"> {items}</p></Link>
                                         </div>
                                     ))}
                                     </div>
