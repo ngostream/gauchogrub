@@ -3,7 +3,7 @@ from flask_cors import CORS, cross_origin
 import datetime
 import requests
 import json
-
+import sqlite3
 date = str(datetime.datetime.now())
 date = date[0:10]
 weekend = datetime.datetime.today().weekday() >= 5
@@ -15,16 +15,7 @@ def getResponse(date, diningCommon, mealCode):
     link += date + "/" + diningCommon + "/" + mealCode + "?ucsb-api-key=rEoqAlcRz9hvsGMvSGnpnOEdY7gwjWSy"
     response = requests.get(link)
     return json.loads(response.text) #returns list
-# test = getResponse(iso,"Carrillo","Brunch")
-# print(type(test))
-#loop thru diningHalls and pass key into get Response
-#outer loop for mealCode?
-"""
-if weekend: 
-    for key in diningHalls: 
-        dict = getResponse()
-        key brunch = dict
-"""
+
 carrillo = {
     "Breakfast" : {}, 
     "Brunch":{},

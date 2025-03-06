@@ -1,18 +1,23 @@
 import React from 'react'
+import {Link} from "react-router-dom"
 import "../App.css"
-function DisplayMenu(props){
-    //find way to skip rendering brunch if weekday, maybe check if brunch key's value is empty
-    //also turn each header into dropdown?
+function DisplayMenu(dict){
+    //turn each header into dropdown
+
     return(
 
         <div class = "container">
-            {Object.entries(props).map(([top,hallNames])=>(
+            {Object.entries(dict).map(([top,hallNames])=>(
                  <div class = "row" key = {top}>
                     {Object.entries(hallNames).map(([hallName,times])=>(
                         <div class = "col-3" key = {hallName}>
-                            <h1>{hallName}</h1>
+                            {(hallName === "De-La-Guerra")
+                            ? <h1>DLG</h1>
+                            :<h1>{hallName}</h1>
+                            }
+                            <hr></hr>
                             {Object.entries(times).map(([times, stations])=>(
-                                /* if times object isn't empty*/
+                                /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
                                 (Object.keys(stations).length !== 0)
                                 ? <div key = {times}>
                                 <h2>{times}</h2>
@@ -21,7 +26,7 @@ function DisplayMenu(props){
                                     <h3 style = {{fontWeight: "normal"}} key = {stations}>{stations}</h3>
                                     {food.map((items)=>(
                                         <div key = {items}>
-                                            <p class = "hover-effect"> {items}</p>
+                                            <Link to={`/${items}`}><p style ={{color: "black", fontWeight: "normal"}} class = "hover-effect"> {items}</p></Link>
                                         </div>
                                     ))}
                                     </div>
