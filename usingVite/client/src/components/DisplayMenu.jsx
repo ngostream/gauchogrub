@@ -6,11 +6,11 @@ function DisplayMenu(dict){
 
     return(
 
-        <div class = "container">
+        <div className = "container">
             {Object.entries(dict).map(([top,hallNames])=>(
-                 <div class = "row" key = {top}>
+                 <div className = "row" key = {top}>
                     {Object.entries(hallNames).map(([hallName,times])=>(
-                        <div class = "col-3" key = {hallName}>
+                        <div className = "col-3" key = {hallName}>
                             {(hallName === "De-La-Guerra")
                             ? <h1>DLG</h1>
                             :<h1>{hallName}</h1>
@@ -26,7 +26,7 @@ function DisplayMenu(dict){
                                     <h3 style = {{fontWeight: "normal"}} key = {stations}>{stations}</h3>
                                     {food.map((items)=>(
                                         <div key = {items}>
-                                            <Link to={`/${encodeURIComponent(items)}`}><p style ={{color: "black", fontWeight: "normal"}} class = "hover-effect"> {items}</p></Link>
+                                            <Link to={`/${encodeURIComponent(items)}`}><p style ={{color: "black", fontWeight: "normal"}} className = "hover-effect"> {items}</p></Link>
                                         </div>
                                     ))}
                                     </div>
