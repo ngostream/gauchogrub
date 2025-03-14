@@ -1,9 +1,8 @@
-from flask import Flask
-from flask_cors import CORS, cross_origin
+from flask import Flask, request, jsonify
+from flask_cors import CORS
 import datetime
 import requests
 import json
-import sqlite3
 date = str(datetime.datetime.now())
 date = date[0:10]
 weekend = datetime.datetime.today().weekday() >= 5
@@ -62,5 +61,13 @@ cors = CORS(app, origins = "*")
 @app.route("/")
 def menu(): #METHODS = ["GET"]
     return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
+
+@app.route("/<item_id>", methods = ["POST"])
+def submit(item_id):
+    data = request.json
+    print(data)
+    return({"message": "received", "item_id": item_id, "data": data}),200
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)
+
+    
