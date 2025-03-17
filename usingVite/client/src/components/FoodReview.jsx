@@ -1,14 +1,24 @@
-import React , {useState} from "react"
+import React , {useState, useEffect} from "react"
 import {Link, useParams} from "react-router-dom"
-import axios from "axios" //will use axios to get and post reviews with backend, replace jinja with axios calls to backend
+import axios from "axios"
 
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
-    const [formData, setFormData] = useState({name: foodItem, review: "", rating: 0})
-    const  handleSubmission = async (e) =>{
+    const [reviewData, setReviewData] = useState([{}])
+    const [formData, setFormData] = useState({name: foodItem, review: "", rating: 3})
+    const fetchReviews = async ()=>{
+        const response = await axios.get(`http://127.0.0.1:5000/${foodItem}`)
+        console.log(response.data)
+        setReviewData(response.data)
+    }
+    useEffect(()=>{
+        fetchReviews() //returns object which should be used to display lists
+    },[])
+    
+    const handleSubmission = async (e) =>{
         e.preventDefault();
         try{
-        const response = await axios.post(`http://127.0.0.1:5000/{foodItem}`, formData, {
+        const response = await axios.post(`http://127.0.0.1:5000/${foodItem}`, formData, {
             headers: {"Content-Type": "application/json"}
         })
         console.log(response.data);
@@ -27,16 +37,16 @@ function FoodReview(){
         )
     }
     return(
-        <div class = "container">
+        <div className = "container">
              <Link to ="/"><h1> {foodItem}</h1></Link>
              <form onSubmit = {handleSubmission}>
-                 <label for="rating">Rating (1-5):</label>
-                 <select name="rating" id="rating" onChange={handleChange}>
+                 <label htmlFor="rating">Rating (1-5):</label>
+                 <select name="rating" id="rating" onChange={handleChange} defaultValue = "3">
                      <option value="1">1 - Inedible</option>
                      <option value="2">2 - Bad</option>
                      <option value="3">3 - Mid</option>
                      <option value="4">4 - Good</option>
-                     <option value="5" selected> 5 - Excellent</option> {/* for some reason it sends 0 when submitted on default 5*/}
+                     <option value="5">5 - Excellent</option>
                  </select>
                  <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="50" placeholder="boom or doom"></textarea>
                  <button type="submit">Submit</button>
