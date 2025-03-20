@@ -94,6 +94,7 @@ def submit(item_id):
         avg_rating = 0
     
     return({"message": "received", "avg_rating": avg_rating, "reviews": reviews}),200
+    
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)
 

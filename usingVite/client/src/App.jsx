@@ -9,7 +9,7 @@ function App() {
   const [data,setData] = useState([{}])
   const fetchMenu = async () =>{
     const response = await axios.get("http://localhost:5000/")
-    console.log(response)
+    console.log(response, "fetchMenu from App.jsx")
     setData(response.data)
   };
   useEffect(() =>{
