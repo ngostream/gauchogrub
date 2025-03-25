@@ -2,6 +2,7 @@ import { useState, useEffect} from 'react'
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import DisplayMenu from "./components/DisplayMenu.jsx"
 import FoodReview from "./components/FoodReview.jsx"
+import DisplayHalls from "./components/DisplayHalls.jsx"
 import axios from 'axios'
 import './App.css'
 
@@ -19,13 +20,13 @@ function App() {
     <div>
       <Router>
         <Routes>
-          <Route path = "/" element = {<DisplayMenu dict = {data}/>}/>
+          <Route path = "/" element = {<DisplayHalls/>}/>
+          <Route path = "/:hallName" element = {<DisplayMenu dict = {data}/>}/>
           <Route path = "/:foodItem" element = {<FoodReview/>} />
         </Routes>
       </Router>
    </div>
   )
 }
-//<DisplayMenu dict = {data}/>
 
 export default App

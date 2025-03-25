@@ -2,7 +2,6 @@ import React from 'react'
 import {Link} from "react-router-dom"
 import "../App.css"
 function DisplayMenu(dict){
-    //turn each header into dropdown
 
     return(
 

@@ -71,20 +71,8 @@ function FoodReview(){
     return(
         <div className = "container">
              <Link to ="/"><h1> {foodItem}</h1></Link>
-    
-            <AverageRating/>
+             <AverageRating/>
              <ReviewList/>
-
-             {/* {% if reviews %} */}
-                 <ul>
-                     {/* {% for review in reviews%}
-                         <li>     put this here to store it ->   {{ avg_rating | round(2) }}
-                             <strong>Rating:</strong> {{ review.rating }}/5 <br>
-                             <strong>Comment:</strong> {{ review.comment }}
-                         </li>
-                     {% endfor %} */}
-                 </ul>
-            
              <form onSubmit = {handleSubmission}>
                  <label htmlFor="rating">Rating (1-5):</label>
                  <select name="rating" id="rating" onChange={handleChange} value = {formData.rating}>
