@@ -1,5 +1,6 @@
 import React , {useState, useEffect} from "react"
 import {Link, useParams} from "react-router-dom"
+import Container from 'react-bootstrap/Container'
 import axios from "axios"
 
 function FoodReview(){
@@ -69,7 +70,7 @@ function FoodReview(){
         )
     }
     return(
-        <div className = "container">
+        <Container>
              <Link to ="/"><h1> {foodItem}</h1></Link> 
              {/* Link to = "/hallName" */}
              <AverageRating/>
@@ -86,7 +87,7 @@ function FoodReview(){
                  <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="50" placeholder="boom or doom"></textarea>
                  <button type="submit">Submit</button>
              </form>
-        </div> 
+        </Container>
     )
 }
 

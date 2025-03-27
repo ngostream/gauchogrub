@@ -1,27 +1,30 @@
 import React from 'react'
 import {Link} from "react-router-dom"
 import HallCard from "./HallCard.jsx"
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import "../App.css"
 
 function DisplayHalls(){
     return(
-        <div class = "container">
-            <div class = "row">
-                <div class = "col-6 pb-2">
+            <Container>
+            <Row>
+                <Col sm = {12} md = {6} className = "pb- 2">
                     <Link to ="/display"><HallCard hallName = "Carrillo Dining Commons"/></Link>
-                </div>
-                <div class = "col-6 pb-2">
+                </Col>
+                <Col  sm = {12} md = {6} className = "pb-2">
                     <Link to ="/display"><HallCard hallName = "De La Guerra Dining Commons"/></Link>
-                </div>
-                <div class = "col-6">
+                </Col>
+                <Col  sm = {12} md = {6}>
                     <Link to = "/display"><HallCard hallName = "Portola Dining Commons"/> </Link>
-                </div>
-                <div class = "col-6">
+                </Col>
+                <Col sm = {12} md = {6}>
                     <Link to ="/display"> <HallCard hallName = "Ortega Takeout"/> </Link> 
                     {/* needs handling for weekends/ not open */}
-                </div>
-            </div>
-        </div>
+                </Col>
+            </Row>
+        </Container>
     )
 }
 
