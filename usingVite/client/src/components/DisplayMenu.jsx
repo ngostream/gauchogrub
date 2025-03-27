@@ -1,15 +1,18 @@
 import React from 'react'
 import {Link} from "react-router-dom"
+import Container from 'react-bootstrap/Container'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 import "../App.css"
 function DisplayMenu(dict){
 
     return(
 
-        <div className = "container">
+        <Container>
             {Object.entries(dict).map(([top,hallNames])=>(
-                 <div className = "row" key = {top}>
+                 <Row key = {top}>
                     {Object.entries(hallNames).map(([hallName,times])=>(
-                        <div className = "col-3" key = {hallName}>
+                        <Col md = {3} key = {hallName}>
                             {(hallName === "De-La-Guerra")
                             ? <h1>DLG</h1>
                             :<h1>{hallName}</h1>
@@ -33,11 +36,11 @@ function DisplayMenu(dict){
                                 </div>
                                 : null
                             ))}
-                        </div>
+                        </Col>
                     ))}
-                </div>
+                </Row>
             ))}
-        </div>
+        </Container>
     )
 }
 
