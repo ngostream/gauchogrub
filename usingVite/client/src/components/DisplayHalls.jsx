@@ -8,16 +8,17 @@ function DisplayHalls(){
         <div class = "container">
             <div class = "row">
                 <div class = "col-6 pb-2">
-                    <HallCard hallName = "Carrillo Dining Commons"/>
+                    <Link to ="/display"><HallCard hallName = "Carrillo Dining Commons"/></Link>
                 </div>
                 <div class = "col-6 pb-2">
-                    <HallCard hallName = "De La Guerra Dining Commons"/>
+                    <Link to ="/display"><HallCard hallName = "De La Guerra Dining Commons"/></Link>
                 </div>
                 <div class = "col-6">
-                    <HallCard hallName = "Portola Dining Commons"/>
+                    <Link to = "/display"><HallCard hallName = "Portola Dining Commons"/> </Link>
                 </div>
                 <div class = "col-6">
-                    <HallCard hallName = "Ortega Takeout"/>
+                    <Link to ="/display"> <HallCard hallName = "Ortega Takeout"/> </Link> 
+                    {/* needs handling for weekends/ not open */}
                 </div>
             </div>
         </div>

@@ -70,7 +70,8 @@ function FoodReview(){
     }
     return(
         <div className = "container">
-             <Link to ="/"><h1> {foodItem}</h1></Link>
+             <Link to ="/"><h1> {foodItem}</h1></Link> 
+             {/* Link to = "/hallName" */}
              <AverageRating/>
              <ReviewList/>
              <form onSubmit = {handleSubmission}>
