@@ -6,6 +6,11 @@ import Col from 'react-bootstrap/Col'
 import "../App.css"
 function DisplayMenu(dict){
 
+          {/* <CardActions> */}
+        {/* <Button size="small">Directions</Button> link to maps? */}
+        {/* <Button size="small">Learn More</Button> */}
+      {/* </CardActions> */}
+      
     return(
 
         <Container>

@@ -6,8 +6,6 @@ import CardMedia from '@mui/material/CardMedia';
 import "./HallCard.css"
 import "../App.css"
 // https://stackoverflow.com/questions/50074276/how-to-import-two-component-but-same-name-from-two-libraries
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
 
 export default function HallCard({hallName}) {
     let image = ""; //should contact ucsb for permission to use images once we move to production
@@ -34,19 +32,14 @@ export default function HallCard({hallName}) {
         <h5>
             {hallName}
         </h5>
-        {/* <Typography gutterBottom variant="h5" component="div" className = "cardText">
-          {hallName}
-        </Typography> */}
       </CardContent>
       <CardMedia
-        sx={{ height: 225 }}
+        sx={{ height: 225,
+            borderRadius: '4px'
+         }}
         image= {image}
         title= {title}
       />
-      {/* <CardActions> */}
-        {/* <Button size="small">Directions</Button> link to maps? */}
-        {/* <Button size="small">Learn More</Button> */}
-      {/* </CardActions> */}
     </Card>
   );
 }
