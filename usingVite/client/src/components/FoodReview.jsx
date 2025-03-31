@@ -5,6 +5,7 @@ import axios from "axios"
 
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
+    let hN = decodeURIComponent(useParams().hN);
     const [reviewData, setReviewData] = useState([{}]) //from db
     const initialState = {
         name: foodItem,
@@ -71,7 +72,7 @@ function FoodReview(){
     }
     return(
         <Container>
-             <Link to ="/"><h1> {foodItem}</h1></Link> 
+             <Link to = {`/${hN}`}><h1> {foodItem}</h1></Link> 
              {/* Link to = "/hallName" */}
              <AverageRating/>
              <ReviewList/>

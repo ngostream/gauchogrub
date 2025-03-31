@@ -1,5 +1,4 @@
 import React from 'react'
-import {Link} from "react-router-dom"
 import HallCard from "./HallCard.jsx"
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -14,16 +13,16 @@ function DisplayHalls(){
                 <br/> {/* maybe no break?*/}
             <Row>
                 <Col sm = {12} md = {6} className = "pb-3">
-                    <Link to ="/display"><HallCard hallName = "Carrillo Dining Commons"/></Link>
+                    <HallCard hN = "Carrillo Dining Commons"/>
                 </Col>
                 <Col  sm = {12} md = {6} className = "pb-3">
-                    <Link to ="/display"><HallCard hallName = "De La Guerra Dining Commons"/></Link>
+                    <HallCard hN = "De La Guerra Dining Commons"/>
                 </Col>
                 <Col  sm = {12} md = {6} className = "pb-3">
-                    <Link to = "/display"><HallCard hallName = "Portola Dining Commons"/> </Link>
+                    <HallCard hN = "Portola Dining Commons"/>
                 </Col>
                 <Col sm = {12} md = {6} className = "pb-3">
-                    <Link to ="/display"> <HallCard hallName = "Ortega Takeout"/> </Link> 
+                    <HallCard hN = "Ortega Takeout"/>
                     {/* needs handling for weekends/ not open */}
                 </Col>
             </Row>

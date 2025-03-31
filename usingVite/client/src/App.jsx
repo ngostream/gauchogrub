@@ -21,8 +21,8 @@ function App() {
       <Router>
         <Routes>
           <Route path = "/" element = {<DisplayHalls/>}/>
-          <Route path = "/display" element = {<DisplayMenu dict = {data}/>}/> {/* "/:hallName" */}
-          <Route path = "/:foodItem" element = {<FoodReview/>} />
+          <Route path = "/:hN" element = {<DisplayMenu dict = {data}/>}/>
+          <Route path = "/:hN/:foodItem" element = {<FoodReview/>} />
         </Routes>
       </Router>
    </div>
