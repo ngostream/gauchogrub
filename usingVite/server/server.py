@@ -63,28 +63,41 @@ CORS(app, origins = "http://localhost:5173")
 def menu():
     return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
 
-@app.route("/<item_id>", methods = ["POST", "GET"])
-def submit(item_id):
+@app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
+def submit(dining_hall, item_id):
     
     conn = sqlite3.connect("dining_menu.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM Menu_Items WHERE name = ?", (item_id,))
+
+    cursor.execute("SELECT id FROM Menu_Items WHERE name = ? AND dining_hall = ?", (item_id, dining_hall))
     menu_item = cursor.fetchone()
+
     if not menu_item:
         conn.close()
         return "Menu item not found", 404
+    
     menu_item_id = menu_item[0]
+
     if request.method == "POST":
         data = request.json
         review_text = data["review"]
         rating = data["rating"]
+
         cursor.execute(
             "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (?, ?, ?)",
             (menu_item_id, rating ,review_text)
         )
         conn.commit()
     
-    cursor.execute("SELECT rating, comment FROM Reviews WHERE menu_item_id = ?", (menu_item_id,))
+    cursor.execute(
+        """
+        SELECT r.rating, r.comment
+        FROM Reviews r
+        JOIN Menu_Items m ON r.menu_item_id = m.id
+        WHERE m.id = ? AND m.dining_hall = ?
+        """,
+        (menu_item_id, dining_hall),
+    )
     reviews = [{"rating": row[0], "comment": row[1]} for row in cursor.fetchall()]
     conn.close()
 
@@ -93,7 +106,7 @@ def submit(item_id):
     else:
         avg_rating = 0
     
-    return({"message": "received", "avg_rating": avg_rating, "reviews": reviews}),200
+    return jsonify({"message": "received", "avg_rating": avg_rating, "reviews": reviews}), 200
     
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)
