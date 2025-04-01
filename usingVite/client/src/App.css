@@ -48,7 +48,8 @@ body{
 
 .hover-effect:hover{
   padding: 10px;
-  box-shadow: 15px 13px #e0dede;
+  box-shadow: 15px 13px rgb(15, 60, 103);
+  /* 15px 13px #e0dede; */
   z-index: 999;
 }
 .hover-effect{
