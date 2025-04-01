@@ -20,8 +20,8 @@ function FoodReview(){
         )
     }
     const [formData, setFormData] = useState(initialState) //to db
-    const fetchReviews = async ()=>{
-        const response = await axios.get(`http://127.0.0.1:5000/${foodItem}`)
+    const fetchReviews = async () => {
+        const response = await axios.get(`http://127.0.0.1:5000/${hN}/${foodItem}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
         setReviewData(response.data)
     }
