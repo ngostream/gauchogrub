@@ -6,6 +6,11 @@ import axios from "axios"
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
     let hN = decodeURIComponent(useParams().hN);
+    let dbName = "";
+    if(hN == "Carrillo Dining Commons"){dbName = "Carrillo"}
+    else if(hN == "De La Guerra Dining Commons"){dbName = "De-La-Guerra"}
+    else if(hN == "Ortega Takeout"){dbName = "Ortega"}
+    else if(hN == "Portola Dining Commons"){dbName = "Portola"}
     const [reviewData, setReviewData] = useState([{}]) //from db
     const initialState = {
         name: foodItem,
@@ -21,7 +26,7 @@ function FoodReview(){
     }
     const [formData, setFormData] = useState(initialState) //to db
     const fetchReviews = async () => {
-        const response = await axios.get(`http://127.0.0.1:5000/${hN}/${foodItem}`)
+        const response = await axios.get(`http://127.0.0.1:5000/${dbName}/${foodItem}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
         setReviewData(response.data)
     }
@@ -49,7 +54,7 @@ function FoodReview(){
         e.preventDefault();
         if(formData.review != ""){
             try{
-                const response = await axios.post(`http://127.0.0.1:5000/${foodItem}`, formData, {
+                const response = await axios.post(`http://127.0.0.1:5000/${dbName}/${foodItem}`, formData, {
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
