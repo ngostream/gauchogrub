@@ -1,22 +1,22 @@
 import sqlite3
 
-# Connect to SQLite
+# connect to the database
 conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
 
-# table for menu items
+# menu items
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Menu_Items (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         dining_hall TEXT NOT NULL,
         meal TEXT NOT NULL,
-        category TEXT,
+        station TEXT,
         UNIQUE(name, dining_hall, meal)
     );
 """)
 
-# table for reviews
+# user reviews
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Reviews (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,8 +28,7 @@ cursor.execute("""
     );
 """)
 
-# commit and close
+# commit and close connection
 conn.commit()
 conn.close()
 
-print("sqlite database created yay")
