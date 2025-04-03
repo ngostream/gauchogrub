@@ -5,7 +5,7 @@ import json
 import datetime
 
 # ucsb dining api
-API_KEY = os.getenv("UCSB_API_KEY")
+API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
 date = str(datetime.datetime.now().replace(microsecond=0).isoformat())
 
@@ -38,6 +38,7 @@ for hall in dining_halls:
                     )
                 except Exception as e:
                     print(f"Error inserting {name}: {e}")
+print('done inserting')
 
 # commit and close
 conn.commit()
