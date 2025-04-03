@@ -1,10 +1,11 @@
+import os
 import sqlite3
 import requests
 import json
 import datetime
 
 # ucsb dining api
-API_KEY = "rEoqAlcRz9hvsGMvSGnpnOEdY7gwjWSy"
+API_KEY = os.getenv("UCSB_API_KEY")
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
 date = str(datetime.datetime.now().replace(microsecond=0).isoformat())
 

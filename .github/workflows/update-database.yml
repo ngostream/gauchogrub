@@ -24,6 +24,8 @@ jobs:
           pip install -r requirements.txt
 
       # Run the Python script
-      - name: Run the update menu script
+      - name: Run update_database.py
+        env:
+          UCSB_API_KEY: ${{ secrets.UCSB_API_KEY }}
         run: |
           python update_database.py
