@@ -65,7 +65,6 @@ def menu():
 
 @app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
 def submit(dining_hall, item_id):
-    
     conn = sqlite3.connect("dining_menu.db")
     cursor = conn.cursor()
 
