@@ -8,14 +8,22 @@ import './App.css'
 
 function App() {
   const [data,setData] = useState([{}])
+  const [loading, setLoading] = useState(true);
+
   const fetchMenu = async () =>{
     const response = await axios.get("http://localhost:5000/")
     console.log(response, "fetchMenu from App.jsx")
     setData(response.data)
+    setLoading(false)
   };
   useEffect(() =>{
     fetchMenu();
   }, [])
+  
+  if (loading){
+    return <div>loading...</div>
+  }
+
   return (
     <div>
       <Router>
