@@ -18,7 +18,6 @@ function DisplayMenu({dict}){
         {/* <Button size="small">Learn More</Button> */}
       {/* </CardActions> */}
     return(
-        <div>
         <Container>
                     <Row>
                     <Link to ="/"><h1>{hN}</h1> </Link>
@@ -35,7 +34,6 @@ function DisplayMenu({dict}){
                         ))}
                 </Row>
         </Container>
-        </div>
     )
 }
 

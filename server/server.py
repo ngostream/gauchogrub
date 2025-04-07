@@ -4,6 +4,10 @@ import datetime
 import requests
 import json
 import sqlite3
+import os
+from dotenv import load_dotenv
+load_dotenv(".env.prod")
+API_KEY = os.getenv("API_KEY")
 date = str(datetime.datetime.now())
 date = date[0:10]
 weekend = datetime.datetime.today().weekday() >= 5
@@ -12,7 +16,7 @@ url = "https://api.ucsb.edu/dining/menu/v1/" #if no internet can't make connecti
 
 def getResponse(date, diningCommon, mealCode):
     link = url
-    link += date + "/" + diningCommon + "/" + mealCode + "?ucsb-api-key=rEoqAlcRz9hvsGMvSGnpnOEdY7gwjWSy"
+    link += date + "/" + diningCommon + "/" + mealCode + "?ucsb-api-key=" + API_KEY
     response = requests.get(link)
     return json.loads(response.text) #returns list
 
