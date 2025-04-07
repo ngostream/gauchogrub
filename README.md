@@ -8,7 +8,7 @@ A full-stack web application that allows users to view dining hall menus at UCSB
 - Submit food reviews and ratings
 - Display average rating and user reviews for each menu item
 - Backend powered by Flask and SQLite
-- Frontend powered by React, React-Bootstrap, Material-UI
+- Frontend powered by Vite, React, React-Bootstrap, Material-UI
 - Real-time data pulled from UCSB Dining API
 
 ## Technologies Used
