@@ -1,6 +1,6 @@
 # UCSB Dining Commons Menu & Reviews
 
-A full-stack web application that allows users to view dining hall menus at UCSB and submit reviews for individual menu items. The app uses a Flask API for fetching data from the UCSB Dining API and a React/Vite frontend for displaying the menu and handling user reviews.
+A full-stack web application that allows users to view dining hall menus at UCSB and submit reviews for individual menu items. The backend is built with Flask and makes requests to our SQLite powered database and UCSB's Dining API. The frontend is built with React/Vite and interacts with the backend Flask API to request and submit dining hall reviews and data.
 
 ## Features
 
