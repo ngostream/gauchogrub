@@ -18,6 +18,7 @@ function DisplayMenu({dict}){
         {/* <Button size="small">Learn More</Button> */}
       {/* </CardActions> */}
     return(
+        <div>
         <Container>
                     <Row>
                     <Link to ="/"><h1>{hN}</h1> </Link>
@@ -25,7 +26,7 @@ function DisplayMenu({dict}){
                         {Object.entries(dict[hN]).map(([times, stations])=>(
                             /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
                             (Object.keys(stations).length !== 0)
-                            ? <Col sm = {3} md = {4}>
+                            ? <Col>
                             <div key = {times}>
                                 <MealTime time = {times} sections = {stations} ogHn = {ogHn}/>
                             </div>
@@ -34,6 +35,7 @@ function DisplayMenu({dict}){
                         ))}
                 </Row>
         </Container>
+        </div>
     )
 }
 

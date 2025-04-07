@@ -3,12 +3,12 @@ import sqlite3
 import requests
 import json
 import datetime
-
+from dotenv import load_dotenv
+load_dotenv(".env.prod")
 # ucsb dining api
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
 date = str(datetime.datetime.now().replace(microsecond=0).isoformat())
-
 # get menu data from the api
 def get_menu_data(date, dining_hall, meal):
     url = f"{BASE_URL}{date}/{dining_hall}/{meal}?ucsb-api-key={API_KEY}"
