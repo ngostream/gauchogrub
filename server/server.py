@@ -6,7 +6,7 @@ import json
 import sqlite3
 import os
 from dotenv import load_dotenv
-load_dotenv(".env.prod")
+load_dotenv("server/.env.prod")
 API_KEY = os.getenv("API_KEY")
 date = str(datetime.datetime.now())
 date = date[0:10]

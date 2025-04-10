@@ -4,7 +4,7 @@ import requests
 import json
 import datetime
 from dotenv import load_dotenv
-load_dotenv(".env.prod")
+load_dotenv("server/.env.prod")
 # ucsb dining api
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
