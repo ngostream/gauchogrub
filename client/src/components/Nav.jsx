@@ -9,7 +9,7 @@ function Nav() {
           <Navbar.Brand href="/">
             <img
               alt=""
-              src="/img/logo.svg"
+              src="/img/logoproto.png"
               width="30"
               height="30"
               className="d-inline-block align-top"
