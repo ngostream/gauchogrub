@@ -69,7 +69,7 @@ def menu():
 
 @app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
 def submit(dining_hall, item_id):
-    conn = sqlite3.connect("dining_menu.db")
+    conn = sqlite3.connect("server/dining_menu.db")
     cursor = conn.cursor()
 
     cursor.execute("SELECT id FROM Menu_Items WHERE name = ? AND dining_hall = ?", (item_id, dining_hall))
