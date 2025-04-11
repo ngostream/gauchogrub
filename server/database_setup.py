@@ -1,7 +1,7 @@
 import sqlite3
 
 # connect to the database
-conn = sqlite3.connect("server/dining_menu.db")
+conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
 
 # menu items

@@ -4,7 +4,7 @@ import requests
 import json
 import datetime
 from dotenv import load_dotenv
-load_dotenv("server/.env.prod")
+load_dotenv(".env.prod")
 # ucsb dining api
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
@@ -16,7 +16,7 @@ def get_menu_data(date, dining_hall, meal):
     return json.loads(response.text) if response.status_code == 200 else []
 
 # connect to database
-conn = sqlite3.connect("server/dining_menu.db")
+conn = sqlite3.connect("dining_menu.db")
 cursor = conn.cursor()
 
 # dining halls and meals
