@@ -1,6 +1,8 @@
 import React , {useState, useEffect} from "react"
 import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
+import Rating from '@mui/material/Rating';
+import Stack from '@mui/material/Stack';
 import axios from "axios"
 
 function FoodReview(){
@@ -25,6 +27,13 @@ function FoodReview(){
         )
     }
     const [formData, setFormData] = useState(initialState) //to db
+    const StarRating = () =>{
+        return (
+            <Stack spacing={1}>
+              <Rating name="rating" id = "rating" onChange = {handleChange} value ={formData.rating} size="large" />
+            </Stack>
+          )
+    }
     const fetchReviews = async () => {
         const response = await axios.get(`http://127.0.0.1:5000/${dbName}/${foodItem}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
@@ -79,20 +88,21 @@ function FoodReview(){
         <Container>
              <Link to = {`/${hN}`}><h1> {foodItem}</h1></Link> 
              {/* Link to = "/hallName" */}
-             <AverageRating/>
-             <ReviewList/>
              <form onSubmit = {handleSubmission}>
-                 <label htmlFor="rating">Rating (1-5):</label>
+                 {/* <label htmlFor="rating">Rating (1-5):</label>
                  <select name="rating" id="rating" onChange={handleChange} value = {formData.rating}>
                      <option value="1">1 - Inedible</option>
                      <option value="2">2 - Bad</option>
                      <option value="3">3 - Mid</option>
                      <option value="4">4 - Good</option>
                      <option value="5">5 - Excellent</option>
-                 </select>
+                 </select> */}
+                 <StarRating/>
                  <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="50" placeholder="boom or doom"></textarea>
                  <button type="submit">Submit</button>
              </form>
+             <AverageRating/>
+             <ReviewList/>
         </Container>
     )
 }
