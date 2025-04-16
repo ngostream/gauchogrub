@@ -1,9 +1,10 @@
 import React from 'react'
-import {Link,useParams} from "react-router-dom"
+import {useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import MealTime from './MealTime.jsx'
+import Nav from './Nav.jsx'
 import "../App.css"
 
 function DisplayMenu({dict}){
@@ -19,13 +20,21 @@ function DisplayMenu({dict}){
       {/* </CardActions> */}
     return(
         <Container>
+            <Nav/>
                     <Row>
-                    <Link to ="/"><h1>{hN}</h1> </Link>
+                    <Col className = "pt-3">
+                    <h1>{hN}</h1>
+                    </Col>
+                    <Col></Col>
+                    <Col></Col>
+                    </Row>
+                    
                     <hr></hr>
+                    <Row>
                         {Object.entries(dict[hN]).map(([times, stations])=>(
                             /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
                             (Object.keys(stations).length !== 0)
-                            ? <Col>
+                            ? <Col className = "px-5">
                             <div key = {times}>
                                 <MealTime time = {times} sections = {stations} ogHn = {ogHn}/>
                             </div>

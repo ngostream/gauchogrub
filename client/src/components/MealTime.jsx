@@ -23,16 +23,8 @@ export default function MealTime({time, sections, ogHn}) {
       sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
       component="nav"
       aria-labelledby="nested-list-subheader"
-      // subheader={
-      //   <ListSubheader component="div" id="nested-list-subheader">
-      //     <h2 style = {{textAlign: "left"}}>{time}</h2>
-      //   </ListSubheader>
-      // }
     >
       <ListItemButton  onClick={handleClick}>
-        <ListItemIcon>
-          
-        </ListItemIcon>
         <h2 style = {{textAlign: "center"}}>{time}</h2>
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
@@ -49,7 +41,6 @@ export default function MealTime({time, sections, ogHn}) {
             </div>
         ))}
           <ListItemButton sx={{ pl: 4 }}>
-
           </ListItemButton>
         </List>
       </Collapse>
