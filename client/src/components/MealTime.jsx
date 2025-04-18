@@ -24,7 +24,7 @@ export default function MealTime({time, sections, ogHn}) {
     >
       <ListItemButton  onClick={handleClick} sx={{
         marginBottom: '10px',
-        borderLeft: '6px solid #1565C0',
+        borderLeft: '6px solid #0F3C67',
         borderRadius: '4px',
         padding: '16px',
         backgroundColor: '#F9F9F9',
