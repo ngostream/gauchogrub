@@ -1,9 +1,11 @@
+import {useState} from 'react';
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import {Link} from 'react-router-dom';
 
 function NavigationBar() {
+  const [expanded, setExpanded] = useState(false);
   return (
     <>
       <Navbar expand="lg" className="bg-body-tertiary">

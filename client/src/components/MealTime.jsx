@@ -16,13 +16,6 @@ export default function MealTime({time, sections, ogHn}) {
     setOpen(!open);
   };
 
-  const getMealColor = (meal) => {
-    if (meal === "Breakfast") return "#FFFDE7"; // soft pale gold
-    if (meal === "Lunch") return "#E3F2FD";     // light, airy blue
-    if (meal === "Dinner") return "#E8EAF6";    // muted lavender-blue
-    return "#F5F5F5";                           // default: light gray
-  };
-
   return (
     <List
       sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
@@ -30,11 +23,13 @@ export default function MealTime({time, sections, ogHn}) {
       aria-labelledby="nested-list-subheader"
     >
       <ListItemButton  onClick={handleClick} sx={{
-        backgroundColor: getMealColor(time),
         marginBottom: '10px',
-        borderRadius: '8px',
-        justifyContent: 'space-between',
+        borderLeft: '6px solid #1565C0',
+        borderRadius: '4px',
         padding: '16px',
+        backgroundColor: '#F9F9F9',
+        justifyContent: 'space-between',
+        alignItems: 'center'
       }}>
         <h2 style = {{
           fontSize: '1.5rem',

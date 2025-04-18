@@ -43,8 +43,8 @@ function DisplayMenu({dict}){
                         {Object.entries(dict[hN]).map(([times, stations])=>(
                             /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
                             (Object.keys(stations).length !== 0)
-                            ? <Col className = "px-5">
-                            <div key = {times}>
+                            ? <Col className = "px-5" key={times}>
+                            <div>
                                 <MealTime time = {times} sections = {stations} ogHn = {ogHn}/>
                             </div>
                             </Col>
