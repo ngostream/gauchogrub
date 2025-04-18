@@ -42,8 +42,21 @@ export default function MealTime({time, sections, ogHn}) {
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
         {Object.entries(sections).map(([section,food])=>(
-            <div key = {section}>
-            <h3 style = {{fontWeight: "normal", textAlign: "left"}} key = {section}>{section}</h3>
+            <div
+              key={section}
+              style={{
+                backgroundColor: "#f9f9f9",
+                borderRadius: "8px",
+                padding: "0.5rem 0.75rem",
+                margin: "0.5rem 0"
+              }}
+            >
+            <h3 style = {{
+              fontWeight: "500",
+              letterSpacing: "0.5px",
+              textAlign: "left"}}
+              key = {section}>{section}
+            </h3>
                 {food.map((items)=>(
                 <div key = {items}>
                     <Link to={`/${ogHn}/${encodeURIComponent(items)}`}><ListItemButton style ={{color: "black", fontWeight: "normal"}} > {items}</ListItemButton></Link>
@@ -51,8 +64,6 @@ export default function MealTime({time, sections, ogHn}) {
             ))}
             </div>
         ))}
-          <ListItemButton sx={{ pl: 4 }}>
-          </ListItemButton>
         </List>
       </Collapse>
     </List>
