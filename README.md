@@ -68,5 +68,7 @@ API_KEY=your-ucsb-api-key
 
 ### Frontend Setup
 ```bash
-todo
+cd client
+npm install
+npm run dev
 ```
