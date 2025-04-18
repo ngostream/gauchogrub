@@ -64,8 +64,29 @@ function FoodReview(){
                         <Col className = "pb-3" md={3} key = {index}>
                         <Card sx = {{minHeight: "100px"}}variant = "outlined">
                             <CardContent>
-                            <div className = "flexLeft"> <ReadOnlyStar r = {review.rating}/> <br/> </div>
-                            <div className=  "flexLeft"> {review.comment}</div>
+                                <div
+                                    style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "flex-start",
+                                    marginBottom: "8px",
+                                    }}
+                                >
+                                    <ReadOnlyStar r={review.rating} />
+                                    <div
+                                    style={{
+                                        color: "#6c757d",
+                                        fontSize: "0.85rem",
+                                    }}
+                                    >
+                                    {new Date(review.created_at).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    })}
+                                    </div>
+                                </div>
+                                <div className=  "flexLeft"> {review.comment}</div>
                             </CardContent>
                         </Card>
                         </Col>

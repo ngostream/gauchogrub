@@ -94,14 +94,15 @@ def submit(dining_hall, item_id):
     
     cursor.execute(
         """
-        SELECT r.rating, r.comment
+        SELECT r.rating, r.comment, r.created_at
         FROM Reviews r
         JOIN Menu_Items m ON r.menu_item_id = m.id
         WHERE m.id = ? AND m.dining_hall = ?
+        ORDER BY r.created_at DESC
         """,
         (menu_item_id, dining_hall),
     )
-    reviews = [{"rating": row[0], "comment": row[1]} for row in cursor.fetchall()]
+    reviews = [{"rating": row[0], "comment": row[1], "created_at": row[2]} for row in cursor.fetchall()]
     conn.close()
 
     if reviews:
@@ -109,7 +110,7 @@ def submit(dining_hall, item_id):
     else:
         avg_rating = 0
     
-    return jsonify({"message": "received", "avg_rating": avg_rating, "reviews": reviews}), 200
+    return jsonify({"message": "received", "avg_rating": avg_rating, "reviews": reviews,}), 200
     
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)

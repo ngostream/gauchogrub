@@ -13,10 +13,10 @@ export default function Footer(){
         left: 0,
         right: 0,
         zIndex: 1030,
-        borderTop: "1px solid #dee2e6", // subtle top border
-        padding: "0.75rem 0", // breathing room
+        borderTop: "1px solid #dee2e6",
+        padding: "0.75rem 0",
         fontSize: "0.9rem",
-        textAlign: "center",  // centered on all screens
+        textAlign: "center",
       }}>
         <Box component="div">
         <Container>
