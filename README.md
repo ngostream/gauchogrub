@@ -1,4 +1,4 @@
-# UCSB Dining Commons Menu & Reviews
+# Gaucho Grubz
 
 A full-stack web application that allows users to view dining hall menus at UCSB and submit reviews for individual menu items. The backend is built with Flask and makes requests to our SQLite powered database and UCSB's Dining API. The frontend is built with React/Vite and interacts with the backend Flask API through axios to request and submit dining hall reviews and data.
 
