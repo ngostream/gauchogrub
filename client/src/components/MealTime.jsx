@@ -10,10 +10,17 @@ export default function MealTime({time, sections, ogHn}) {
   // if(time == "Breakfast"){
   // set icon
   // }
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(true);
 
   const handleClick = () => {
     setOpen(!open);
+  };
+
+  const getMealColor = (meal) => {
+    if (meal === "Breakfast") return "#FFF9C4";
+    if (meal === "Lunch") return "#C8E6C9";
+    if (meal === "Dinner") return "#BBDEFB";
+    return "#f5f5f5";
   };
 
   return (
@@ -22,8 +29,19 @@ export default function MealTime({time, sections, ogHn}) {
       component="nav"
       aria-labelledby="nested-list-subheader"
     >
-      <ListItemButton  onClick={handleClick}>
-        <h2 style = {{textAlign: "center"}}>{time}</h2>
+      <ListItemButton  onClick={handleClick} sx={{
+        backgroundColor: getMealColor(time),
+        marginBottom: '10px',
+        borderRadius: '8px',
+        justifyContent: 'space-between',
+        padding: '16px',
+      }}>
+        <h2 style = {{
+          fontSize: '1.5rem',
+          margin: 0,
+          flex: 1,
+          textAlign: "left"
+        }}>{time}</h2>
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
       <Collapse in={open} timeout="auto" unmountOnExit>
