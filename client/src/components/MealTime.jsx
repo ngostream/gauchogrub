@@ -17,10 +17,10 @@ export default function MealTime({time, sections, ogHn}) {
   };
 
   const getMealColor = (meal) => {
-    if (meal === "Breakfast") return "#FFF9C4";
-    if (meal === "Lunch") return "#C8E6C9";
-    if (meal === "Dinner") return "#BBDEFB";
-    return "#f5f5f5";
+    if (meal === "Breakfast") return "#FFFDE7"; // soft pale gold
+    if (meal === "Lunch") return "#E3F2FD";     // light, airy blue
+    if (meal === "Dinner") return "#E8EAF6";    // muted lavender-blue
+    return "#F5F5F5";                           // default: light gray
   };
 
   return (
