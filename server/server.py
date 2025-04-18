@@ -91,7 +91,7 @@ def submit(dining_hall, item_id):
             (menu_item_id, rating ,review_text)
         )
         conn.commit()
-    
+    # grab the rating, comment, and reviews that match the menu item. defaults to descending based on most recent date
     cursor.execute(
         """
         SELECT r.rating, r.comment, r.created_at

@@ -45,7 +45,7 @@ export default function MealTime({time, sections, ogHn}) {
             <div
               key={section}
               style={{
-                backgroundColor: "#f9f9f9",
+                backgroundColor: "#fcfcfc",
                 borderRadius: "8px",
                 padding: "0.5rem 0.75rem",
                 margin: "0.5rem 0"
