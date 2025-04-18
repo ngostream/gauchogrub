@@ -130,7 +130,21 @@ function FoodReview(){
                 <h1> {foodItem}</h1> <hr/>
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
-                    <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="40" placeholder="Write your review here"></textarea>
+                    <textarea
+                    style={{ 
+                        backgroundColor: '#f9f9f9',
+                        color: '#333',
+                        border: '1px solid #ccc', 
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                    }}
+                    onChange={handleChange}
+                    value = {formData.review}
+                    name="review"
+                    rows="4"
+                    cols="40"
+                    placeholder="Write your review here"
+                    ></textarea>
                     <div className = "flexCenter">
                     <StarRating/>
                     <button type="submit">Submit</button>
