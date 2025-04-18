@@ -22,12 +22,15 @@ function NavigationBar() {
           </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link as={Link} to="/Carrillo%20Dining%20Commons">Carrillo</Nav.Link>
-            <Nav.Link as={Link} to="/Portola%20Dining%20Commons">Portola</Nav.Link>
-            <Nav.Link as={Link} to="/De%20La%20Guerra%20Dining%20Commons">De La Guerra</Nav.Link>
-            <Nav.Link as={Link} to="/Ortega%20Takeout">Ortega</Nav.Link>
-          </Nav>
+        <Nav className="me-auto">
+          <Nav.Link as={Link} to="/Carrillo%20Dining%20Commons">Carrillo</Nav.Link>
+          <Nav.Link as={Link} to="/Portola%20Dining%20Commons">Portola</Nav.Link>
+          <Nav.Link as={Link} to="/De%20La%20Guerra%20Dining%20Commons">De La Guerra</Nav.Link>
+          <Nav.Link as={Link} to="/Ortega%20Takeout">Ortega</Nav.Link>
+        </Nav>
+        <Nav>
+          <Nav.Link as={Link} to="/about">About</Nav.Link>
+        </Nav>
         </Navbar.Collapse>
         </Container>
       </Navbar>

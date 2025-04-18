@@ -3,6 +3,7 @@ import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
 import DisplayMenu from "./components/DisplayMenu.jsx"
 import FoodReview from "./components/FoodReview.jsx"
 import DisplayHalls from "./components/DisplayHalls.jsx"
+import About from "./components/About.jsx"
 import axios from 'axios'
 import './App.css'
 
@@ -29,6 +30,7 @@ function App() {
       <Router>
         <Routes>
           <Route path = "/" element = {<DisplayHalls/>}/>
+          <Route path = "/about" element = {<About />}/>
           <Route path = "/:hN" element = {<DisplayMenu dict = {data}/>}/>
           <Route path = "/:hN/:foodItem" element = {<FoodReview/>} />
         </Routes>
