@@ -19,10 +19,10 @@ export default function DisplayHalls(){
                 <Col  sm = {12} md = {6} className = "pb-3">
                     <HallCard hN = "De La Guerra Dining Commons"/>
                 </Col>
-                <Col  sm = {12} md = {6} className = "pb-3">
+                <Col  sm = {12} md = {6} className = "pb-4">
                     <HallCard hN = "Portola Dining Commons"/>
                 </Col>
-                <Col sm = {12} md = {6} className = "pb-3">
+                <Col sm = {12} md = {6} className = "pb-4">
                     <HallCard hN = "Ortega Takeout"/>
                     {/* needs handling for weekends/ not open */}
                 </Col>

@@ -3,12 +3,13 @@ import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
+import ListItemButton from '@mui/material/ListItemButton';
 import Nav from './Nav.jsx'
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Footer from './Footer.jsx'
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import axios from "axios"
 import "../App.css"
 
@@ -28,7 +29,7 @@ function FoodReview(){
     }
     const AverageRating = () =>{
         return (
-            <h3>
+            <h3 className = "py-1">
                 Average Rating: {(reviewData.avg_rating > 0) ? (reviewData.avg_rating)?.toFixed(2) + "/5" : ""}
             </h3>
         )
@@ -43,6 +44,13 @@ function FoodReview(){
             </div>
           )
     }
+    const ReadOnlyStar = ({r}) =>{
+        return (
+            <Stack spacing={1}>
+              <Rating defaultValue ={r} size="medium" readOnly/>
+            </Stack>
+          )
+    }
     const fetchReviews = async () => {
         const response = await axios.get(`http://127.0.0.1:5000/${dbName}/${foodItem}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
@@ -50,18 +58,22 @@ function FoodReview(){
     }
     const ReviewList = () => {
         return(
-            <ul>
+            <Row>
                 {reviewData.reviews && reviewData.reviews.length > 0 ? (
                     reviewData.reviews.map((review, index) => (
-                        <li key={index}>
-                            <strong>Rating:</strong> {review.rating}/5 <br />
-                            <strong>Comment:</strong> {review.comment} <hr />
-                        </li>
+                        <Col className = "pb-3" md={3} key = {index}>
+                        <Card sx = {{minHeight: "100px"}}variant = "outlined">
+                            <CardContent>
+                            <div className = "flexLeft"> <ReadOnlyStar r = {review.rating}/> <br/> </div>
+                            <div className=  "flexLeft"> {review.comment}</div>
+                            </CardContent>
+                        </Card>
+                        </Col>
                     ))
                 ) : (
                     <p>No reviews yet. Be the first to leave one!</p>
                 )}
-            </ul>
+            </Row>
         )
     }
     useEffect(()=>{
@@ -94,14 +106,28 @@ function FoodReview(){
         )
     }
     return(
-        // should define css classes for flex alignment
         <Container>
             <Nav/>
             <div className = "flexLeft">
-            <Link to = {`/${hN}`}><h3> &lt; Back </h3></Link> 
+                {/* <Link to = {`/${hN}`}><h3> &lt; Back </h3></Link>  */}
+                <Link to = {`/${hN}`}>
+                <ListItemButton sx={{
+                    color: "black",
+                    marginBottom: '10px',
+                    marginTop: '10px',
+                    borderLeft: '6px solid #0F3C67',
+                    borderRadius: '4px',
+                    padding: "7px",
+                    paddingLeft: "10px",
+                    paddingRight: "11px",
+                    backgroundColor: '#F9F9F9',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                    }}>Back</ListItemButton>
+                </Link>
             </div>
             <Row>
-                <h1> {foodItem}</h1>
+                <h1> {foodItem}</h1> <hr/>
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
                     <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="40" placeholder="Write your review here"></textarea>

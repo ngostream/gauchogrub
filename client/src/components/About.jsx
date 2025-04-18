@@ -1,10 +1,11 @@
 import React from 'react';
-import NavigationBar from './Nav.jsx'; // Assuming it's named NavigationBar.jsx
+import Nav from './Nav.jsx'; 
+import Footer from './Footer.jsx';
 
 function About() {
   return (
     <>
-      <NavigationBar />
+      <Nav/>
       <div className="container mt-4">
         <h1>About Gaucho Grubz</h1>
         <p>
@@ -12,6 +13,7 @@ function About() {
           Built with love by students, for students.
         </p>
       </div>
+      <Footer/>
     </>
   );
 }
