@@ -3,7 +3,14 @@ import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
+import Nav from './Nav.jsx'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
+import Footer from './Footer.jsx'
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
 import axios from "axios"
+import "../App.css"
 
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
@@ -29,9 +36,11 @@ function FoodReview(){
     const [formData, setFormData] = useState(initialState) //to db
     const StarRating = () =>{
         return (
+            <div className = "px-3 me-1 flexCenter">
             <Stack spacing={1}>
               <Rating name="rating" id = "rating" onChange = {handleChange} value ={formData.rating} size="large" />
             </Stack>
+            </div>
           )
     }
     const fetchReviews = async () => {
@@ -85,24 +94,27 @@ function FoodReview(){
         )
     }
     return(
+        // should define css classes for flex alignment
         <Container>
-             <Link to = {`/${hN}`}><h1> {foodItem}</h1></Link> 
-             {/* Link to = "/hallName" */}
-             <form onSubmit = {handleSubmission}>
-                 {/* <label htmlFor="rating">Rating (1-5):</label>
-                 <select name="rating" id="rating" onChange={handleChange} value = {formData.rating}>
-                     <option value="1">1 - Inedible</option>
-                     <option value="2">2 - Bad</option>
-                     <option value="3">3 - Mid</option>
-                     <option value="4">4 - Good</option>
-                     <option value="5">5 - Excellent</option>
-                 </select> */}
-                 <StarRating/>
-                 <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="50" placeholder="boom or doom"></textarea>
-                 <button type="submit">Submit</button>
-             </form>
-             <AverageRating/>
-             <ReviewList/>
+            <Nav/>
+            <div className = "flexLeft">
+            <Link to = {`/${hN}`}><h3> &lt; Back </h3></Link> 
+            </div>
+            <Row>
+                <h1> {foodItem}</h1>
+                <div className = "flexCenter">
+                <form onSubmit = {handleSubmission}>
+                    <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="40" placeholder="Write your review here"></textarea>
+                    <div className = "flexCenter">
+                    <StarRating/>
+                    <button type="submit">Submit</button>
+                    </div>
+                </form>
+                </div>
+                <AverageRating/>
+                <ReviewList/>
+             </Row>
+             <Footer/>
         </Container>
     )
 }

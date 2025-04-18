@@ -58,3 +58,13 @@ body{
   box-shadow: 0px 0px 0px transparent; 
   z-index: 1;
 }
+.flexCenter{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.flexLeft{
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}

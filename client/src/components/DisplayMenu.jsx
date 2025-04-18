@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col'
 import MealTime from './MealTime.jsx'
 import Nav from './Nav.jsx'
 import "../App.css"
+import Footer from './Footer.jsx'
 
 function DisplayMenu({dict}){
     let hN = decodeURIComponent(useParams().hN);
@@ -19,14 +20,22 @@ function DisplayMenu({dict}){
         {/* <Button size="small">Learn More</Button> */}
       {/* </CardActions> */}
     return(
-        <Container>
+        <>
+        <Container style ={{paddingBottom: "80px"}}>
             <Nav/>
                     <Row>
-                    <Col className = "pt-3">
-                    <h1>{hN}</h1>
-                    </Col>
-                    <Col></Col>
-                    <Col></Col>
+                            <Col className = "pt-3 flexLeft">
+                            <h1>{hN}</h1>
+                            </Col>
+                            {
+                                (hN=="De-La-Guerra")
+                                ? null
+                                : 
+                                <>
+                                <Col></Col>
+                                <Col></Col>
+                                </>
+                            }
                     </Row>
                     
                     <hr></hr>
@@ -42,7 +51,10 @@ function DisplayMenu({dict}){
                             : null
                         ))}
                 </Row>
+                
         </Container>
+        <Footer/>
+        </>
     )
 }
 

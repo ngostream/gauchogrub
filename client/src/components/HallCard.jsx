@@ -3,7 +3,6 @@ import {Link} from "react-router-dom"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import "./HallCard.css"
 import "../App.css"
 // https://stackoverflow.com/questions/50074276/how-to-import-two-component-but-same-name-from-two-libraries
 
