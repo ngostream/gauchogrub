@@ -25,7 +25,11 @@ function DisplayMenu({dict}){
             <Nav/>
                     <Row>
                             <Col className = "pt-3 flexLeft">
-                            <h1>{hN}</h1>
+                            <h1 style={{
+                                fontWeight: "700",
+                                letterSpacing: "0.5px",
+                                color: "#0F3C67",
+                            }}>{hN}</h1>
                             </Col>
                             {
                                 (hN=="De-La-Guerra")
