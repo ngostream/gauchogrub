@@ -3,6 +3,7 @@ import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
 import Rating from '@mui/material/Rating';
 import Stack from '@mui/material/Stack';
+import ReadOnlyStar from './ReadOnlyStar.jsx';
 import ListItemButton from '@mui/material/ListItemButton';
 import Nav from './Nav.jsx'
 import Card from '@mui/material/Card';
@@ -35,20 +36,13 @@ function FoodReview(){
         )
     }
     const [formData, setFormData] = useState(initialState) //to db
-    const StarRating = () =>{
+    const StarRating = () =>{ //maybe put into its own component file?
         return (
             <div className = "px-3 me-1 flexCenter">
             <Stack spacing={1}>
               <Rating name="rating" id = "rating" onChange = {handleChange} value ={formData.rating} size="large" />
             </Stack>
             </div>
-          )
-    }
-    const ReadOnlyStar = ({r}) =>{
-        return (
-            <Stack spacing={1}>
-              <Rating defaultValue ={r} size="medium" readOnly/>
-            </Stack>
           )
     }
     const fetchReviews = async () => {
@@ -64,8 +58,8 @@ function FoodReview(){
                         <Col className = "pb-3" md={3} key = {index}>
                         <Card sx = {{minHeight: "100px"}}variant = "outlined">
                             <CardContent>
-                            <div className = "flexLeft"> <ReadOnlyStar r = {review.rating}/> <br/> </div>
-                            <div className=  "flexLeft"> {review.comment}</div>
+                            <div className = "flexLeft"> <ReadOnlyStar r = {review.rating} size = "medium"/> <br/> </div>
+                            <div className=  "flexLeft"><p style= {{textAlign: "left"}}>{review.comment}</p></div>
                             </CardContent>
                         </Card>
                         </Col>
@@ -77,7 +71,7 @@ function FoodReview(){
         )
     }
     useEffect(()=>{
-        fetchReviews() //returns object which should be used to display lists
+        fetchReviews();
     },[])
     
     const handleSubmission = async (e) =>{
@@ -109,7 +103,6 @@ function FoodReview(){
         <Container>
             <Nav/>
             <div className = "flexLeft">
-                {/* <Link to = {`/${hN}`}><h3> &lt; Back </h3></Link>  */}
                 <Link to = {`/${hN}`}>
                 <ListItemButton sx={{
                     color: "black",
@@ -130,10 +123,11 @@ function FoodReview(){
                 <h1> {foodItem}</h1> <hr/>
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
+                    {/* text area and submit button are ugly gotta fix */}
                     <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="40" placeholder="Write your review here"></textarea>
                     <div className = "flexCenter">
+                    <button type="submit">Submit</button> 
                     <StarRating/>
-                    <button type="submit">Submit</button>
                     </div>
                 </form>
                 </div>

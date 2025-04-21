@@ -7,9 +7,6 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import {Link} from "react-router-dom"
 
 export default function MealTime({time, sections, ogHn}) {
-  // if(time == "Breakfast"){
-  // set icon
-  // }
   const [open, setOpen] = React.useState(true);
 
   const handleClick = () => {
