@@ -16,12 +16,13 @@ import "../App.css"
 
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
+    let safeFoodItem = foodItem.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
     let hN = decodeURIComponent(useParams().hN);
-    let dbName = "";
-    if(hN == "Carrillo Dining Commons"){dbName = "Carrillo"}
-    else if(hN == "De La Guerra Dining Commons"){dbName = "De-La-Guerra"}
-    else if(hN == "Ortega Takeout"){dbName = "Ortega"}
-    else if(hN == "Portola Dining Commons"){dbName = "Portola"}
+    let dhName = "";
+    if(hN == "Carrillo Dining Commons"){dhName = "Carrillo"}
+    else if(hN == "De La Guerra Dining Commons"){dhName = "De-La-Guerra"}
+    else if(hN == "Ortega Takeout"){dhName = "Ortega"}
+    else if(hN == "Portola Dining Commons"){dhName = "Portola"}
     const [reviewData, setReviewData] = useState([{}]) //from db
     const initialState = {
         name: foodItem,
@@ -46,7 +47,7 @@ function FoodReview(){
           )
     }
     const fetchReviews = async () => {
-        const response = await axios.get(`http://127.0.0.1:5000/${dbName}/${foodItem}`)
+        const response = await axios.get(`http://127.0.0.1:5000/${dhName}/${encodeURIComponent(safeFoodItem)}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
         setReviewData(response.data)
     }
@@ -58,8 +59,29 @@ function FoodReview(){
                         <Col className = "pb-3" md={3} key = {index}>
                         <Card sx = {{minHeight: "100px"}}variant = "outlined">
                             <CardContent>
-                            <div className = "flexLeft"> <ReadOnlyStar r = {review.rating} size = "medium"/> <br/> </div>
-                            <div className=  "flexLeft"><p style= {{textAlign: "left"}}>{review.comment}</p></div>
+                                <div
+                                    style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "flex-start",
+                                    marginBottom: "8px",
+                                    }}
+                                >
+                                    <ReadOnlyStar r={review.rating} />
+                                    <div
+                                    style={{
+                                        color: "#6c757d",
+                                        fontSize: "0.85rem",
+                                    }}
+                                    >
+                                    {new Date(review.created_at).toLocaleDateString("en-US", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                    })}
+                                    </div>
+                                </div>
+                                <div className=  "flexLeft"> {review.comment}</div>
                             </CardContent>
                         </Card>
                         </Col>
@@ -78,7 +100,7 @@ function FoodReview(){
         e.preventDefault();
         if(formData.review != ""){
             try{
-                const response = await axios.post(`http://127.0.0.1:5000/${dbName}/${foodItem}`, formData, {
+                const response = await axios.post(`http://127.0.0.1:5000/${dhName}/${encodeURIComponent(safeFoodItem)}`, formData, {
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
@@ -123,8 +145,21 @@ function FoodReview(){
                 <h1> {foodItem}</h1> <hr/>
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
-                    {/* text area and submit button are ugly gotta fix */}
-                    <textarea onChange={handleChange} value = {formData.review} name="review" rows="4" cols="40" placeholder="Write your review here"></textarea>
+                    <textarea
+                    style={{ 
+                        backgroundColor: '#f9f9f9',
+                        color: '#333',
+                        border: '1px solid #ccc', 
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                    }}
+                    onChange={handleChange}
+                    value = {formData.review}
+                    name="review"
+                    rows="4"
+                    cols="40"
+                    placeholder="Write your review here"
+                    ></textarea>
                     <div className = "flexCenter">
                     <button type="submit">Submit</button> 
                     <StarRating/>

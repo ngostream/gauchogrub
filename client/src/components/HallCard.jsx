@@ -30,7 +30,11 @@ export default function HallCard({hN}) {
     <Link to ={`/${encodeURIComponent(hN)}`}>
     <Card sx={{ maxWidth: 600 }} className = "hover-effect"> {/* change hover shadow color?*/}
       <CardContent>
-        <h5>
+        <h5 style={{
+          fontSize: "20px",
+          fontWeight: "600",
+          letterSpacing: "0.5px",
+        }}>
             {hN}
         </h5>
       </CardContent>

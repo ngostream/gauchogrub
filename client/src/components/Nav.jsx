@@ -6,9 +6,19 @@ import {Link} from 'react-router-dom';
 
 function NavigationBar() {
   const [expanded, setExpanded] = useState(false);
+
+  const handleSelect = () => {
+    setExpanded(false); // makes the dropdown collapse after selection
+  };
+
   return (
     <>
-      <Navbar expand="lg" className="bg-body-tertiary">
+      <Navbar
+        expand="lg"
+        className="bg-body-tertiary"
+        expanded={expanded}
+        onToggle={setExpanded}
+      >
         <Container>
           <Navbar.Brand href="/">
             <img
@@ -22,14 +32,14 @@ function NavigationBar() {
           </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto">
-          <Nav.Link as={Link} to="/Carrillo%20Dining%20Commons">Carrillo</Nav.Link>
-          <Nav.Link as={Link} to="/Portola%20Dining%20Commons">Portola</Nav.Link>
-          <Nav.Link as={Link} to="/De%20La%20Guerra%20Dining%20Commons">De La Guerra</Nav.Link>
-          <Nav.Link as={Link} to="/Ortega%20Takeout">Ortega</Nav.Link>
+        <Nav className="me-auto" onSelect={handleSelect}>
+          <Nav.Link as={Link} to="/Carrillo%20Dining%20Commons" onClick={handleSelect}>Carrillo</Nav.Link>
+          <Nav.Link as={Link} to="/Portola%20Dining%20Commons" onClick={handleSelect}>Portola</Nav.Link>
+          <Nav.Link as={Link} to="/De%20La%20Guerra%20Dining%20Commons" onClick={handleSelect}>De La Guerra</Nav.Link>
+          <Nav.Link as={Link} to="/Ortega%20Takeout" onClick={handleSelect}>Ortega</Nav.Link>
         </Nav>
-        <Nav>
-          <Nav.Link as={Link} to="/about">About</Nav.Link>
+        <Nav onSelect={handleSelect}>
+          <Nav.Link as={Link} to="/about"  onClick={handleSelect}>About</Nav.Link>
         </Nav>
         </Navbar.Collapse>
         </Container>
