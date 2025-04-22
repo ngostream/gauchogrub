@@ -18,24 +18,15 @@ function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
     let safeFoodItem = foodItem.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
     let hN = decodeURIComponent(useParams().hN);
-    let dhName = "";
-    if(hN == "Carrillo Dining Commons"){dhName = "Carrillo"}
-    else if(hN == "De La Guerra Dining Commons"){dhName = "De-La-Guerra"}
-    else if(hN == "Ortega Takeout"){dhName = "Ortega"}
-    else if(hN == "Portola Dining Commons"){dhName = "Portola"}
+    console.log(hN)
     const [reviewData, setReviewData] = useState([{}]) //from db
     const initialState = {
         name: foodItem,
         review: "",
         rating: 3
     }
-    const AverageRating = () =>{
-        return (
-            <h3 className = "py-1">
-                Average Rating: {(reviewData.avg_rating > 0) ? (reviewData.avg_rating)?.toFixed(2) + "/5" : ""}
-            </h3>
-        )
-    }
+                {/* Average Rating: {(reviewData.avg_rating > 0) ? (reviewData.avg_rating)?.toFixed(2) + "/5" : ""} */}
+
     const [formData, setFormData] = useState(initialState) //to db
     const StarRating = () =>{ //maybe put into its own component file?
         return (
@@ -47,7 +38,7 @@ function FoodReview(){
           )
     }
     const fetchReviews = async () => {
-        const response = await axios.get(`http://127.0.0.1:5000/${dhName}/${encodeURIComponent(safeFoodItem)}`)
+        const response = await axios.get(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
         setReviewData(response.data)
     }
@@ -100,7 +91,7 @@ function FoodReview(){
         e.preventDefault();
         if(formData.review != ""){
             try{
-                const response = await axios.post(`http://127.0.0.1:5000/${dhName}/${encodeURIComponent(safeFoodItem)}`, formData, {
+                const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
@@ -160,13 +151,12 @@ function FoodReview(){
                     cols="40"
                     placeholder="Write your review here"
                     ></textarea>
-                    <div className = "flexCenter">
+                    <div className = "flexCenter py-1 pb-3">
                     <button type="submit">Submit</button> 
                     <StarRating/>
                     </div>
                 </form>
                 </div>
-                <AverageRating/>
                 <ReviewList/>
              </Row>
              <Footer/>

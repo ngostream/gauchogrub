@@ -1,14 +1,39 @@
-import * as React from 'react';
+import React , {useState, useEffect} from "react"
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import Collapse from '@mui/material/Collapse';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import {Link} from "react-router-dom"
-
+import {Link} from "react-router-dom";
+import ReadOnlyStar from "./ReadOnlyStar.jsx";
+import axios from "axios";
 export default function MealTime({time, sections, ogHn}) {
   const [open, setOpen] = React.useState(true);
-
+  const [avgRatings, setAvgRatings] = useState({});
+  useEffect( () =>{
+    const fetchAvgRatings = async () =>{
+      const ar = {}
+      const allItems = Object.entries(sections).flatMap(([_, foodList]) => foodList);
+      await Promise.all(
+        allItems.map(async (item) =>{
+          try{
+            let safeFoodItem = item.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
+            const response = await axios.get(`http://127.0.0.1:5000/${ogHn}/${encodeURIComponent(safeFoodItem)}`);
+            ar[item] = response.data.avg_rating?.toFixed(2);
+            console.log(ar[item]);
+          }
+          catch (error){
+            ar[item] = 0;
+          }
+        })
+      )
+      setAvgRatings(ar);
+    }
+    if(Object.keys(sections).length > 0){
+      fetchAvgRatings();
+    }
+  }, [sections, ogHn])
+  
   const handleClick = () => {
     setOpen(!open);
   };
@@ -56,7 +81,7 @@ export default function MealTime({time, sections, ogHn}) {
             </h3>
                 {food.map((items)=>(
                 <div key = {items}>
-                    <Link to={`/${ogHn}/${encodeURIComponent(items)}`}><ListItemButton style ={{color: "black", fontWeight: "normal"}} > {items}</ListItemButton></Link>
+                    <Link to={`/${ogHn}/${encodeURIComponent(items)}`}><ListItemButton style ={{color: "black", fontWeight: "normal"}} > {items} &nbsp; <ReadOnlyStar r = {avgRatings[items] ?? 0} size = "small"/></ListItemButton></Link>
                 </div>
             ))}
             </div>
