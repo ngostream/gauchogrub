@@ -10,7 +10,6 @@ import Footer from './Footer.jsx'
 
 function DisplayMenu({dict}){
     let hN = decodeURIComponent(useParams().hN);
-    let ogHn = hN;
     if(hN == "Ortega Takeout"){hN = "Ortega"}
     else if (hN == "Carrillo Dining Commons"){ hN = "Carrillo"}
     else if (hN == "De La Guerra Dining Commons"){hN = "De-La-Guerra"}
