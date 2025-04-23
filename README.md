@@ -51,3 +51,15 @@ Reviews Table:
 - React frontend runs locally or can be built for production.
 
 ## Screenshots
+
+### Home Page – Dining Hall Selection
+![Home Page](assets/home.png)
+
+### Menu View – Food by Meal and Station
+![Menu View](assets/menu.png)
+
+### Review Submission – Leave Feedback on Items
+![Submit Review](assets/review-submit.png)
+
+### Review Display – See What Others Said
+![Reviews Display](assets/review-view.png)
