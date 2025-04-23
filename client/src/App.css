@@ -1,12 +1,14 @@
 body{
   /* background-color: rgb(15, 60, 103); maybe use for shadow instead?*/
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding-bottom: 3rem;
   text-align: center;
 }
 

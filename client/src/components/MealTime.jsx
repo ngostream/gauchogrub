@@ -19,8 +19,9 @@ export default function MealTime({time, sections, ogHn}) {
           try{
             let safeFoodItem = item.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
             const response = await axios.get(`http://127.0.0.1:5000/${ogHn}/${encodeURIComponent(safeFoodItem)}`);
+            // maybe request for avg ratings of entire dining hall, backend creates object containing all avg ratings instead of making alot of reqeusts 
+            //for individual items at once
             ar[item] = response.data.avg_rating?.toFixed(2);
-            console.log(ar[item]);
           }
           catch (error){
             ar[item] = 0;

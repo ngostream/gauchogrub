@@ -39,7 +39,7 @@ export default function HallCard({hN}) {
         </h5>
       </CardContent>
       <CardMedia
-        sx={{ height: 225,
+        sx={{ height: 220,
             borderRadius: '4px'
          }}
         image= {image}

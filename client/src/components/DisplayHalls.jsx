@@ -3,14 +3,15 @@ import HallCard from "./HallCard.jsx"
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import NavigationBar from './Nav.jsx'
+import Nav from './Nav.jsx'
 import Footer from './Footer.jsx'
 import "../App.css"
 
 export default function DisplayHalls(){
     return(
+        <>
             <Container>
-                <NavigationBar/>
+            <Nav/>
                 <br/>
             <Row>
                 <Col sm = {12} md = {6} className = "pb-3">
@@ -29,6 +30,7 @@ export default function DisplayHalls(){
             </Row>
             <Footer/>
         </Container>
+        </>
     )
 }
 
