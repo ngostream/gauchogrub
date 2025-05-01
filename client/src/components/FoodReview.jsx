@@ -28,6 +28,7 @@ function FoodReview(){
                 {/* Average Rating: {(reviewData.avg_rating > 0) ? (reviewData.avg_rating)?.toFixed(2) + "/5" : ""} */}
 
     const [formData, setFormData] = useState(initialState) //to db
+    const [submitted, setSubmitted] = useState(false); // track whether or not user submitted review
     const StarRating = () =>{ //maybe put into its own component file?
         return (
             <div className = "px-3 me-1 flexCenter">
@@ -89,13 +90,14 @@ function FoodReview(){
     
     const handleSubmission = async (e) =>{
         e.preventDefault();
-        if(formData.review != ""){
+        if(formData.review != "" && !submitted){
             try{
                 const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
                 setFormData(initialState);
+                setSubmitted(true);
                 fetchReviews();
             }  catch (error){
                 console.log(error)
@@ -152,7 +154,9 @@ function FoodReview(){
                     placeholder="Write your review here"
                     ></textarea>
                     <div className = "flexCenter py-1 pb-3">
-                    <button type="submit">Submit</button> 
+                    <button type="submit" disabled={submitted}>
+                        {submitted ? "Submitted" : "Submit"}
+                    </button>
                     <StarRating/>
                     </div>
                 </form>
