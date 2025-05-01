@@ -84,9 +84,15 @@ function FoodReview(){
             </Row>
         )
     }
-    useEffect(()=>{
+    useEffect(() => {
         fetchReviews();
-    },[])
+      
+        const alreadySubmitted = localStorage.getItem(`${safeFoodItem}-submitted`);
+        if (alreadySubmitted === "true") {
+          setSubmitted(true);
+        }
+      }, []);
+      
     
     const handleSubmission = async (e) =>{
         e.preventDefault();
@@ -96,6 +102,7 @@ function FoodReview(){
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
+                localStorage.setItem(`${safeFoodItem}-submitted`, "true");
                 setFormData(initialState);
                 setSubmitted(true);
                 fetchReviews();
