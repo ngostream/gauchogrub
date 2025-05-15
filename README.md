@@ -70,5 +70,5 @@ Reviews Table:
 
 ## Contributors
 
-- [Nathan Ngo](https://github.com/ngostream)
 - [Alvin Lee](https://github.com/nitron532)
+- [Nathan Ngo](https://github.com/ngostream)
