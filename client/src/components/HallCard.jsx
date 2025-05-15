@@ -10,19 +10,18 @@ export default function HallCard({hN}) {
     let image = ""; //should contact ucsb for permission to use images once we move to production
     let title ="";
     if(hN == "Carrillo Dining Commons"){
-        image = "https://dining.ucsb.edu/sites/default/files/styles/slid/public/images/dining-commons/carrillo-entrance-night.jpg?itok=YWNO3tpD"
-        title = "Carrillo Dining Commons"
+        image = "/img/carrillo.png"
     }
     else if(hN == "De La Guerra Dining Commons"){
-        image = "https://dining.ucsb.edu/sites/default/files/styles/slid/public/images/dining-commons/dlg1.jpg?itok=ovQMoPAW"
+        image = "/img/dlg.png"
         title = "DLG Dining Commons"
     }
     else if (hN == "Portola Dining Commons"){
-        image = "https://dining.ucsb.edu/sites/default/files/styles/slid/public/images/dining-commons/portola2.jpg?itok=YitrfKUn"
+        image = "/img/portola.png"
         title = "Portola Dining Commons"
     }
     else if (hN == "Ortega Takeout"){
-        image = "https://hdae.ucsb.edu/sites/default/files/images/blog/hero-ortega-fromsmig.jpg"
+        image = "/img/ortega.png"
         title = "Ortega Takeout"
     }
   return (
