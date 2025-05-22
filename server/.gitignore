@@ -2,3 +2,4 @@ venv/
 .env
 .env.*
 .venv
+dining_menu.db

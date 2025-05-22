@@ -1,5 +1,6 @@
 import os
-import sqlite3
+# import sqlite3
+import psycopg2
 import requests
 import json
 import datetime
@@ -16,7 +17,8 @@ def get_menu_data(date, dining_hall, meal):
     return json.loads(response.text) if response.status_code == 200 else []
 
 # connect to database
-conn = sqlite3.connect("dining_menu.db")
+# conn = sqlite3.connect("dining_menu.db")
+conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 cursor = conn.cursor()
 
 # dining halls and meals
@@ -33,7 +35,9 @@ for hall in dining_halls:
                 station = item.get("station", "General")  # Some items may not have stations
                 try:
                     cursor.execute(
-                        "INSERT OR IGNORE INTO Menu_Items (name, dining_hall, meal, station) VALUES (?, ?, ?, ?)",
+                        """INSERT INTO Menu_Items (name, dining_hall, meal, station)
+                            VALUES (%s, %s, %s, %s)
+                            ON CONFLICT (name, dining_hall, meal) DO NOTHING""",
                         (name, hall, meal, station),
                     )
                 except Exception as e:

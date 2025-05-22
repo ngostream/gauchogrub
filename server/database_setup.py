@@ -1,13 +1,21 @@
-import sqlite3
+import psycopg2
+# import sqlite3
+from dotenv import load_dotenv
+import os
 
-# connect to the database
-conn = sqlite3.connect("dining_menu.db")
+# Load .env file
+load_dotenv(".env.prod")
+
+# connect to supabase db
+print("DATABASE_URL:", os.getenv("DATABASE_URL"))
+# conn = sqlite3.connect("dining_menu.db")
+conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 cursor = conn.cursor()
 
 # menu items
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Menu_Items (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         dining_hall TEXT NOT NULL,
         meal TEXT NOT NULL,
@@ -19,7 +27,7 @@ cursor.execute("""
 # user reviews
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS Reviews (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id SERIAL PRIMARY KEY,
         menu_item_id INTEGER NOT NULL,
         rating INTEGER CHECK (rating BETWEEN 1 AND 5),
         comment TEXT,
@@ -32,3 +40,4 @@ cursor.execute("""
 conn.commit()
 conn.close()
 
+print("supabase setup all good")
