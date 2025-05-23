@@ -33,7 +33,7 @@ function FoodReview(){
         return (
             <div className = "px-3 me-1 flexCenter">
             <Stack spacing={1}>
-              <Rating name="rating" id = "rating" onChange = {handleChange} value ={formData.rating} size="large" />
+              <Rating name="rating" id = "rating" onChange = {handleChange} value ={formData.rating} precision={0.5} size="large" />
             </Stack>
             </div>
           )
@@ -125,7 +125,7 @@ function FoodReview(){
         setFormData(
             {
             ...formData,
-            [name]: name=== "rating" ? parseInt(value,10) : value
+            [name]: name=== "rating" ? parseFloat(value,10) : value
             }
         )
     }

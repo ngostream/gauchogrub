@@ -20,7 +20,7 @@ cursor.execute("""
         dining_hall TEXT NOT NULL,
         meal TEXT NOT NULL,
         station TEXT,
-        avg_rating FLOAT DEFAULT 0,
+        avg_rating REAL DEFAULT 0,
         UNIQUE(name, dining_hall, meal)
     );
 """)
@@ -30,7 +30,7 @@ cursor.execute("""
     CREATE TABLE IF NOT EXISTS Reviews (
         id SERIAL PRIMARY KEY,
         menu_item_id INTEGER NOT NULL,
-        rating INTEGER CHECK (rating BETWEEN 1 AND 5),
+        rating REAL CHECK (rating BETWEEN 1 AND 5),
         comment TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (menu_item_id) REFERENCES Menu_Items(id) ON DELETE CASCADE
