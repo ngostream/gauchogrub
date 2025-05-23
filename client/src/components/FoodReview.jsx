@@ -97,11 +97,20 @@ function FoodReview(){
     
     const handleSubmission = async (e) =>{
         e.preventDefault();
-        if (formData.review.trim() == "") {
+
+        const trimmedReview = formData.review.trim();
+
+        if (trimmedReview == "") {
             alert("Please enter a review before submitting.");
             return;
         }
-        if(formData.review.trim() != "" && !submitted){
+
+        if (trimmedReview.length > 500) {
+            alert("Review cannot exceed 500 characters.");
+            return;
+        }
+
+        if(!submitted){
             try{
                 /* const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                     headers: {"Content-Type": "application/json"}
@@ -167,7 +176,11 @@ function FoodReview(){
                     rows="4"
                     cols="40"
                     placeholder="Write your review here"
+                    maxLength={500}
                     ></textarea>
+                    <p style={{ fontSize: "0.9rem", color: "#666", marginTop: "0.25rem" }}>
+                    {formData.review.length}/500 characters
+                    </p>
                     <div className = "flexCenter py-1 pb-3">
                     <button type="submit" disabled={submitted}>
                         {submitted ? "Submitted" : "Submit"}
