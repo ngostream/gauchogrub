@@ -105,8 +105,8 @@ function FoodReview(){
             return;
         }
 
-        if (trimmedReview.length > 500) {
-            alert("Review cannot exceed 500 characters.");
+        if (trimmedReview.length > 300) {
+            alert("Review cannot exceed 300 characters.");
             return;
         }
 
@@ -176,10 +176,10 @@ function FoodReview(){
                     rows="4"
                     cols="40"
                     placeholder="Write your review here"
-                    maxLength={500}
+                    maxLength={300}
                     ></textarea>
                     <p style={{ fontSize: "0.9rem", color: "#666", marginTop: "0.25rem" }}>
-                    {formData.review.length}/500 characters
+                    {formData.review.length}/300 characters
                     </p>
                     <div className = "flexCenter py-1 pb-3">
                     <button type="submit" disabled={submitted}>

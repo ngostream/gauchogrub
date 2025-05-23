@@ -104,10 +104,10 @@ def submit(dining_hall, item_id):
         review_text = data["review"].strip()
         rating = data["rating"]
 
-        # 500 character limit
-        if len(review_text) > 500:
+        # 300 character limit for review text
+        if len(review_text) > 300:
             conn.close()
-            return jsonify({"error": "Review too long (500 character limit)"}), 400
+            return jsonify({"error": "Review too long (300 character limit)"}), 400
 
         # specifying range for ratings
         if not isinstance(rating, (float, int)) or not (1.0 <= rating <= 5.0):
