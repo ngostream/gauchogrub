@@ -62,9 +62,9 @@ for diningHall in diningHalls:
     for mealTime in diningHalls[diningHall]:
         foods = {}
         if weekend == False and mealTime != "Brunch":
-            foods = getResponse(iso,diningHall,mealTime)
+            foods = getResponse(date,diningHall,mealTime)
         elif (weekend == True and diningHall != "Ortega") and (mealTime == "Dinner" or mealTime == "Brunch"):
-            foods = getResponse(iso,diningHall, mealTime)
+            foods = getResponse(date,diningHall, mealTime)
         if isinstance(foods,list):
             for k in foods:
                 if k["station"] not in diningHalls[diningHall][mealTime]:
