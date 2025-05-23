@@ -2,7 +2,7 @@ name: Update Dining Hall Menu
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # Runs every day at 6am pst
+    - cron: '0 8 * * *'  # Runs every day at 1am pst
   workflow_dispatch:
 
 jobs:
