@@ -87,22 +87,27 @@ function FoodReview(){
     useEffect(() => {
         fetchReviews();
       
-        const alreadySubmitted = localStorage.getItem(`${safeFoodItem}-submitted`);
+        // 
+        /* const alreadySubmitted = localStorage.getItem(`${safeFoodItem}-submitted`);
         if (alreadySubmitted === "true") {
           setSubmitted(true);
-        }
+        } */
       }, []);
       
     
     const handleSubmission = async (e) =>{
         e.preventDefault();
-        if(formData.review != "" && !submitted){
+        if (formData.review.trim() == "") {
+            alert("Please enter a review before submitting.");
+            return;
+        }
+        if(formData.review.trim() != "" && !submitted){
             try{
                 const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
-                localStorage.setItem(`${safeFoodItem}-submitted`, "true");
+                // localStorage.setItem(`${safeFoodItem}-submitted`, "true");
                 setFormData(initialState);
                 setSubmitted(true);
                 fetchReviews();

@@ -20,6 +20,7 @@ cursor.execute("""
         dining_hall TEXT NOT NULL,
         meal TEXT NOT NULL,
         station TEXT,
+        avg_rating FLOAT DEFAULT 0,
         UNIQUE(name, dining_hall, meal)
     );
 """)

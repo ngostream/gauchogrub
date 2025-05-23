@@ -3,7 +3,8 @@ from flask_cors import CORS
 import datetime
 import requests
 import json
-import sqlite3
+# import sqlite3
+import psycopg2
 import os
 from dotenv import load_dotenv
 load_dotenv(".env.prod")
@@ -70,10 +71,10 @@ def menu():
 @app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
 def submit(dining_hall, item_id):
     item_id = item_id.replace("__slash__","/")
-    conn = sqlite3.connect("dining_menu.db")
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cursor = conn.cursor()
 
-    cursor.execute("SELECT id FROM Menu_Items WHERE name = ? AND dining_hall = ?", (item_id, dining_hall))
+    cursor.execute("SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s", (item_id, dining_hall))
     menu_item = cursor.fetchone()
 
     if not menu_item:
@@ -84,34 +85,75 @@ def submit(dining_hall, item_id):
 
     if request.method == "POST":
         data = request.json
-        review_text = data["review"]
+
+        # malformed json, empty text or no review
+        if "rating" not in data or "review" not in data:
+            conn.close()
+            return jsonify({"error": "Missing review data"}), 400
+        
+        review_text = data["review"].strip()
         rating = data["rating"]
 
+        # 500 character limit
+        if len(review_text) > 500:
+            conn.close()
+            return jsonify({"error": "Review too long (500 character limit)"}), 400
+
+        # specifying range for ratings
+        if not isinstance(rating, int) or not (1 <= rating <= 5):
+            conn.close()
+            return jsonify({"error": "Rating must be an integer between 1 and 5"}), 400
+
+
         cursor.execute(
-            "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (?, ?, ?)",
+            "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (%s, %s, %s)",
             (menu_item_id, rating ,review_text)
         )
         conn.commit()
+
+        # update the average rating
+        cursor.execute(
+            "SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s",
+            (menu_item_id,)
+        )
+        new_avg = cursor.fetchone()[0]
+
+        cursor.execute(
+            "UPDATE Menu_Items SET avg_rating = %s WHERE id = %s",
+            (new_avg, menu_item_id)
+        )
+        conn.commit()
+
     # grab the rating, comment, and reviews that match the menu item. defaults to descending based on most recent date
     cursor.execute(
         """
         SELECT r.rating, r.comment, r.created_at
         FROM Reviews r
         JOIN Menu_Items m ON r.menu_item_id = m.id
-        WHERE m.id = ? AND m.dining_hall = ?
+        WHERE m.id = %s AND m.dining_hall = %s
         ORDER BY r.created_at DESC
         """,
         (menu_item_id, dining_hall),
     )
     reviews = [{"rating": row[0], "comment": row[1], "created_at": row[2]} for row in cursor.fetchall()]
+
+    cursor.execute("SELECT avg_rating FROM Menu_Items WHERE id = %s", (menu_item_id,))
+    avg_rating = cursor.fetchone()[0] or 0
+
     conn.close()
 
-    if reviews:
-        avg_rating = sum(review["rating"] for review in reviews) / len(reviews)
-    else:
-        avg_rating = 0
-    
     return jsonify({"message": "received", "avg_rating": avg_rating, "reviews": reviews,}), 200
+
+@app.route("/<dining_hall>/avg_ratings", methods=["GET"])
+def get_avg_ratings(dining_hall):
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT name, avg_rating FROM Menu_Items WHERE dining_hall = %s
+    """, (dining_hall,))
+    result = {row[0]: round(row[1] or 0, 2) for row in cursor.fetchall()}
+    conn.close()
+    return jsonify(result)
     
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)

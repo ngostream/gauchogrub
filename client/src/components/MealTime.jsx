@@ -10,30 +10,20 @@ import axios from "axios";
 export default function MealTime({time, sections, ogHn}) {
   const [open, setOpen] = React.useState(true);
   const [avgRatings, setAvgRatings] = useState({});
-  useEffect( () =>{
-    const fetchAvgRatings = async () =>{
-      const ar = {}
-      const allItems = Object.entries(sections).flatMap(([_, foodList]) => foodList);
-      await Promise.all(
-        allItems.map(async (item) =>{
-          try{
-            let safeFoodItem = item.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
-            const response = await axios.get(`http://127.0.0.1:5000/${ogHn}/${encodeURIComponent(safeFoodItem)}`);
-            // maybe request for avg ratings of entire dining hall, backend creates object containing all avg ratings instead of making alot of reqeusts 
-            //for individual items at once
-            ar[item] = response.data.avg_rating?.toFixed(2);
-          }
-          catch (error){
-            ar[item] = 0;
-          }
-        })
-      )
-      setAvgRatings(ar);
-    }
-    if(Object.keys(sections).length > 0){
+  useEffect(() => {
+    const fetchAvgRatings = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:5000/${ogHn}/avg_ratings`);
+        setAvgRatings(response.data);
+      } catch (error) {
+        console.error("fetch average rating failed:", error);
+      }
+    };
+
+    if (Object.keys(sections).length > 0) {
       fetchAvgRatings();
     }
-  }, [sections, ogHn])
+  }, [ogHn]);
   
   const handleClick = () => {
     setOpen(!open);
