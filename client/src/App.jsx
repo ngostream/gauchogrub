@@ -12,7 +12,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   const fetchMenu = async () =>{
-    const response = await axios.get("http://localhost:5000/")
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
     console.log(response, "fetchMenu from App.jsx")
     setData(response.data)
     setLoading(false)

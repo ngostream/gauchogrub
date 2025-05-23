@@ -39,7 +39,8 @@ function FoodReview(){
           )
     }
     const fetchReviews = async () => {
-        const response = await axios.get(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`)
+        // const response = await axios.get(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`)
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
         setReviewData(response.data)
     }
@@ -103,7 +104,10 @@ function FoodReview(){
         }
         if(formData.review.trim() != "" && !submitted){
             try{
-                const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
+                /* const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
+                    headers: {"Content-Type": "application/json"}
+                }) */
+                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                     headers: {"Content-Type": "application/json"}
                 })
                 console.log(response.data, " handleSubmission from FoodReview.jsx");
