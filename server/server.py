@@ -110,7 +110,7 @@ def submit(dining_hall, item_id):
             return jsonify({"error": "Review too long (500 character limit)"}), 400
 
         # specifying range for ratings
-        if not isinstance(rating, int) or not (1 <= rating <= 5):
+        if not isinstance(rating, (float, int)) or not (1.0 <= rating <= 5.0):
             conn.close()
             return jsonify({"error": "Rating must be an integer between 1 and 5"}), 400
 
