@@ -37,6 +37,10 @@ cursor.execute("""
     );
 """)
 
+cursor.execute("""
+    CREATE INDEX IF NOT EXISTS idx_reviews_menu_item_id ON Reviews(menu_item_id);
+""")
+
 # commit and close connection
 conn.commit()
 conn.close()
