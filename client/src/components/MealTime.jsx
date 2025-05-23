@@ -14,7 +14,7 @@ export default function MealTime({time, sections, ogHn}) {
     const fetchAvgRatings = async () => {
       try {
         // const response = await axios.get(`http://127.0.0.1:5000/${ogHn}/avg_ratings`);
-        const response = axios.get(`${import.meta.env.VITE_API_BASE_URL}/${ogHn}/avg_ratings`)
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${ogHn}/avg_ratings`)
         setAvgRatings(response.data);
       } catch (error) {
         console.error("fetch average rating failed:", error);
