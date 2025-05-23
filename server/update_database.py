@@ -5,11 +5,13 @@ import requests
 import json
 import datetime
 from dotenv import load_dotenv
+from zoneinfo import ZoneInfo
 load_dotenv(".env.prod")
 # ucsb dining api
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
-date = str(datetime.datetime.now().replace(microsecond=0).isoformat())
+now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
+date = now.isoformat(timespec="seconds")
 # get menu data from the api
 def get_menu_data(date, dining_hall, meal):
     url = f"{BASE_URL}{date}/{dining_hall}/{meal}?ucsb-api-key={API_KEY}"

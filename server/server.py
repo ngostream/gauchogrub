@@ -7,12 +7,21 @@ import json
 import psycopg2
 import os
 from dotenv import load_dotenv
+from zoneinfo import ZoneInfo
 load_dotenv(".env.prod")
 API_KEY = os.getenv("API_KEY")
-date = str(datetime.datetime.now())
+
+# OLD DATE HANDLING
+""" date = str(datetime.datetime.now())
 date = date[0:10]
 weekend = datetime.datetime.today().weekday() >= 5
-iso = str(datetime.datetime.now().replace(microsecond=0).isoformat())
+iso = str(datetime.datetime.now().replace(microsecond=0).isoformat()) """
+
+now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
+date = now.date().isoformat()
+iso = now.isoformat()
+weekend = now.weekday() >= 5
+
 url = "https://api.ucsb.edu/dining/menu/v1/" #if no internet can't make connection (obviously duh)
 
 def getResponse(date, diningCommon, mealCode):
