@@ -2,6 +2,7 @@ import os
 # import sqlite3
 import psycopg2
 from psycopg2.extras import Json
+from collections import OrderedDict
 import requests
 import json
 import datetime
@@ -28,7 +29,11 @@ cursor = conn.cursor()
 dining_halls = ["Carrillo", "De-La-Guerra", "Ortega", "Portola"]
 meals = ["Breakfast", "Brunch", "Lunch", "Dinner"]
 
-diningHalls = {hall: {meal: {} for meal in meals} for hall in dining_halls}
+diningHalls = OrderedDict()
+for hall in dining_halls:
+    diningHalls[hall] = OrderedDict()
+    for meal in meals:
+        diningHalls[hall][meal] = OrderedDict()
 
 # get api data and insert into database
 for hall in dining_halls:
