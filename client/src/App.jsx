@@ -10,6 +10,7 @@ import './App.css'
 function App() {
   const [data,setData] = useState([{}])
   const [loading, setLoading] = useState(true);
+  const [slowLoading, setSlowLoading] = useState(false);
 
   const fetchMenu = async () =>{
     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
@@ -20,9 +21,26 @@ function App() {
   useEffect(() =>{
     fetchMenu();
   }, [])
+
+  useEffect(() => {
+    const slowTimer = setTimeout(() => setSlowLoading(true), 5000);
+    // 5 second timer
+    // fire off the fetch, then clear the timer once it finishes (success or error)
+    fetchMenu()
+    .catch(() => {"error loading"})
+    .finally(() => clearTimeout(slowTimer));
+    // cleanup in case the component unmounts early
+    return () => clearTimeout(slowTimer);
+  }, []);
   
   if (loading){
-    return <div>loading...</div>
+    return (
+    <div>
+      {slowLoading
+      ? "It's taking a while… please wait."
+      : "loading..."}
+    </div>
+    )
   }
 
   return (

@@ -5,7 +5,6 @@ import requests
 import json
 # import sqlite3
 import psycopg2
-import psycopg2.extras
 import os
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
