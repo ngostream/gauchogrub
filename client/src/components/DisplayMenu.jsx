@@ -1,5 +1,6 @@
 import React from 'react'
-import {useParams} from "react-router-dom"
+import {Link, useParams} from "react-router-dom"
+import ListItemButton from '@mui/material/ListItemButton';
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -18,6 +19,26 @@ function DisplayMenu({dict}){
         <>
         <Container style ={{paddingBottom: "80px"}}>
             <Nav/>
+            {/* back button */}
+            <div className="flexLeft">
+                <Link to="/">
+                    <ListItemButton sx={{
+                        color: "black",
+                        marginBottom: '10px',
+                        marginTop: '10px',
+                        borderLeft: '6px solid #0F3C67',
+                        borderRadius: '4px',
+                        padding: "7px",
+                        paddingLeft: "10px",
+                        paddingRight: "11px",
+                        backgroundColor: '#F9F9F9',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        Back
+                    </ListItemButton>
+                </Link>
+            </div>
                 <Row>
                     <Col className = "pt-3 flexLeft">
                     <h1 style={{

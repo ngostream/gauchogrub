@@ -60,16 +60,13 @@ diningHalls = {
 }
 for diningHall in diningHalls:
     for mealTime in diningHalls[diningHall]:
-        foods = {}
-        if weekend == False and mealTime != "Brunch":
-            foods = getResponse(date,diningHall,mealTime)
-        elif (weekend == True and diningHall != "Ortega") and (mealTime == "Dinner" or mealTime == "Brunch"):
-            foods = getResponse(date,diningHall, mealTime)
-        if isinstance(foods,list):
-            for k in foods:
-                if k["station"] not in diningHalls[diningHall][mealTime]:
-                    diningHalls[diningHall][mealTime][k["station"]] = []
-                diningHalls[diningHall][mealTime][k["station"]].append(k["name"])
+        foods = getResponse(date, diningHall, mealTime)
+        if isinstance(foods, list) and foods:  # only process if API returned actual items
+            for item in foods:
+                station = item.get("station", "General")
+                if station not in diningHalls[diningHall][mealTime]:
+                    diningHalls[diningHall][mealTime][station] = []
+                diningHalls[diningHall][mealTime][station].append(item["name"])
         
 app = Flask(__name__)
 # CORS(app, origins = "http://localhost:5173") 
