@@ -76,14 +76,14 @@ CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
 def menu():
     # return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
-    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cursor = conn.cursor()
 
     cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (now.date(),))
     row = cursor.fetchone()
     conn.close()
 
     if row:
-        json_data = json.dumps(row['data'], ensure_ascii=False)
+        json_data = row[0]
         return Response(json_data, mimetype='application/json')
     else:
         return jsonify({"error": "No data found"}), 404

@@ -38,10 +38,10 @@ cursor.execute("""
     );
 """)
 cursor.execute("""
-    CREATE TABLE IF NOT EXISTS Daily_Menu (
+    CREATE TABLE Daily_Menu (
         date DATE PRIMARY KEY,
-        data JSONB NOT NULL,
-        last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        data TEXT,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 """)
 
