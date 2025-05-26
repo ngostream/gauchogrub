@@ -1,7 +1,7 @@
 import os
 # import sqlite3
 import psycopg2
-import psycopg2.extras
+from psycopg2.extras import Json
 import requests
 import json
 import datetime
