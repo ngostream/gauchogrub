@@ -1,7 +1,6 @@
 import os
 # import sqlite3
 import psycopg2
-from psycopg2.extras import Json
 from collections import OrderedDict
 import requests
 import json
@@ -63,7 +62,7 @@ cursor.execute(
     VALUES (%s, %s)
     ON CONFLICT (date) DO UPDATE SET data = EXCLUDED.data, last_updated = CURRENT_TIMESTAMP
     """,
-    (now.date(), Json(diningHalls, dumps=lambda x: json.dumps(x, sort_keys=False)))
+    (now.date(), json.dumps(diningHalls, sort_keys=False))
 )
 print('inserted into daily menu')
 
