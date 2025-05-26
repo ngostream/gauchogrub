@@ -28,6 +28,8 @@ cursor = conn.cursor()
 dining_halls = ["Carrillo", "De-La-Guerra", "Ortega", "Portola"]
 meals = ["Breakfast", "Brunch", "Lunch", "Dinner"]
 
+diningHalls = {hall: {meal: {} for meal in meals} for hall in dining_halls}
+
 # get api data and insert into database
 for hall in dining_halls:
     for meal in meals:
@@ -45,6 +47,9 @@ for hall in dining_halls:
                     )
                 except Exception as e:
                     print(f"Error inserting {name}: {e}")
+                if station not in diningHalls[hall][meal]:
+                    diningHalls[hall][meal][station] = []
+                diningHalls[hall][meal][station].append(name)
 print('done inserting into menu_items')
 
 cursor.execute(
