@@ -1,7 +1,7 @@
 import React from 'react';
 import Nav from './Nav.jsx'; 
 import Footer from './Footer.jsx';
-import Link from "react-router-dom";
+import { Link } from "react-router-dom";
 import ListItemButton from '@mui/material/ListItemButton';
 
 function About() {
