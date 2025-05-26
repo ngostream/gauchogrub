@@ -1,4 +1,5 @@
 import psycopg2
+from psycopg2.extras import Json
 # import sqlite3
 from dotenv import load_dotenv
 import os
@@ -34,6 +35,13 @@ cursor.execute("""
         comment TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (menu_item_id) REFERENCES Menu_Items(id) ON DELETE CASCADE
+    );
+""")
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS Daily_Menu (
+        date DATE PRIMARY KEY,
+        data JSONB NOT NULL,
+        last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
     );
 """)
 

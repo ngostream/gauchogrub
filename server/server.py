@@ -5,6 +5,7 @@ import requests
 import json
 # import sqlite3
 import psycopg2
+import psycopg2.extras
 import os
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
@@ -58,7 +59,7 @@ diningHalls = {
     "Ortega": ortega,
     "Portola": portola
 }
-for diningHall in diningHalls:
+""" for diningHall in diningHalls:
     for mealTime in diningHalls[diningHall]:
         foods = getResponse(date, diningHall, mealTime)
         if isinstance(foods, list) and foods:  # only process if API returned actual items
@@ -66,14 +67,26 @@ for diningHall in diningHalls:
                 station = item.get("station", "General")
                 if station not in diningHalls[diningHall][mealTime]:
                     diningHalls[diningHall][mealTime][station] = []
-                diningHalls[diningHall][mealTime][station].append(item["name"])
+                diningHalls[diningHall][mealTime][station].append(item["name"]) """
         
 app = Flask(__name__)
 # CORS(app, origins = "http://localhost:5173") 
 CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
 @app.route("/")
 def menu():
-    return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
+    # return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
+    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (now.date(),))
+    row = cursor.fetchone()
+    conn.close()
+
+    if row:
+        json_data = json.dumps(row['data'], ensure_ascii=False)
+        return Response(json_data, mimetype='application/json')
+    else:
+        return jsonify({"error": "No data found"}), 404
 
 @app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
 def submit(dining_hall, item_id):

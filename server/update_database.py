@@ -44,7 +44,17 @@ for hall in dining_halls:
                     )
                 except Exception as e:
                     print(f"Error inserting {name}: {e}")
-print('done inserting')
+print('done inserting into menu_items')
+
+cursor.execute(
+    """
+    INSERT INTO Daily_Menu (date, data)
+    VALUES (%s, %s)
+    ON CONFLICT (date) DO UPDATE SET data = EXCLUDED.data, last_updated = CURRENT_TIMESTAMP
+    """,
+    (now.date(), Json(diningHalls, dumps=lambda x: json.dumps(x, sort_keys=False)))
+)
+print('inserted into daily menu')
 
 # commit and close
 conn.commit()
