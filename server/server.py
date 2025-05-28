@@ -173,12 +173,17 @@ def submit(dining_hall, item_id):
             conn.close()
             return jsonify({"error": "Rating must be an integer between 1 and 5"}), 400
 
-
-        cursor.execute(
-            "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (%s, %s, %s)",
-            (menu_item_id, rating ,review_text)
-        )
-        conn.commit()
+        cursor.execute("""
+            SELECT 1 FROM Reviews
+            WHERE menu_item_id = %s AND comment = %s
+            AND created_at > NOW() - interval '10 seconds'
+        """, (menu_item_id, review_text))
+        if not cursor.fetchone():
+            cursor.execute(
+                "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (%s, %s, %s)",
+                (menu_item_id, rating ,review_text)
+            )
+            conn.commit()
 
     # grab the rating, comment, and reviews that match the menu item. defaults to descending based on most recent date
     cursor.execute(

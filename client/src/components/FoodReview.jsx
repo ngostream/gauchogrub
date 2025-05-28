@@ -1,4 +1,4 @@
-import React , {useState, useEffect} from "react"
+import React , {useState, useEffect, useRef} from "react"
 import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
 import Rating from '@mui/material/Rating';
@@ -15,10 +15,6 @@ import axios from "axios"
 import "../App.css"
 import leoProfanity from "leo-profanity";
 
-function containsProfanity(text) {
-  return leoProfanity.check(text);
-}
-
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
     let safeFoodItem = foodItem.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
@@ -34,6 +30,7 @@ function FoodReview(){
 
     const [formData, setFormData] = useState(initialState) //to db
     const [submitted, setSubmitted] = useState(false); // track whether or not user submitted review
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const StarRating = () =>{ //maybe put into its own component file?
         return (
             <div className = "px-3 me-1 flexCenter">
@@ -103,43 +100,49 @@ function FoodReview(){
     const handleSubmission = async (e) =>{
         e.preventDefault();
 
+        if (submitted) return;
+        setIsSubmitting(true);
+
         const trimmedReview = formData.review.trim();
         
         // empty
         if (trimmedReview == "") {
             alert("Please enter a review before submitting.");
+            setIsSubmitting(false);
+
             return;
         }
         
         // too long
         if (trimmedReview.length > 300) {
             alert("Review cannot exceed 300 characters.");
+            setIsSubmitting(false);
             return;
         }
 
         // profanity
         if (leoProfanity.check(trimmedReview)) {
             alert("Please avoid using offensive language.");
+            setIsSubmitting(false);
             return;
         }
 
-
-        if(!submitted){
-            try{
-                /* const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
-                    headers: {"Content-Type": "application/json"}
-                }) */
-                const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
-                    headers: {"Content-Type": "application/json"}
-                })
-                console.log(response.data, " handleSubmission from FoodReview.jsx");
-                localStorage.setItem(`${safeFoodItem}-submitted`, "true");
-                setFormData(initialState);
-                setSubmitted(true);
-                fetchReviews();
-            }  catch (error){
-                console.log(error)
-            }
+        try{
+            /* const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
+                headers: {"Content-Type": "application/json"}
+            }) */
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
+                headers: {"Content-Type": "application/json"}
+            })
+            console.log(response.data, " handleSubmission from FoodReview.jsx");
+            localStorage.setItem(`${safeFoodItem}-submitted`, "true");
+            setFormData(initialState);
+            setSubmitted(true);
+            fetchReviews();
+        }  catch (error){
+            console.log(error)
+            // re enable
+            setIsSubmitting(false);
         }
     }
     const handleChange = (e) =>{
@@ -196,8 +199,8 @@ function FoodReview(){
                     {formData.review.length}/300 characters
                     </p>
                     <div className = "flexCenter py-1 pb-3">
-                    <button type="submit" disabled={submitted}>
-                        {submitted ? "Submitted" : "Submit"}
+                    <button type="submit" disabled={submitted || isSubmitting}>
+                        {submitted ? "Submitted" : isSubmitting ? "Submitting…" : "Submit"}
                     </button>
                     <StarRating/>
                     </div>

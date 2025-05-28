@@ -28,18 +28,26 @@ function App() {
     setData(response.data)
     setLoading(false)
   };
-  useEffect(() =>{
-    fetchMenu();
-  }, [])
 
   useEffect(() => {
+    // 20 second timer until slow loading message
     const slowTimer = setTimeout(() => setSlowLoading(true), 20000);
-    // 20 second timer
-    // fire off the fetch, then clear the timer once it finishes (success or error)
-    fetchMenu()
-    .catch(() => {"error loading"})
-    .finally(() => clearTimeout(slowTimer));
-    // cleanup in case the component unmounts early
+
+    const fetch = async () => {
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
+        console.log(response, "fetchMenu from App.jsx");
+        setData(response.data);
+      } catch (err) {
+        console.error("Error loading menu:", err);
+      } finally {
+        clearTimeout(slowTimer);
+        setLoading(false);
+      }
+    };
+
+    fetch();
+
     return () => clearTimeout(slowTimer);
   }, []);
   
