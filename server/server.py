@@ -8,6 +8,8 @@ import psycopg2
 import os
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
+from better_profanity import profanity
+import re
 load_dotenv(".env.prod")
 API_KEY = os.getenv("API_KEY")
 
@@ -60,6 +62,14 @@ diningHalls = {
 }
 
 # for the profanity filter
+def normalize (text):
+    text = text.lower()
+    text = re.sub(r'[^a-z0-9\s]', '', text)d
+    text = re.sub(r'\s+', '', text)
+    return text
+
+profanity.load_censor_words()
+
 with open("banned_words.json") as f:
     BANNED_WORDS = set(json.load(f))
 
@@ -133,9 +143,9 @@ def submit(dining_hall, item_id):
         rating = data["rating"]
 
         # profanity
-        if contains_profanity(review_text):
+        if profanity.contains_profanity(normalize(review_text)) or contains_profanity(review_text):
             conn.close()
-            return jsonify({"error": "Your review contains inappropriate language."}), 400
+            return jsonify({"error": "Review contains inappropriate language"}), 400
 
         # 300 character limit for review text
         if len(review_text) > 300:
