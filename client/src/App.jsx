@@ -17,7 +17,7 @@ function App() {
     "Checking what's cooking…",
     "Grabbing your favorite bites...",
     "Plating today's dishes...",
-    "Checking my swipes...",
+    "Buying more swipes...",
     "Whipping up the menu...",
   ];
   const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
@@ -33,7 +33,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const slowTimer = setTimeout(() => setSlowLoading(true), 30000);
+    const slowTimer = setTimeout(() => setSlowLoading(true), 20000);
     // 10 second timer
     // fire off the fetch, then clear the timer once it finishes (success or error)
     fetchMenu()
