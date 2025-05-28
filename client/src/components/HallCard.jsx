@@ -17,7 +17,7 @@ export default function HallCard({hN}) {
         title = "DLG Dining Commons"
     }
     else if (hN == "Portola Dining Commons"){
-        image = "/img/portola.png"
+        image = "/img/portola.jpeg"
         title = "Portola Dining Commons"
     }
     else if (hN == "Ortega Takeout"){
