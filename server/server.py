@@ -206,9 +206,13 @@ def get_avg_ratings(dining_hall):
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT name, avg_rating FROM Menu_Items WHERE dining_hall = %s
+        SELECT m.name, COALESCE(AVG(r.rating), 0)
+        FROM Menu_Items m
+        LEFT JOIN Reviews r ON m.id = r.menu_item_id
+        WHERE m.dining_hall = %s
+        GROUP BY m.name
     """, (dining_hall,))
-    result = {row[0]: round(row[1] or 0, 2) for row in cursor.fetchall()}
+    result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
     conn.close()
     return jsonify(result)
     
