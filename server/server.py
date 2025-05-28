@@ -193,24 +193,31 @@ def submit(dining_hall, item_id):
     )
     reviews = [{"rating": row[0], "comment": row[1], "created_at": row[2]} for row in cursor.fetchall()]
 
-    cursor.execute("SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s", (menu_item_id,))
-    avg_rating = cursor.fetchone()[0] or 0
+    # update the average rating
+    cursor.execute(
+        "SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s",
+        (menu_item_id,)
+    )
+    new_avg = cursor.fetchone()[0]
 
+    cursor.execute(
+        "UPDATE Menu_Items SET avg_rating = %s WHERE id = %s",
+        (new_avg, menu_item_id)
+    )
+    conn.commit()
 
     conn.close()
 
-    return jsonify({"message": "received", "avg_rating": avg_rating, "reviews": reviews,}), 200
+    return jsonify({"message": "received", "avg_rating": new_avg, "reviews": reviews,}), 200
 
 @app.route("/<dining_hall>/avg_ratings", methods=["GET"])
 def get_avg_ratings(dining_hall):
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
     cursor = conn.cursor()
     cursor.execute("""
-        SELECT m.name, COALESCE(AVG(r.rating), 0)
-        FROM Menu_Items m
-        LEFT JOIN Reviews r ON m.id = r.menu_item_id
-        WHERE m.dining_hall = %s
-        GROUP BY m.name
+        SELECT name, COALESCE(avg_rating, 0)
+        FROM Menu_Items
+        WHERE dining_hall = %s
     """, (dining_hall,))
     result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
     conn.close()
