@@ -13,6 +13,15 @@ import Col from 'react-bootstrap/Col'
 import Footer from './Footer.jsx'
 import axios from "axios"
 import "../App.css"
+import leoProfanity from "leo-profanity";
+
+leoProfanity.add([
+    "nigger", "nigga", "chink", "faggot", "retard", "kike", "spic", "beaner", "wetback", "zipperhead"
+])
+
+function containsProfanity(text) {
+  return leoProfanity.check(text);
+}
 
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
@@ -99,14 +108,22 @@ function FoodReview(){
         e.preventDefault();
 
         const trimmedReview = formData.review.trim();
-
+        
+        // empty
         if (trimmedReview == "") {
             alert("Please enter a review before submitting.");
             return;
         }
-
+        
+        // too long
         if (trimmedReview.length > 300) {
             alert("Review cannot exceed 300 characters.");
+            return;
+        }
+
+        // profanity
+        if (containsProfanity(trimmedReview)) {
+            alert("Your review contains inappropriate language.")
             return;
         }
 

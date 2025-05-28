@@ -58,6 +58,16 @@ diningHalls = {
     "Ortega": ortega,
     "Portola": portola
 }
+
+# for the profanity filter
+with open("banned_words.json") as f:
+    BANNED_WORDS = set(json.load(f))
+
+def contains_profanity(text):
+    lower = text.lower()
+    return any(word in lower for word in BANNED_WORDS)
+
+# dont need this anymore, retrieving from db instead of making a bunch of api calls
 """ for diningHall in diningHalls:
     for mealTime in diningHalls[diningHall]:
         foods = getResponse(date, diningHall, mealTime)
@@ -121,6 +131,11 @@ def submit(dining_hall, item_id):
         
         review_text = data["review"].strip()
         rating = data["rating"]
+
+        # profanity
+        if contains_profanity(review_text):
+            conn.close()
+            return jsonify({"error": "Your review contains inappropriate language."}), 400
 
         # 300 character limit for review text
         if len(review_text) > 300:
