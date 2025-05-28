@@ -13,11 +13,7 @@ import Col from 'react-bootstrap/Col'
 import Footer from './Footer.jsx'
 import axios from "axios"
 import "../App.css"
-import {leoProfanity, isProfane} from "leo-profanity";
-
-leoProfanity.add([
-    "nigger", "nigga", "chink", "faggot", "retard", "kike", "spic", "beaner", "wetback", "zipperhead"
-])
+import leoProfanity from "leo-profanity";
 
 function containsProfanity(text) {
   return leoProfanity.check(text);
@@ -122,10 +118,11 @@ function FoodReview(){
         }
 
         // profanity
-        if (isProfane(trimmedReview)) {
-            alert("Please avoid using offensive language.")
+        if (leoProfanity.check(trimmedReview)) {
+            alert("Please avoid using offensive language.");
             return;
         }
+
 
         if(!submitted){
             try{
@@ -151,7 +148,7 @@ function FoodReview(){
         setFormData(
             {
             ...formData,
-            [name]: name=== "rating" ? parseFloat(value,10) : value
+            [name]: name=== "rating" ? parseFloat(value) : value
             }
         )
     }
