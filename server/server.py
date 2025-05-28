@@ -62,20 +62,37 @@ diningHalls = {
 }
 
 # for the profanity filter
-def normalize (text):
+def normalize(text):
+    substitutions = {
+        '1': 'i', '!': 'i', '3': 'e', '4': 'a', '@': 'a',
+        '0': 'o', '$': 's', '5': 's', '+': 't'
+    }
     text = text.lower()
     text = re.sub(r'[^a-z0-9\s]', '', text)
+    for k, v in substitutions.items():
+        text = text.replace(k, v)
     text = re.sub(r'\s+', '', text)
     return text
 
+def contains_fuzzy_profanity(text):
+    normalized = normalize(text)
+    return profanity.contains_profanity(normalized)
 profanity.load_censor_words()
 
 with open("banned_words.json") as f:
     BANNED_WORDS = set(json.load(f))
+    profanity.load_censor_words(BANNED_WORDS)
 
 def contains_profanity(text):
     lower = text.lower()
     return any(word in lower for word in BANNED_WORDS)
+
+def is_inappropriate(text):
+    norm = normalize(text)
+    return (
+        profanity.contains_profanity(norm)
+        or any(word in text.lower() for word in BANNED_WORDS)
+    )
 
 # dont need this anymore, retrieving from db instead of making a bunch of api calls
 """ for diningHall in diningHalls:
@@ -143,8 +160,7 @@ def submit(dining_hall, item_id):
         rating = data["rating"]
 
         # profanity
-        if profanity.contains_profanity(normalize(review_text)) or contains_profanity(review_text):
-            conn.close()
+        if is_inappropriate(review_text):
             return jsonify({"error": "Review contains inappropriate language"}), 400
 
         # 300 character limit for review text
@@ -164,19 +180,6 @@ def submit(dining_hall, item_id):
         )
         conn.commit()
 
-        # update the average rating
-        cursor.execute(
-            "SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s",
-            (menu_item_id,)
-        )
-        new_avg = cursor.fetchone()[0]
-
-        cursor.execute(
-            "UPDATE Menu_Items SET avg_rating = %s WHERE id = %s",
-            (new_avg, menu_item_id)
-        )
-        conn.commit()
-
     # grab the rating, comment, and reviews that match the menu item. defaults to descending based on most recent date
     cursor.execute(
         """
@@ -190,8 +193,9 @@ def submit(dining_hall, item_id):
     )
     reviews = [{"rating": row[0], "comment": row[1], "created_at": row[2]} for row in cursor.fetchall()]
 
-    cursor.execute("SELECT avg_rating FROM Menu_Items WHERE id = %s", (menu_item_id,))
+    cursor.execute("SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s", (menu_item_id,))
     avg_rating = cursor.fetchone()[0] or 0
+
 
     conn.close()
 
