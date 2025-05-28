@@ -64,7 +64,7 @@ diningHalls = {
 # for the profanity filter
 def normalize (text):
     text = text.lower()
-    text = re.sub(r'[^a-z0-9\s]', '', text)d
+    text = re.sub(r'[^a-z0-9\s]', '', text)
     text = re.sub(r'\s+', '', text)
     return text
 
