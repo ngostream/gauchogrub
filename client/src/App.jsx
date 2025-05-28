@@ -6,11 +6,21 @@ import DisplayHalls from "./components/DisplayHalls.jsx"
 import About from "./components/About.jsx"
 import axios from 'axios'
 import './App.css'
+import CircularProgress from '@mui/material/CircularProgress';
 
 function App() {
   const [data,setData] = useState([{}])
   const [loading, setLoading] = useState(true);
   const [slowLoading, setSlowLoading] = useState(false);
+
+  const loadingMessages = [
+    "Checking what's cooking…",
+    "Grabbing your favorite bites...",
+    "Plating today's dishes...",
+    "Checking my swipes...",
+    "Whipping up the menu...",
+  ];
+  const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 
   const fetchMenu = async () =>{
     const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
@@ -23,8 +33,8 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const slowTimer = setTimeout(() => setSlowLoading(true), 5000);
-    // 5 second timer
+    const slowTimer = setTimeout(() => setSlowLoading(true), 30000);
+    // 10 second timer
     // fire off the fetch, then clear the timer once it finishes (success or error)
     fetchMenu()
     .catch(() => {"error loading"})
@@ -33,15 +43,18 @@ function App() {
     return () => clearTimeout(slowTimer);
   }, []);
   
-  if (loading){
-    return (
-    <div>
-      {slowLoading
-      ? "It's taking a while… please wait."
-      : "loading..."}
+if (loading) {
+  return (
+    <div style={{ textAlign: 'center', marginTop: '25vh' }}>
+      <CircularProgress size={60} />
+      <p style={{ marginTop: '1rem' }}>
+        {slowLoading
+          ? "Still cooking… thanks for waiting!"
+          : randomMessage}
+      </p>
     </div>
-    )
-  }
+  );
+}
 
   return (
     <div>

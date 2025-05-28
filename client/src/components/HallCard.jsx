@@ -10,10 +10,10 @@ export default function HallCard({hN}) {
     let image = ""; //should contact ucsb for permission to use images once we move to production
     let title ="";
     if(hN == "Carrillo Dining Commons"){
-        image = "/img/carrillo.png"
+        image = "/img/carrillo.jpeg"
     }
     else if(hN == "De La Guerra Dining Commons"){
-        image = "/img/dlg.png"
+        image = "/img/dlg.jpeg"
         title = "DLG Dining Commons"
     }
     else if (hN == "Portola Dining Commons"){
@@ -21,7 +21,7 @@ export default function HallCard({hN}) {
         title = "Portola Dining Commons"
     }
     else if (hN == "Ortega Takeout"){
-        image = "/img/ortega.png"
+        image = "/img/ortega.jpeg"
         title = "Ortega Takeout"
     }
   return (
