@@ -79,6 +79,15 @@ def menu():
 
     cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (now.date(),))
     row = cursor.fetchone()
+
+    # fallback, get most recent
+    if not row:
+        cursor.execute("""
+            SELECT data FROM Daily_Menu WHERE DATE < %s
+            ORDER BY date DESC LIMIT 1
+        """), (now.date(),)
+        row = cursor.fetchone()
+
     conn.close()
 
     if row:

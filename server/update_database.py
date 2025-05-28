@@ -66,6 +66,10 @@ cursor.execute(
 )
 print('inserted into daily menu')
 
+# delete rows older than 2 days
+cursor.execute("DELETE FROM Daily_Menu WHERE date < %s", (now.date() - datetime.timedelta(days=2),))
+print('deleted entries in Daily_Menu older than 2 days')
+
 # commit and close
 conn.commit()
 conn.close()

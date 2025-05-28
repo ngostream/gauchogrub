@@ -34,7 +34,7 @@ function App() {
 
   useEffect(() => {
     const slowTimer = setTimeout(() => setSlowLoading(true), 20000);
-    // 10 second timer
+    // 20 second timer
     // fire off the fetch, then clear the timer once it finishes (success or error)
     fetchMenu()
     .catch(() => {"error loading"})
