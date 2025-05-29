@@ -30,8 +30,8 @@ function App() {
   };
 
   useEffect(() => {
-    // 20 second timer until slow loading message
-    const slowTimer = setTimeout(() => setSlowLoading(true), 20000);
+    // 10 second timer until slow loading message
+    const slowTimer = setTimeout(() => setSlowLoading(true), 10000);
 
     const fetch = async () => {
       try {
