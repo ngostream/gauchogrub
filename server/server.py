@@ -122,7 +122,7 @@ def menu():
         cursor.execute("""
             SELECT data FROM Daily_Menu WHERE DATE < %s
             ORDER BY date DESC LIMIT 1
-        """), (now.date(),)
+        """, (now.date(),))
         row = cursor.fetchone()
 
     conn.close()
