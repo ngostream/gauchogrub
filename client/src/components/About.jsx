@@ -51,7 +51,7 @@ function About() {
           <h3>Future Vision</h3>
           <p>
             We're continuing to improve Gaucho Grubz with new features like user accounts, favorite dish tracking,
-            and dietary filters. We are looking at potentially maing an app that we can launch on the Apple Store and Google Play Store. Got ideas or feedback? Let us know. We're always <i>hungry</i> for suggestions.
+            and dietary filters. We are looking at potentially making an app that we can launch on the Apple Store and Google Play Store. Got ideas or feedback? Let us know. We're always <i>hungry</i> for suggestions.
           </p>
         </section>
       </div>
