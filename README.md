@@ -15,7 +15,7 @@ GauchoGrubz is a full-stack web application that allows UCSB students to view re
 
 ## Technologies Used
 
-- **Backend**: Flask, PostgreSQL, Requests, Python-dotenv
+- **Backend**: Flask, PostgreSQL (migrated from SQLite), Requests, Python-dotenv
 - **Frontend**: React, React-Router, React-Bootstrap, Axios, Vite
 - **API**: UCSB Dining API
 - **Deployment**: GitHub Actions (scheduled updates to the database)
