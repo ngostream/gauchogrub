@@ -50,7 +50,7 @@ Reviews Table:
 
 ## Deployment & Automation
 
-- `update_database.py` pulls new dining hall data from UCSB API every 24 hours and inserts it into the SQLite database.
+- `update_database.py` pulls new dining hall data from UCSB API every 24 hours and inserts it into the database.
 - Flask API runs locally or can be deployed to any cloud provider.
 - React frontend runs locally or can be built for production.
 
