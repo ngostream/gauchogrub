@@ -107,7 +107,7 @@ def is_inappropriate(text):
         
 app = Flask(__name__)
 # CORS(app, origins = "http://localhost:5173") 
-CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
+CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app", "https://gauchogrub-production.up.railway.app/"])
 @app.route("/")
 def menu():
     # return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
