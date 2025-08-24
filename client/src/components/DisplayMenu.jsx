@@ -20,15 +20,6 @@ function DisplayMenu({dict}){
         !dict[hN] ||
         Object.keys(dict[hN]).length === 0 ||
         Object.values(dict[hN]).every(stations => !stations || Object.keys(stations).length === 0);
-    if (isClosed) {
-        return (
-            <div className="menu-container">
-                <p style={{ textAlign: 'center', marginTop: '2rem', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                    {hN} is currently closed.
-                </p>
-            </div>
-        );
-    }
     return (
         <>
         <Container style ={{paddingBottom: "80px"}}>
@@ -73,16 +64,26 @@ function DisplayMenu({dict}){
                 </Row> 
                 <hr></hr>
                 <Row>
-                    {Object.entries(dict[hN]).map(([times, stations])=>(
-                        /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
-                        (Object.keys(stations).length !== 0)
-                        ? <Col className = "px-5" key={times}>
-                        <div>
-                            <MealTime time = {times} sections = {stations} ogHn = {hN}/>
-                        </div>
+                    {isClosed ? (
+                        <Col>
+                            <div className="menu-container">
+                                <p style={{ textAlign: 'center', marginTop: '2rem', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                                    {hN} is currently closed.
+                                </p>
+                            </div>
                         </Col>
-                        : null
-                    ))}
+                    ) : (
+                        Object.entries(dict[hN]).map(([times, stations])=> (
+                            /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
+                            (Object.keys(stations).length !== 0)
+                            ? <Col className = "px-5" key={times}>
+                            <div>
+                                <MealTime time = {times} sections = {stations} ogHn = {hN}/>
+                            </div>
+                            </Col>
+                            : null
+                        ))
+                    )}
                 </Row>
                 
         </Container>

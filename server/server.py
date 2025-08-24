@@ -79,19 +79,10 @@ def contains_fuzzy_profanity(text):
     return profanity.contains_profanity(normalized)
 profanity.load_censor_words()
 
-with open("banned_words.json") as f:
-    BANNED_WORDS = set(json.load(f))
-    profanity.load_censor_words(BANNED_WORDS)
-
-def contains_profanity(text):
-    lower = text.lower()
-    return any(word in lower for word in BANNED_WORDS)
-
 def is_inappropriate(text):
     norm = normalize(text)
     return (
         profanity.contains_profanity(norm)
-        or any(word in text.lower() for word in BANNED_WORDS)
     )
 
 # dont need this anymore, retrieving from db instead of making a bunch of api calls
