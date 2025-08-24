@@ -1,3 +1,13 @@
+/* Make navbar span full width */
+.nav-fullwidth {
+  width: 100vw !important;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  position: relative;
+  border-radius: 0 !important;
+}
 body{
   /* background-color: rgb(15, 60, 103); maybe use for shadow instead?*/
   overflow-x: hidden;

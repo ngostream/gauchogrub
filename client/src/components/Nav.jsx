@@ -15,11 +15,11 @@ function NavigationBar() {
     <>
       <Navbar
         expand="lg"
-        className="bg-body-tertiary"
+        className="bg-body-tertiary nav-fullwidth"
         expanded={expanded}
         onToggle={setExpanded}
       >
-        <Container>
+  <Container>
           <Navbar.Brand href="/">
             <img
               alt=""
@@ -32,7 +32,7 @@ function NavigationBar() {
           </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto" onSelect={handleSelect}>
+  <Nav className="mx-auto" onSelect={handleSelect}>
           <Nav.Link as={Link} to="/Carrillo%20Dining%20Commons" onClick={handleSelect}>Carrillo</Nav.Link>
           <Nav.Link as={Link} to="/Portola%20Dining%20Commons" onClick={handleSelect}>Portola</Nav.Link>
           <Nav.Link as={Link} to="/De%20La%20Guerra%20Dining%20Commons" onClick={handleSelect}>De La Guerra</Nav.Link>
