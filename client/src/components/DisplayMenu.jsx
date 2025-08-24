@@ -15,7 +15,17 @@ function DisplayMenu({dict}){
     else if (hN == "Carrillo Dining Commons"){ hN = "Carrillo"}
     else if (hN == "De La Guerra Dining Commons"){hN = "De-La-Guerra"}
     else if (hN == "Portola Dining Commons"){hN = "Portola"}
-    return(
+    // If menu item data is empty or not loaded, show closed message
+    if (!dict[hN] || Object.keys(dict[hN]).length === 0) {
+        return (
+            <div className="menu-container">
+                <p style={{ textAlign: 'center', marginTop: '2rem', fontWeight: 'bold', fontSize: '1.2rem' }}>
+                    {hN} is currently closed.
+                </p>
+            </div>
+        );
+    }
+    return (
         <>
         <Container style ={{paddingBottom: "80px"}}>
             <Nav/>
