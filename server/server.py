@@ -97,7 +97,7 @@ def is_inappropriate(text):
                 diningHalls[diningHall][mealTime][station].append(item["name"]) """
         
 app = Flask(__name__)
-# CORS(app, origins = "http://localhost:5173") 
+
 CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
 @app.route("/")
 def menu():
@@ -218,6 +218,11 @@ def get_avg_ratings(dining_hall):
     result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
     conn.close()
     return jsonify(result)
+
+# health check endpoint (for pinging to avoid cold starts)
+@app.route("/health")
+def health():
+    return "OK", 200
     
 if __name__ == "__main__":
     app.run(host = "0.0.0.0", port = 5000, debug=True)
