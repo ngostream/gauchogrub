@@ -84,17 +84,6 @@ def is_inappropriate(text):
     return (
         profanity.contains_profanity(norm)
     )
-
-# dont need this anymore, retrieving from db instead of making a bunch of api calls
-""" for diningHall in diningHalls:
-    for mealTime in diningHalls[diningHall]:
-        foods = getResponse(date, diningHall, mealTime)
-        if isinstance(foods, list) and foods:  # only process if API returned actual items
-            for item in foods:
-                station = item.get("station", "General")
-                if station not in diningHalls[diningHall][mealTime]:
-                    diningHalls[diningHall][mealTime][station] = []
-                diningHalls[diningHall][mealTime][station].append(item["name"]) """
         
 app = Flask(__name__)
 
