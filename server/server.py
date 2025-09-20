@@ -12,6 +12,12 @@ from better_profanity import profanity
 import re
 load_dotenv(".env.prod")
 API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    raise RuntimeError("API_KEY is not set!")
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set!")
 
 now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
 date = now.date().isoformat()
@@ -96,7 +102,7 @@ CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
 @app.route("/")
 def menu():
     # return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (now.date(),))
@@ -121,7 +127,7 @@ def menu():
 @app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
 def submit(dining_hall, item_id):
     item_id = item_id.replace("__slash__","/")
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
 
     cursor.execute("SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s", (item_id, dining_hall))
@@ -202,7 +208,7 @@ def submit(dining_hall, item_id):
 
 @app.route("/<dining_hall>/avg_ratings", methods=["GET"])
 def get_avg_ratings(dining_hall):
-    conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+    conn = psycopg2.connect(DATABASE_URL)
     cursor = conn.cursor()
     cursor.execute("""
         SELECT name, COALESCE(avg_rating, 0)
