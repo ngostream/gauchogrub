@@ -52,23 +52,16 @@ function DisplayMenu({dict}){
                 </Link>
             </div>
                 <Row>
-                    <Col className = "pt-3 flexLeft">
-                    <h1 style={{
-                        fontWeight: "700",
-                        letterSpacing: "0.5px",
-                        color: "#0F3C67",
-                    }}>{hN}</h1>
+                    <Col className="pt-3">
+                        <h1 style={{
+                            fontWeight: "700",
+                            letterSpacing: "0.5px",
+                            color: "#0F3C67",
+                        }}>
+                            {hN}
+                        </h1>
                     </Col>
-                    {
-                        (hN=="De-La-Guerra")
-                        ? null
-                        : 
-                        <>
-                        <Col></Col>
-                        <Col></Col>
-                        </>
-                    }
-                </Row> 
+                </Row>
                 <hr></hr>
                 <Row>
                     {isClosed ? (
