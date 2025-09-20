@@ -10,11 +10,15 @@ import "../App.css"
 import Footer from './Footer.jsx'
 
 function DisplayMenu({dict}){
-    let hN = decodeURIComponent(useParams().hN);
-    if(hN == "Ortega Takeout"){hN = "Ortega"}
-    else if (hN == "Carrillo Dining Commons"){ hN = "Carrillo"}
-    else if (hN == "De La Guerra Dining Commons"){hN = "De-La-Guerra"}
-    else if (hN == "Portola Dining Commons"){hN = "Portola"}
+    let hN = decodeURIComponent(useParams().hN);  // keep the key exactly as backend uses it
+    const hallDisplayMap = {
+        "Ortega Takeout": "Ortega",
+        "Carrillo Dining Commons": "Carrillo",
+        "De La Guerra Dining Commons": "De-La-Guerra",
+        "Portola Dining Commons": "Portola"
+    };
+    const displayName = hallDisplayMap[hN] || hN;  // for showing in the UI
+
     // if menu item data is empty or all meal times are empty, show closed message
     const isClosed =
         !dict[hN] ||
@@ -50,7 +54,7 @@ function DisplayMenu({dict}){
                         fontWeight: "700",
                         letterSpacing: "0.5px",
                         color: "#0F3C67",
-                    }}>{hN}</h1>
+                    }}>{displayName}</h1>
                     </Col>
                     {
                         (hN=="De-La-Guerra")
