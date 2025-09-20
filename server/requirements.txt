@@ -1,6 +1,6 @@
 flask
 gunicorn
-flask-cors
+Flask-Cors
 requests
 python-dotenv
 psycopg2-binary
