@@ -13,12 +13,6 @@ import re
 load_dotenv(".env.prod")
 API_KEY = os.getenv("API_KEY")
 
-# OLD DATE HANDLING
-""" date = str(datetime.datetime.now())
-date = date[0:10]
-weekend = datetime.datetime.today().weekday() >= 5
-iso = str(datetime.datetime.now().replace(microsecond=0).isoformat()) """
-
 now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
 date = now.date().isoformat()
 iso = now.isoformat()
