@@ -11,19 +11,22 @@ import Footer from './Footer.jsx'
 
 function DisplayMenu({dict}){
     let hN = decodeURIComponent(useParams().hN);  // keep the key exactly as backend uses it
-    const hallDisplayMap = {
+
+    const hallBackendKeyMap = {
         "Ortega Takeout": "Ortega",
         "Carrillo Dining Commons": "Carrillo",
         "De La Guerra Dining Commons": "De-La-Guerra",
         "Portola Dining Commons": "Portola"
     };
-    const displayName = hallDisplayMap[hN] || hN;  // for showing in the UI
+
+    const backendKey = hallBackendKeyMap[hN] || hN;
 
     // if menu item data is empty or all meal times are empty, show closed message
     const isClosed =
-        !dict[hN] ||
-        Object.keys(dict[hN]).length === 0 ||
-        Object.values(dict[hN]).every(stations => !stations || Object.keys(stations).length === 0);
+        !dict[backendKey] ||
+        Object.keys(dict[backendKey]).length === 0 ||
+        Object.values(dict[backendKey]).every(stations => !stations || Object.keys(stations).length === 0);
+
     return (
         <>
         <Container style ={{paddingBottom: "80px"}}>
@@ -54,7 +57,7 @@ function DisplayMenu({dict}){
                         fontWeight: "700",
                         letterSpacing: "0.5px",
                         color: "#0F3C67",
-                    }}>{displayName}</h1>
+                    }}>{hN}</h1>
                     </Col>
                     {
                         (hN=="De-La-Guerra")
@@ -77,8 +80,8 @@ function DisplayMenu({dict}){
                             </div>
                         </Col>
                     ) : (
-                        Object.entries(dict[hN]).map(([times, stations])=> (
-                            /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
+                        /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
+                        Object.entries(dict[backendKey]).map(([times, stations])=> (
                             (Object.keys(stations).length !== 0)
                             ? <Col className = "px-5" key={times}>
                             <div>
