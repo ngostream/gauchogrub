@@ -14,12 +14,15 @@ import Footer from './Footer.jsx'
 import axios from "axios"
 import "../App.css"
 import leoProfanity from "leo-profanity";
+import { normalizeHallName, displayHallName } from "../utils/hallNames.js"
 
 function FoodReview(){
     let foodItem = decodeURIComponent(useParams().foodItem);
     let safeFoodItem = foodItem.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
-    let hN = decodeURIComponent(useParams().hN);
-    console.log(hN)
+    let rawHN = decodeURIComponent(useParams().hN);
+    let hN = normalizeHallName(rawHN); // backend key
+    let prettyHall = displayHallName(hN); // user-facing
+    console.log("FoodReview hall:", { rawHN, hN, prettyHall });
     const [reviewData, setReviewData] = useState([{}]) //from db
     const initialState = {
         name: foodItem,
@@ -159,7 +162,7 @@ function FoodReview(){
         <Container>
             <Nav/>
             <div className = "flexLeft">
-                <Link to = {`/${hN}`}>
+                <Link to = {`/${rawHN}`}>
                 <ListItemButton sx={{
                     color: "black",
                     marginBottom: '10px',
@@ -176,7 +179,8 @@ function FoodReview(){
                 </Link>
             </div>
             <Row>
-                <h1> {foodItem}</h1> <hr/>
+                <h1>{foodItem} @ {prettyHall}</h1> 
+                <hr/>
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
                     <textarea

@@ -8,24 +8,17 @@ import MealTime from './MealTime.jsx'
 import Nav from './Nav.jsx'
 import "../App.css"
 import Footer from './Footer.jsx'
+import { normalizeHallName, displayHallName } from "../utils/hallNames.js"
 
-function DisplayMenu({dict}){
-    let hN = decodeURIComponent(useParams().hN);  // keep the key exactly as backend uses it
+function DisplayMenu({ dict }) {
+    let rawHN = decodeURIComponent(useParams().hN);
+    let hN = normalizeHallName(rawHN); // backend key
+    let prettyName = displayHallName(hN); // what users see
 
-    const hallBackendKeyMap = {
-        "Ortega Takeout": "Ortega",
-        "Carrillo Dining Commons": "Carrillo",
-        "De La Guerra Dining Commons": "De-La-Guerra",
-        "Portola Dining Commons": "Portola"
-    };
-
-    const backendKey = hallBackendKeyMap[hN] || hN;
-
-    // if menu item data is empty or all meal times are empty, show closed message
     const isClosed =
-        !dict[backendKey] ||
-        Object.keys(dict[backendKey]).length === 0 ||
-        Object.values(dict[backendKey]).every(stations => !stations || Object.keys(stations).length === 0);
+        !dict[hN] ||
+        Object.keys(dict[hN]).length === 0 ||
+        Object.values(dict[hN]).every(stations => !stations || Object.keys(stations).length === 0);
 
     return (
         <>
@@ -58,7 +51,7 @@ function DisplayMenu({dict}){
                             letterSpacing: "0.5px",
                             color: "#0F3C67",
                         }}>
-                            {hN}
+                            {prettyName}
                         </h1>
                     </Col>
                 </Row>
@@ -68,13 +61,13 @@ function DisplayMenu({dict}){
                         <Col>
                             <div className="menu-container">
                                 <p style={{ textAlign: 'center', marginTop: '2rem', fontWeight: 'bold', fontSize: '1.2rem' }}>
-                                    {hN} is currently closed.
+                                    {prettyName} is currently closed.
                                 </p>
                             </div>
                         </Col>
                     ) : (
                         /* if times object isn't empty, mainly to skip brunch on weekdays and other meals on weekends*/
-                        Object.entries(dict[backendKey]).map(([times, stations])=> (
+                        Object.entries(dict[hN]).map(([times, stations]) => (
                             (Object.keys(stations).length !== 0)
                             ? <Col className = "px-5" key={times}>
                             <div>
