@@ -46,11 +46,7 @@ function DisplayMenu({ dict }) {
             </div>
                 <Row>
                     <Col className="pt-3">
-                        <h1 style={{
-                            fontWeight: "700",
-                            letterSpacing: "0.5px",
-                            color: "#0F3C67",
-                        }}>
+                        <h1 className="page-header">
                             {prettyName}
                         </h1>
                     </Col>

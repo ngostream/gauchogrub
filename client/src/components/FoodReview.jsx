@@ -179,8 +179,7 @@ function FoodReview(){
                 </Link>
             </div>
             <Row>
-                <h1>{foodItem} @ {prettyHall}</h1> 
-                <hr/>
+                <Header className="page-header" title={`${foodItem} @ ${prettyHall}`} />
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
                     <textarea
