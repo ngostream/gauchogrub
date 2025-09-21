@@ -179,7 +179,10 @@ function FoodReview(){
                 </Link>
             </div>
             <Row>
-                <Header className="page-header" title={`${foodItem} @ ${prettyHall}`} />
+                <Col className="pt-3">
+                    <h1 className="page-header">{foodItem} @ {prettyHall}</h1>
+                </Col>
+                </Row>
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
                     <textarea
@@ -210,7 +213,6 @@ function FoodReview(){
                 </form>
                 </div>
                 <ReviewList/>
-             </Row>
              <Footer/>
         </Container>
     )
