@@ -8,6 +8,26 @@
   position: relative;
   border-radius: 0 !important;
 }
+/* Professional navbar font styling */
+.navbar {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+  color: #003660;
+  background: transparent;
+}
+
+.navbar a {
+  color: #003660;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.navbar a:hover {
+  color: #0055a4;
+}
 body{
   /* background-color: rgb(15, 60, 103); maybe use for shadow instead?*/
   overflow-x: hidden;
