@@ -18,6 +18,27 @@
   background: transparent;
 }
 
+.footer {
+  font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  color: #003660; /* UCSB Blue */
+  font-weight: 500;
+  font-size: 0.95rem;
+  background: rgb(248, 249, 250);
+  border-top: 1px solid #dee2e6;
+  text-align: center;
+}
+
+.footer-link {
+  color: #003660;
+  text-decoration: underline;
+  font-weight: 500;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.footer-link:hover {
+  color: #0055a4;
+}
+
 .navbar a {
   color: #003660;
   text-decoration: none;
