@@ -125,19 +125,23 @@ function FoodReview(){
             setIsSubmitting(false);
             return;
         }
-        try{
+        try {
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                 headers: {"Content-Type": "application/json"}
-            })
+            });
             setFormData(initialState);
             setSubmitted(true);
-            localStorage.removeItem(cacheKey); // clear cache after submit
-            fetchReviews(true); // force refresh
-        }  catch (error){
-            console.error(error)
+
+            // Invalidate caches
+            localStorage.removeItem(cacheKey); // review cache
+            localStorage.removeItem(`${hN}-avgRatings`); // average ratings cache
+
+            fetchReviews(true); // force refresh reviews
+        } catch (error) {
+            console.error(error);
             setIsSubmitting(false);
         }
-    }
+    };
     const handleChange = (e) =>{
         let value = e.target.value; //element that called handleChange 's current value
         let name = e.target.name; //id basically

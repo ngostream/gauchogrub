@@ -12,7 +12,7 @@ export default function MealTime({time, sections, ogHn}) {
   const [open, setOpen] = React.useState(true);
   const [avgRatings, setAvgRatings] = useState({});
 
-  const cacheKey = `${ogHn}-${time}-avgRatings`;
+  const cacheKey = `${ogHn}-avgRatings`;
 
   const fetchAvgRatings = useCallback(async (forceRefresh = false) => {
     if (!forceRefresh) {
