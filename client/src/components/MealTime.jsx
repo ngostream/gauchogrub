@@ -11,20 +11,24 @@ export default function MealTime({time, sections, ogHn}) {
   const [open, setOpen] = React.useState(true);
   const [avgRatings, setAvgRatings] = useState({});
   useEffect(() => {
+    const cacheKey = `${ogHn}-avgRatings`;
+    const cached = localStorage.getItem(cacheKey);
+    if (cached) {
+      setAvgRatings(JSON.parse(cached));
+    }
     const fetchAvgRatings = async () => {
       try {
-        // const response = await axios.get(`http://127.0.0.1:5000/${ogHn}/avg_ratings`);
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${ogHn}/avg_ratings`)
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${ogHn}/avg_ratings`);
         setAvgRatings(response.data);
+        localStorage.setItem(cacheKey, JSON.stringify(response.data));
       } catch (error) {
         console.error("fetch average rating failed:", error);
       }
     };
-
     if (Object.keys(sections).length > 0) {
       fetchAvgRatings();
     }
-  }, [ogHn]);
+  }, [ogHn, sections]);
   
   const handleClick = () => {
     setOpen(!open);

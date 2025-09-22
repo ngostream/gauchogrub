@@ -44,10 +44,19 @@ function FoodReview(){
           )
     }
     const fetchReviews = React.useCallback(async () => {
-        // const response = await axios.get(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`)
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
-        console.log(response.data, " fetchReviews from FoodReview.jsx")
-        setReviewData(response.data)
+        const cacheKey = `${hN}-${safeFoodItem}-reviews`;
+        const cached = localStorage.getItem(cacheKey);
+        if (cached) {
+            setReviewData(JSON.parse(cached));
+        }
+        // fetch from server in background
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`);
+            setReviewData(response.data);
+            localStorage.setItem(cacheKey, JSON.stringify(response.data));
+        } catch (error) {
+            console.error("Error fetching reviews:", error);
+        }
     }, [hN, safeFoodItem]);
     const ReviewList = () => {
         return(
@@ -130,14 +139,15 @@ function FoodReview(){
         }
 
         try{
-            /* const response = await axios.post(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
-                headers: {"Content-Type": "application/json"}
-            }) */
             const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                 headers: {"Content-Type": "application/json"}
             })
             console.log(response.data, " handleSubmission from FoodReview.jsx");
             localStorage.setItem(`${safeFoodItem}-submitted`, "true");
+            // clear cached reviews for this item so next fetch gets fresh data
+            localStorage.removeItem(`${hN}-${safeFoodItem}-reviews`);
+            // clear cached average ratings for the dining hall so next fetch gets fresh data
+            localStorage.removeItem(`${hN}-avgRatings`);
             setFormData(initialState);
             setSubmitted(true);
             fetchReviews();
@@ -181,7 +191,8 @@ function FoodReview(){
                 <Col className="pt-3">
                     <h1 className="page-header">{foodItem} @ {prettyHall}</h1>
                 </Col>
-                </Row>
+            </Row>
+            <hr />
                 <div className = "flexCenter">
                 <form onSubmit = {handleSubmission}>
                     <textarea
