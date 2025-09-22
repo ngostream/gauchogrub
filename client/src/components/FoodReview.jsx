@@ -22,7 +22,6 @@ function FoodReview(){
     let rawHN = decodeURIComponent(useParams().hN);
     let hN = normalizeHallName(rawHN); // backend key
     let prettyHall = displayHallName(hN); // user-facing
-    console.log("FoodReview hall:", { rawHN, hN, prettyHall });
     const [reviewData, setReviewData] = useState([{}]) //from db
     const initialState = {
         name: foodItem,
@@ -89,14 +88,9 @@ function FoodReview(){
             </Row>
         )
     }
-    useEffect(() => {
-        fetchReviews();
-      
-        const alreadySubmitted = localStorage.getItem(`${safeFoodItem}-submitted`);
-        if (alreadySubmitted === "true") {
-          setSubmitted(true);
-        }
-      }, [fetchReviews, safeFoodItem]);      
+        useEffect(() => {
+                fetchReviews();
+        }, [fetchReviews, safeFoodItem]);      
     
     const handleSubmission = async (e) =>{
         e.preventDefault();
@@ -133,11 +127,6 @@ function FoodReview(){
                 headers: {"Content-Type": "application/json"}
             })
             console.log(response.data, " handleSubmission from FoodReview.jsx");
-            localStorage.setItem(`${safeFoodItem}-submitted`, "true");
-            // clear cached reviews for this item so next fetch gets fresh data
-            localStorage.removeItem(`${hN}-${safeFoodItem}-reviews`);
-            // clear cached average ratings for the dining hall so next fetch gets fresh data
-            localStorage.removeItem(`${hN}-avgRatings`);
             setFormData(initialState);
             setSubmitted(true);
             fetchReviews();
