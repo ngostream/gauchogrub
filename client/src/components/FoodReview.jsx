@@ -44,19 +44,9 @@ function FoodReview(){
           )
     }
     const fetchReviews = React.useCallback(async () => {
-        const cacheKey = `${hN}-${safeFoodItem}-reviews`;
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
-            setReviewData(JSON.parse(cached));
-        }
-        // fetch from server in background
-        try {
-            const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`);
-            setReviewData(response.data);
-            localStorage.setItem(cacheKey, JSON.stringify(response.data));
-        } catch (error) {
-            console.error("Error fetching reviews:", error);
-        }
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
+        console.log(response.data, " fetchReviews from FoodReview.jsx")
+        setReviewData(response.data)
     }, [hN, safeFoodItem]);
     const ReviewList = () => {
         return(
