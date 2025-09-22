@@ -1,4 +1,4 @@
-import React , {useState, useEffect, useRef} from "react"
+import React , {useState, useEffect} from "react"
 import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
 import Rating from '@mui/material/Rating';
@@ -43,12 +43,12 @@ function FoodReview(){
             </div>
           )
     }
-    const fetchReviews = async () => {
+    const fetchReviews = React.useCallback(async () => {
         // const response = await axios.get(`http://127.0.0.1:5000/${hN}/${encodeURIComponent(safeFoodItem)}`)
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
         console.log(response.data, " fetchReviews from FoodReview.jsx")
         setReviewData(response.data)
-    }
+    }, [hN, safeFoodItem]);
     const ReviewList = () => {
         return(
             <Row>
@@ -97,8 +97,7 @@ function FoodReview(){
         if (alreadySubmitted === "true") {
           setSubmitted(true);
         }
-      }, []);
-      
+      }, [fetchReviews, safeFoodItem]);      
     
     const handleSubmission = async (e) =>{
         e.preventDefault();

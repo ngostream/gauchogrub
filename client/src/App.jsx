@@ -23,13 +23,6 @@ function App() {
   ];
   const randomMessage = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
 
-  const fetchMenu = async () =>{
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
-    console.log(response, "fetchMenu from App.jsx")
-    setData(response.data)
-    setLoading(false)
-  };
-
   useEffect(() => {
     // 10 second timer until slow loading message
     const slowTimer = setTimeout(() => setSlowLoading(true), 10000);
