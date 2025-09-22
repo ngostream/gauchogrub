@@ -22,7 +22,7 @@ cursor.execute("""
         meal TEXT NOT NULL,
         station TEXT,
         avg_rating REAL DEFAULT 0
-        UNIQUE(name, dining_hall, meal)
+        UNIQUE(name, dining_hall)
     );
 """)
 
