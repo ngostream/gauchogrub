@@ -8,15 +8,17 @@ export default function Footer(){
     return(
       <footer style={{
         backgroundColor: "rgb(248, 249, 250)",
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1030,
         borderTop: "1px solid #dee2e6",
         padding: "0.75rem 0",
         fontSize: "0.9rem",
         textAlign: "center",
+        width: "100vw",
+        left: "50%",
+        right: "50%",
+        marginLeft: "-50vw",
+        marginRight: "-50vw",
+        position: "relative",
+        boxSizing: "border-box"
       }}>
         <Box component="div">
         <Container>

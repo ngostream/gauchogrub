@@ -7,7 +7,7 @@ import Col from 'react-bootstrap/Col'
 import MealTime from './MealTime.jsx'
 import Nav from './Nav.jsx'
 import "../App.css"
-import Footer from './Footer.jsx'
+
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js"
 
 function DisplayMenu({ dict }) {
@@ -76,7 +76,7 @@ function DisplayMenu({ dict }) {
                 </Row>
                 
         </Container>
-        <Footer/>
+
         </>
     )
 }

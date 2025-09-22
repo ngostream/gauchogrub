@@ -4,7 +4,7 @@ import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Nav from './Nav.jsx'
-import Footer from './Footer.jsx'
+
 import "../App.css"
 
 export default function DisplayHalls(){
@@ -28,7 +28,7 @@ export default function DisplayHalls(){
                     {/* needs handling for weekends/ not open */}
                 </Col>
             </Row>
-            <Footer/>
+
         </Container>
         </>
     )

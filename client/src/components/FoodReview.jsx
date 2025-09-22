@@ -10,7 +10,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Footer from './Footer.jsx'
+
 import axios from "axios"
 import "../App.css"
 import leoProfanity from "leo-profanity";
@@ -213,7 +213,7 @@ function FoodReview(){
                 </form>
                 </div>
                 <ReviewList/>
-             <Footer/>
+
         </Container>
     )
 }

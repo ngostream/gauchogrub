@@ -7,6 +7,7 @@ import About from "./components/About.jsx"
 import axios from 'axios'
 import './App.css'
 import CircularProgress from '@mui/material/CircularProgress';
+import Footer from './components/Footer.jsx';
 
 function App() {
   const [data,setData] = useState([{}])
@@ -65,16 +66,19 @@ if (loading) {
 }
 
   return (
-    <div>
-      <Router>
-        <Routes>
-          <Route path = "/" element = {<DisplayHalls/>}/>
-          <Route path = "/about" element = {<About />}/>
-          <Route path = "/:hN" element = {<DisplayMenu dict = {data}/>}/>
-          <Route path = "/:hN/:foodItem" element = {<FoodReview/>} />
-        </Routes>
-      </Router>
-   </div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1 }}>
+        <Router>
+          <Routes>
+            <Route path = "/" element = {<DisplayHalls/>}/>
+            <Route path = "/about" element = {<About />}/>
+            <Route path = "/:hN" element = {<DisplayMenu dict = {data}/>}/>
+            <Route path = "/:hN/:foodItem" element = {<FoodReview/>} />
+          </Routes>
+        </Router>
+      </div>
+  <Footer />
+    </div>
   )
 }
 
