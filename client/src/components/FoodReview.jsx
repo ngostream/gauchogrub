@@ -28,7 +28,6 @@ function FoodReview(){
         review: "",
         rating: 3
     }
-                {/* Average Rating: {(reviewData.avg_rating > 0) ? (reviewData.avg_rating)?.toFixed(2) + "/5" : ""} */}
 
     const [formData, setFormData] = useState(initialState) //to db
     const [submitted, setSubmitted] = useState(false); // track whether or not user submitted review
@@ -44,6 +43,7 @@ function FoodReview(){
     }
     const cacheKey = `${hN}-${safeFoodItem}-reviews`;
     const fetchReviews = React.useCallback(async (forceRefresh = false) => {
+        try {
         if (!forceRefresh) {
             const cached = localStorage.getItem(cacheKey);
             if (cached) {
@@ -54,6 +54,9 @@ function FoodReview(){
         const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`);
         setReviewData(response.data);
         localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    } catch (error) {
+        console.error("fetch revies failed:", error);
+    }
     }, [hN, safeFoodItem, cacheKey]);
     const ReviewList = () => {
         return(
