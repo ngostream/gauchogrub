@@ -43,9 +43,8 @@ function FoodReview(){
           )
     }
     const fetchReviews = React.useCallback(async () => {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
-        console.log(response.data, " fetchReviews from FoodReview.jsx")
-        setReviewData(response.data)
+    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
+    setReviewData(response.data)
     }, [hN, safeFoodItem]);
     const ReviewList = () => {
         return(
@@ -123,15 +122,15 @@ function FoodReview(){
         }
 
         try{
-            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                 headers: {"Content-Type": "application/json"}
             })
-            console.log(response.data, " handleSubmission from FoodReview.jsx");
+            // error logging only
             setFormData(initialState);
             setSubmitted(true);
             fetchReviews();
         }  catch (error){
-            console.log(error)
+            console.error(error)
             // re enable
             setIsSubmitting(false);
         }

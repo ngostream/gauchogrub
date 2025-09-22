@@ -29,9 +29,8 @@ function App() {
 
     const fetch = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
-        console.log(response, "fetchMenu from App.jsx");
-        setData(response.data);
+  const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
+  setData(response.data);
       } catch (err) {
         console.error("Error loading menu:", err);
       } finally {
