@@ -1,4 +1,4 @@
-import React , {useState, useEffect} from "react"
+import React , {useState, useEffect, useCallback} from "react"
 import List from '@mui/material/List';
 import ListItemButton from '@mui/material/ListItemButton';
 import Collapse from '@mui/material/Collapse';
@@ -7,24 +7,36 @@ import ExpandMore from '@mui/icons-material/ExpandMore';
 import {Link} from "react-router-dom";
 import ReadOnlyStar from "./ReadOnlyStar.jsx";
 import axios from "axios";
+
 export default function MealTime({time, sections, ogHn}) {
   const [open, setOpen] = React.useState(true);
   const [avgRatings, setAvgRatings] = useState({});
-  useEffect(() => {
-    const fetchAvgRatings = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${ogHn}/avg_ratings`)
-        setAvgRatings(response.data);
-      } catch (error) {
-        console.error("fetch average rating failed:", error);
-      }
-    };
 
+  const cacheKey = `${ogHn}-${time}-avgRatings`;
+
+  const fetchAvgRatings = useCallback(async (forceRefresh = false) => {
+    if (!forceRefresh) {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        setAvgRatings(JSON.parse(cached));
+        return;
+      }
+    }
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${ogHn}/avg_ratings`);
+      setAvgRatings(response.data);
+      localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    } catch (error) {
+      console.error("fetch average rating failed:", error);
+    }
+  }, [ogHn, cacheKey]);
+
+  useEffect(() => {
     if (Object.keys(sections).length > 0) {
       fetchAvgRatings();
     }
-  }, [ogHn, sections]);
-  
+  }, [ogHn, sections, fetchAvgRatings]);
+
   const handleClick = () => {
     setOpen(!open);
   };
@@ -64,7 +76,7 @@ export default function MealTime({time, sections, ogHn}) {
                 margin: "0.5rem 0"
               }}
             >
-            <h3 style = {{
+            <h3 style ={{
               fontWeight: "500",
               letterSpacing: "0.5px",
               textAlign: "left"}}
@@ -72,7 +84,11 @@ export default function MealTime({time, sections, ogHn}) {
             </h3>
                 {food.map((items)=>(
                 <div key = {items}>
-                    <Link to={`/${ogHn}/${encodeURIComponent(items)}`}><ListItemButton style ={{color: "black", fontWeight: "normal"}} > {items} &nbsp; <ReadOnlyStar r = {avgRatings[items] ?? 0} size = "small"/></ListItemButton></Link>
+                    <Link to={`/${ogHn}/${encodeURIComponent(items)}`}>
+                      <ListItemButton style ={{color: "black", fontWeight: "normal"}} >
+                        {items} &nbsp; <ReadOnlyStar r = {avgRatings[items] ?? 0} size = "small"/>
+                      </ListItemButton>
+                    </Link>
                 </div>
             ))}
             </div>

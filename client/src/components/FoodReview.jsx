@@ -42,10 +42,19 @@ function FoodReview(){
             </div>
           )
     }
-    const fetchReviews = React.useCallback(async () => {
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
-    setReviewData(response.data)
-    }, [hN, safeFoodItem]);
+    const cacheKey = `${hN}-${safeFoodItem}-reviews`;
+    const fetchReviews = React.useCallback(async (forceRefresh = false) => {
+        if (!forceRefresh) {
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                setReviewData(JSON.parse(cached));
+                return;
+            }
+        }
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`);
+        setReviewData(response.data);
+        localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    }, [hN, safeFoodItem, cacheKey]);
     const ReviewList = () => {
         return(
             <Row>
@@ -87,9 +96,9 @@ function FoodReview(){
             </Row>
         )
     }
-        useEffect(() => {
-                fetchReviews();
-        }, [fetchReviews, safeFoodItem]);      
+    useEffect(() => {
+        fetchReviews();
+    }, [fetchReviews, safeFoodItem]);
     
     const handleSubmission = async (e) =>{
         e.preventDefault();
@@ -98,40 +107,34 @@ function FoodReview(){
         setIsSubmitting(true);
 
         const trimmedReview = formData.review.trim();
-        
         // empty
         if (trimmedReview == "") {
             alert("Please enter a review before submitting.");
             setIsSubmitting(false);
-
             return;
         }
-        
         // too long
         if (trimmedReview.length > 300) {
             alert("Review cannot exceed 300 characters.");
             setIsSubmitting(false);
             return;
         }
-
         // profanity
         if (leoProfanity.check(trimmedReview)) {
             alert("Please avoid using offensive language.");
             setIsSubmitting(false);
             return;
         }
-
         try{
             await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
                 headers: {"Content-Type": "application/json"}
             })
-            // error logging only
             setFormData(initialState);
             setSubmitted(true);
-            fetchReviews();
+            localStorage.removeItem(cacheKey); // clear cache after submit
+            fetchReviews(true); // force refresh
         }  catch (error){
             console.error(error)
-            // re enable
             setIsSubmitting(false);
         }
     }
@@ -164,6 +167,7 @@ function FoodReview(){
                     alignItems: 'center'
                     }}>Back</ListItemButton>
                 </Link>
+                {/* Manual refresh button removed, caching is handled automatically */}
             </div>
             <Row>
                 <Col className="pt-3">
