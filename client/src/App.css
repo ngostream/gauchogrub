@@ -145,3 +145,28 @@ a:nth-of-type(2) .logo {
   letter-spacing: 0.5px;
   color: #0F3C67;
 }
+
+.submit-button {
+  padding: 10px 20px;
+  background-color: #0F3C67;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.submit-button:hover {
+  background-color: #123f70;
+  box-shadow: 0 6px 12px rgba(15, 60, 103, 0.4);
+}
+
+.submit-button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}

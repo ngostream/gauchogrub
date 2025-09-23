@@ -104,9 +104,6 @@ function FoodReview() {
       // refresh UI
       fetchReviews(true); // force latest reviews
       window.dispatchEvent(new Event("ratingsUpdated")); // notify other components if needed
-
-      // allow another submission after a short delay
-      setTimeout(() => setSubmitted(false), 2000);
     } catch (error) {
       console.error("Submission failed:", error);
     } finally {
@@ -229,22 +226,13 @@ function FoodReview() {
             </p>
             <StarRating />
             <div className="flexCenter">
-              <button
+                <button
                 type="submit"
                 disabled={submitted || isSubmitting}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#0F3C67",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  fontWeight: "500",
-                  cursor: submitted || isSubmitting ? "not-allowed" : "pointer",
-                  marginTop: "10px",
-                }}
-              >
-                {submitted ? "submitted" : isSubmitting ? "Submitting…" : "Submit"}
-              </button>
+                className="submit-button"
+                >
+                {submitted ? "Submitted" : isSubmitting ? "Submitting…" : "Submit"}
+                </button>
             </div>
           </form>
         </Col>
