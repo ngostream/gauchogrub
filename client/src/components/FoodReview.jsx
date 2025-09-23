@@ -1,3 +1,5 @@
+// FoodReview.jsx
+
 import React , {useState, useEffect} from "react"
 import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
@@ -28,7 +30,6 @@ function FoodReview(){
         review: "",
         rating: 3
     }
-                {/* Average Rating: {(reviewData.avg_rating > 0) ? (reviewData.avg_rating)?.toFixed(2) + "/5" : ""} */}
 
     const [formData, setFormData] = useState(initialState) //to db
     const [submitted, setSubmitted] = useState(false); // track whether or not user submitted review
@@ -42,10 +43,23 @@ function FoodReview(){
             </div>
           )
     }
-    const fetchReviews = React.useCallback(async () => {
-    const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`)
-    setReviewData(response.data)
-    }, [hN, safeFoodItem]);
+    const cacheKey = `${hN}-${safeFoodItem}-reviews`;
+    const fetchReviews = React.useCallback(async (forceRefresh = false) => {
+        try {
+        if (!forceRefresh) {
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                setReviewData(JSON.parse(cached));
+                return;
+            }
+        }
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`);
+        setReviewData(response.data);
+        localStorage.setItem(cacheKey, JSON.stringify(response.data));
+    } catch (error) {
+        console.error("fetch revies failed:", error);
+    }
+    }, [hN, safeFoodItem, cacheKey]);
     const ReviewList = () => {
         return(
             <Row>
@@ -87,54 +101,64 @@ function FoodReview(){
             </Row>
         )
     }
-        useEffect(() => {
-                fetchReviews();
-        }, [fetchReviews, safeFoodItem]);      
+    useEffect(() => {
+        fetchReviews();
+    }, [fetchReviews, safeFoodItem]);
     
-    const handleSubmission = async (e) =>{
+    const handleSubmission = async (e) => {
         e.preventDefault();
 
-        if (submitted) return;
+        if (isSubmitting) return;
         setIsSubmitting(true);
 
         const trimmedReview = formData.review.trim();
-        
-        // empty
-        if (trimmedReview == "") {
+
+        // validation
+        if (trimmedReview === "") {
             alert("Please enter a review before submitting.");
             setIsSubmitting(false);
-
             return;
         }
-        
-        // too long
         if (trimmedReview.length > 300) {
             alert("Review cannot exceed 300 characters.");
             setIsSubmitting(false);
             return;
         }
-
-        // profanity
         if (leoProfanity.check(trimmedReview)) {
             alert("Please avoid using offensive language.");
             setIsSubmitting(false);
             return;
         }
 
-        try{
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
-                headers: {"Content-Type": "application/json"}
-            })
-            // error logging only
+        try {
+            await axios.post(
+            `${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`,
+            formData,
+            { headers: { "Content-Type": "application/json" } }
+            );
+
+            // reset form
             setFormData(initialState);
             setSubmitted(true);
-            fetchReviews();
-        }  catch (error){
-            console.error(error)
-            // re enable
+
+            // invalidate caches
+            localStorage.removeItem(cacheKey); // this food’s reviews
+            localStorage.removeItem(`${hN}-avgRatings`); // hall-wide avg ratings
+
+            // refresh UI
+            fetchReviews(true); // latest reviews
+            // mealTime will automatically refetch avg ratings next time it mounts
+            // if you want instant update, you could also dispatch a custom event:
+            window.dispatchEvent(new Event("ratingsUpdated"));
+
+            // allow another submission after a short delay
+            setTimeout(() => setSubmitted(false), 2000);
+        } catch (error) {
+            console.error("submission failed:", error);
+        } finally {
             setIsSubmitting(false);
         }
-    }
+    };
     const handleChange = (e) =>{
         let value = e.target.value; //element that called handleChange 's current value
         let name = e.target.name; //id basically
@@ -164,6 +188,7 @@ function FoodReview(){
                     alignItems: 'center'
                     }}>Back</ListItemButton>
                 </Link>
+                {/* Manual refresh button removed, caching is handled automatically */}
             </div>
             <Row>
                 <Col className="pt-3">
