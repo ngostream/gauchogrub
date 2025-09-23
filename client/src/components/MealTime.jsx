@@ -1,6 +1,6 @@
 // MealTime.jsx
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import Collapse from "@mui/material/Collapse";
@@ -12,23 +12,22 @@ import axios from "axios";
 import { normalizeHallName } from "../utils/hallNames.js";
 
 export default function MealTime({ time, sections, ogHn }) {
-  const [open, setOpen] = React.useState(true);
-  const [avgRatings, setAvgRatings] = useState({});
+  const [open, setOpen] = useState(true);
 
   // normalize hall name for cache + API
   const hN = normalizeHallName(ogHn);
   const cacheKey = `${hN}-avgRatings`;
 
-  const fetchAvgRatings = useCallback(
-    async (forceRefresh = false) => {
+  // initialize from cache if available
+  const cachedRatings = localStorage.getItem(cacheKey);
+  const [avgRatings, setAvgRatings] = useState(
+    cachedRatings ? JSON.parse(cachedRatings) : {}
+  );
+
+  // fetch fresh ratings in background
+  useEffect(() => {
+    const fetchAvgRatings = async () => {
       try {
-        if (!forceRefresh) {
-          const cached = localStorage.getItem(cacheKey);
-          if (cached) {
-            setAvgRatings(JSON.parse(cached));
-            return;
-          }
-        }
         const response = await axios.get(
           `${import.meta.env.VITE_API_BASE_URL}/${hN}/avg_ratings`
         );
@@ -37,15 +36,10 @@ export default function MealTime({ time, sections, ogHn }) {
       } catch (error) {
         console.error("fetch average rating failed:", error);
       }
-    },
-    [hN, cacheKey]
-  );
+    };
 
-  // only fetch once when hall changes (not every time sections change)
-  useEffect(() => {
-    // force a fresh fetch on page load to update cache
-    fetchAvgRatings(true);
-  }, [hN, fetchAvgRatings]);
+    fetchAvgRatings();
+  }, [hN, cacheKey]);
 
   const handleClick = () => {
     setOpen(!open);
@@ -81,6 +75,7 @@ export default function MealTime({ time, sections, ogHn }) {
         </h2>
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
+
       <Collapse in={open} timeout="auto" unmountOnExit>
         <List component="div" disablePadding>
           {Object.entries(sections).map(([section, food]) => (
@@ -108,7 +103,7 @@ export default function MealTime({ time, sections, ogHn }) {
                     <ListItemButton
                       style={{ color: "black", fontWeight: "normal" }}
                     >
-                      {items} &nbsp;{" "}
+                      {items} &nbsp;
                       <ReadOnlyStar r={avgRatings[items] ?? 0} size="small" />
                     </ListItemButton>
                   </Link>
