@@ -11,6 +11,7 @@ export default function HallCard({hN}) {
     let title ="";
     if(hN == "Carrillo Dining Commons"){
         image = "/img/carrillo.jpeg"
+        title = "Carrillo Dining Commons"
     }
     else if(hN == "De La Guerra Dining Commons"){
         image = "/img/dlg.jpeg"
@@ -28,15 +29,20 @@ export default function HallCard({hN}) {
     
     <Link to ={`/${encodeURIComponent(hN)}`}>
     <Card sx={{ maxWidth: 600 }} className = "hover-effect"> {/* change hover shadow color?*/}
-      <CardContent>
-        <h5 style={{
+    <CardContent>
+      <h5
+        style={{
           fontSize: "20px",
-          fontWeight: "600",
+          fontWeight: 700,         // match page-header boldness
           letterSpacing: "0.5px",
-        }}>
-            {hN}
-        </h5>
-      </CardContent>
+          color: "#003660",        // match page-header color
+          margin: 0,
+          textAlign: "center",
+        }}
+      >
+        {hN}
+      </h5>
+    </CardContent>
       <CardMedia
         sx={{ height: 220,
             borderRadius: '4px'
