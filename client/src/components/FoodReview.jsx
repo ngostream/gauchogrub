@@ -1,3 +1,5 @@
+// FoodReview.jsx
+
 import React , {useState, useEffect} from "react"
 import {Link, useParams} from "react-router-dom"
 import Container from 'react-bootstrap/Container'
@@ -103,45 +105,57 @@ function FoodReview(){
         fetchReviews();
     }, [fetchReviews, safeFoodItem]);
     
-    const handleSubmission = async (e) =>{
+    const handleSubmission = async (e) => {
         e.preventDefault();
 
-        if (submitted) return;
+        if (isSubmitting) return;
         setIsSubmitting(true);
 
         const trimmedReview = formData.review.trim();
-        // empty
-        if (trimmedReview == "") {
+
+        // validation
+        if (trimmedReview === "") {
             alert("Please enter a review before submitting.");
             setIsSubmitting(false);
             return;
         }
-        // too long
         if (trimmedReview.length > 300) {
             alert("Review cannot exceed 300 characters.");
             setIsSubmitting(false);
             return;
         }
-        // profanity
         if (leoProfanity.check(trimmedReview)) {
             alert("Please avoid using offensive language.");
             setIsSubmitting(false);
             return;
         }
+
         try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`, formData, {
-                headers: {"Content-Type": "application/json"}
-            });
+            await axios.post(
+            `${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`,
+            formData,
+            { headers: { "Content-Type": "application/json" } }
+            );
+
+            // reset form
             setFormData(initialState);
             setSubmitted(true);
 
-            // Invalidate caches
-            localStorage.removeItem(cacheKey); // review cache
-            localStorage.removeItem(`${hN}-avgRatings`); // average ratings cache
+            // invalidate caches
+            localStorage.removeItem(cacheKey); // this food’s reviews
+            localStorage.removeItem(`${hN}-avgRatings`); // hall-wide avg ratings
 
-            fetchReviews(true); // force refresh reviews
+            // refresh UI
+            fetchReviews(true); // latest reviews
+            // mealTime will automatically refetch avg ratings next time it mounts
+            // if you want instant update, you could also dispatch a custom event:
+            window.dispatchEvent(new Event("ratingsUpdated"));
+
+            // allow another submission after a short delay
+            setTimeout(() => setSubmitted(false), 2000);
         } catch (error) {
-            console.error(error);
+            console.error("submission failed:", error);
+        } finally {
             setIsSubmitting(false);
         }
     };

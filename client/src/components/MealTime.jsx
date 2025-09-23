@@ -1,3 +1,5 @@
+// MealTime.jsx
+
 import React, { useState, useEffect, useCallback } from "react";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -13,7 +15,7 @@ export default function MealTime({ time, sections, ogHn }) {
   const [open, setOpen] = React.useState(true);
   const [avgRatings, setAvgRatings] = useState({});
 
-  // always normalize hall name for cache + API
+  // normalize hall name for cache + API
   const hN = normalizeHallName(ogHn);
   const cacheKey = `${hN}-avgRatings`;
 
@@ -39,11 +41,10 @@ export default function MealTime({ time, sections, ogHn }) {
     [hN, cacheKey]
   );
 
+  // only fetch once when hall changes (not every time sections change)
   useEffect(() => {
-    if (Object.keys(sections).length > 0) {
-      fetchAvgRatings();
-    }
-  }, [hN, sections, fetchAvgRatings]);
+    fetchAvgRatings();
+  }, [hN, fetchAvgRatings]);
 
   const handleClick = () => {
     setOpen(!open);
