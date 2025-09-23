@@ -43,7 +43,8 @@ export default function MealTime({ time, sections, ogHn }) {
 
   // only fetch once when hall changes (not every time sections change)
   useEffect(() => {
-    fetchAvgRatings();
+    // force a fresh fetch on page load to update cache
+    fetchAvgRatings(true);
   }, [hN, fetchAvgRatings]);
 
   const handleClick = () => {
