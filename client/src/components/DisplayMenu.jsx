@@ -11,6 +11,7 @@ import Nav from "./Nav.jsx";
 import "../App.css";
 
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js";
+import BackButton from "./BackButton.jsx";
 
 function DisplayMenu({ dict }) {
   let rawHN = decodeURIComponent(useParams().hN);
@@ -30,25 +31,8 @@ function DisplayMenu({ dict }) {
       <Nav />
 
       {/* back button */}
-      <div className="flexLeft" style={{ marginTop: "10px", marginBottom: "15px" }}>
-        <Link to="/">
-          <ListItemButton
-            sx={{
-              color: "black",
-              borderLeft: "6px solid #0F3C67",
-              borderRadius: "6px",
-              px: 3,
-              py: 1,
-              backgroundColor: "#F9F9F9",
-              justifyContent: "space-between",
-              alignItems: "center",
-              fontWeight: 500,
-              "&:hover": { bgcolor: "#eef3f7" },
-            }}
-          >
-            Back
-          </ListItemButton>
-        </Link>
+      <div className="flexLeft">
+        <BackButton to={"/"} />
       </div>
 
       {/* hall name header */}

@@ -3,32 +3,18 @@ import Nav from './Nav.jsx';
 
 import { Link } from "react-router-dom";
 import ListItemButton from '@mui/material/ListItemButton';
+import BackButton from "./BackButton.jsx";
 
 function About() {
   return (
     <>
       <Nav/>
       <div className="flexLeft">
-        <Link to="/">
-          <ListItemButton sx={{
-            color: "black",
-            marginBottom: '10px',
-            marginTop: '10px',
-            borderLeft: '6px solid #0F3C67',
-            borderRadius: '4px',
-            padding: "7px",
-            paddingLeft: "10px",
-            paddingRight: "11px",
-            backgroundColor: '#F9F9F9',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            Back
-          </ListItemButton>
-          </Link>
+        <BackButton to={"/"} />
       </div>
       <div className="container mt-5 mb-5">
         <h1 className="mb-4">About Gaucho Grub</h1>
+        <hr/>
 
         <section className="mb-4">
           <h3>Our Mission</h3>

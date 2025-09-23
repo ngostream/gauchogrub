@@ -16,6 +16,7 @@ import ReadOnlyStar from "./ReadOnlyStar.jsx";
 import axios from "axios";
 import leoProfanity from "leo-profanity";
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js";
+import BackButton from "./BackButton.jsx";
 
 import "../App.css";
 
@@ -184,24 +185,8 @@ function FoodReview() {
   return (
     <Container>
       <Nav />
-      <div className="flexLeft mb-3">
-        <Link to={`/${rawHN}`}>
-          <ListItemButton sx={{
-            color: "black",
-            marginBottom: '10px',
-            marginTop: '10px',
-            borderLeft: '6px solid #0F3C67',
-            borderRadius: '4px',
-            padding: "7px",
-            paddingLeft: "10px",
-            paddingRight: "11px",
-            backgroundColor: '#F9F9F9',
-            justifyContent: 'space-between',
-            alignItems: 'center'
-          }}>
-            Back
-          </ListItemButton>
-          </Link>
+      <div className="flexLeft">
+        <BackButton to={`/${rawHN}`} />
       </div>
       <Row>
         <Col>
