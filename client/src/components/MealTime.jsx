@@ -12,14 +12,17 @@ import { normalizeHallName } from "../utils/hallNames.js";
 export default function MealTime({ time, sections, ogHn }) {
   const [open, setOpen] = useState(true);
 
+  // normalize hall name for cache + API
   const hN = normalizeHallName(ogHn);
   const cacheKey = `${hN}-avgRatings`;
 
+  // initialize from cache if available
   const cachedRatings = localStorage.getItem(cacheKey);
   const [avgRatings, setAvgRatings] = useState(
     cachedRatings ? JSON.parse(cachedRatings) : {}
   );
 
+  // fetch fresh ratings in background
   useEffect(() => {
     const fetchAvgRatings = async () => {
       try {
@@ -36,15 +39,19 @@ export default function MealTime({ time, sections, ogHn }) {
     fetchAvgRatings();
   }, [hN, cacheKey]);
 
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
   return (
     <List
-      sx={{ width: "100%", bgcolor: "background.paper" }}
+      sx={{ width: "100%", maxWidth: "100%", bgcolor: "background.paper" }} // fill container
       component="nav"
       aria-labelledby="nested-list-subheader"
     >
-      {/* meal time header */}
+      {/* meal time header button */}
       <ListItemButton
-        onClick={() => setOpen(!open)}
+        onClick={handleClick}
         sx={{
           mb: 2,
           borderLeft: "6px solid #0F3C67",
@@ -74,6 +81,7 @@ export default function MealTime({ time, sections, ogHn }) {
                 padding: "0.75rem 1rem",
                 margin: "0.5rem 0",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
+                boxSizing: "border-box", // prevents content shifting
               }}
             >
               {/* section header */}

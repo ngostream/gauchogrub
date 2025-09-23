@@ -57,25 +57,24 @@ function DisplayMenu({ dict }) {
         </div>
       ) : (
         <div
-        style={{
+          style={{
             display: "flex",
             flexWrap: "wrap",
             gap: "1rem",
-            justifyContent: mealTimes.length === 1 ? "flex-start" : "flex-start", 
-            // flex-start keeps back button stable
-        }}
+            justifyContent: "flex-start", // keep back button stable
+          }}
         >
-        {mealTimes.map(([times, stations]) => (
+          {mealTimes.map(([times, stations]) => (
             <div
-            key={times}
-            style={{
+              key={times}
+              style={{
                 flex: mealTimes.length === 1 ? "1 1 100%" : "0 0 360px",
-                // single meal: take full width, multiple: fixed width
-            }}
+                minWidth: "360px", // prevents jumping when collapsing
+              }}
             >
-            <MealTime time={times} sections={stations} ogHn={hN} />
+              <MealTime time={times} sections={stations} ogHn={hN} />
             </div>
-        ))}
+          ))}
         </div>
       )}
     </Container>
