@@ -46,7 +46,7 @@ for hall in dining_halls:
                     cursor.execute(
                         """INSERT INTO Menu_Items (name, dining_hall, meal, station)
                             VALUES (%s, %s, %s, %s)
-                            ON CONFLICT (name, dining_hall, meal) DO NOTHING""",
+                            ON CONFLICT (name, dining_hall) DO NOTHING""",
                         (name, hall, meal, station),
                     )
                 except Exception as e:
