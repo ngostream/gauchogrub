@@ -1,22 +1,17 @@
-// Displaymenu.jsx
-
 import React from "react";
-import { Link, useParams } from "react-router-dom";
-import ListItemButton from "@mui/material/ListItemButton";
+import { useParams } from "react-router-dom";
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import MealTime from "./MealTime.jsx";
 import Nav from "./Nav.jsx";
 import "../App.css";
 
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js";
 import BackButton from "./BackButton.jsx";
+import MealTime from "./MealTime.jsx";
 
 function DisplayMenu({ dict }) {
-  let rawHN = decodeURIComponent(useParams().hN);
-  let hN = normalizeHallName(rawHN); // backend key
-  let prettyName = displayHallName(hN); // user-facing
+  const rawHN = decodeURIComponent(useParams().hN);
+  const hN = normalizeHallName(rawHN);
+  const prettyName = displayHallName(hN);
 
   // check if hall is closed
   const isClosed =
@@ -26,52 +21,63 @@ function DisplayMenu({ dict }) {
       (stations) => !stations || Object.keys(stations).length === 0
     );
 
+  // get visible meal times
+  const mealTimes = Object.entries(dict[hN] || {}).filter(
+    // eslint-disable-next-line no-unused-vars
+    ([time, stations]) => Object.keys(stations).length !== 0
+  );
+
   return (
     <Container style={{ paddingBottom: "80px" }}>
       <Nav />
 
       {/* back button */}
       <div className="flexLeft">
-        <BackButton to={"/"} />
+        <BackButton to="/" />
       </div>
 
       {/* hall name header */}
-      <Row>
-        <Col className="pt-3">
-          <h1 className="page-header">{prettyName}</h1>
-        </Col>
-      </Row>
-
+      <h1 className="page-header pt-3">{prettyName}</h1>
       <hr />
 
-      <Row>
-        {isClosed ? (
-          <Col>
+      {isClosed ? (
+        <div
+          style={{
+            textAlign: "center",
+            marginTop: "2rem",
+            fontWeight: 600,
+            fontSize: "1.2rem",
+            backgroundColor: "#f9f9f9",
+            padding: "1rem",
+            borderRadius: "8px",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
+          }}
+        >
+          {prettyName} is currently closed.
+        </div>
+      ) : (
+        <div
+        style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "1rem",
+            justifyContent: mealTimes.length === 1 ? "flex-start" : "flex-start", 
+            // flex-start keeps back button stable
+        }}
+        >
+        {mealTimes.map(([times, stations]) => (
             <div
-              style={{
-                textAlign: "center",
-                marginTop: "2rem",
-                fontWeight: 600,
-                fontSize: "1.2rem",
-                backgroundColor: "#f9f9f9",
-                padding: "1rem",
-                borderRadius: "8px",
-                boxShadow: "0 1px 4px rgba(0,0,0,0.08)",
-              }}
+            key={times}
+            style={{
+                flex: mealTimes.length === 1 ? "1 1 100%" : "0 0 360px",
+                // single meal: take full width, multiple: fixed width
+            }}
             >
-              {prettyName} is currently closed.
+            <MealTime time={times} sections={stations} ogHn={hN} />
             </div>
-          </Col>
-        ) : (
-          Object.entries(dict[hN]).map(([times, stations]) =>
-            Object.keys(stations).length !== 0 ? (
-              <Col md={6} lg={4} className="mb-3 px-3" key={times}>
-                <MealTime time={times} sections={stations} ogHn={hN} />
-              </Col>
-            ) : null
-          )
-        )}
-      </Row>
+        ))}
+        </div>
+      )}
     </Container>
   );
 }

@@ -1,5 +1,3 @@
-// MealTime.jsx
-
 import React, { useState, useEffect } from "react";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -14,17 +12,14 @@ import { normalizeHallName } from "../utils/hallNames.js";
 export default function MealTime({ time, sections, ogHn }) {
   const [open, setOpen] = useState(true);
 
-  // normalize hall name for cache + API
   const hN = normalizeHallName(ogHn);
   const cacheKey = `${hN}-avgRatings`;
 
-  // initialize from cache if available
   const cachedRatings = localStorage.getItem(cacheKey);
   const [avgRatings, setAvgRatings] = useState(
     cachedRatings ? JSON.parse(cachedRatings) : {}
   );
 
-  // fetch fresh ratings in background
   useEffect(() => {
     const fetchAvgRatings = async () => {
       try {
@@ -41,19 +36,15 @@ export default function MealTime({ time, sections, ogHn }) {
     fetchAvgRatings();
   }, [hN, cacheKey]);
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
-
   return (
     <List
-      sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+      sx={{ width: "100%", bgcolor: "background.paper" }}
       component="nav"
       aria-labelledby="nested-list-subheader"
     >
-      {/* meal time header button */}
+      {/* meal time header */}
       <ListItemButton
-        onClick={handleClick}
+        onClick={() => setOpen(!open)}
         sx={{
           mb: 2,
           borderLeft: "6px solid #0F3C67",
@@ -63,7 +54,7 @@ export default function MealTime({ time, sections, ogHn }) {
           bgcolor: "#F9F9F9",
           justifyContent: "space-between",
           alignItems: "center",
-          "&:hover": { bgcolor: "#eef3f7" }, // subtle hover effect
+          "&:hover": { bgcolor: "#eef3f7" },
         }}
       >
         <h2 style={{ fontSize: "1.5rem", fontWeight: 600, margin: 0, flex: 1 }}>
