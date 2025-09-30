@@ -1,8 +1,4 @@
-import React from 'react';
 import Nav from './Nav.jsx'; 
-
-import { Link } from "react-router-dom";
-import ListItemButton from '@mui/material/ListItemButton';
 import BackButton from "./BackButton.jsx";
 
 function About() {

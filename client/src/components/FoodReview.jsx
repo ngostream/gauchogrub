@@ -1,7 +1,5 @@
-// FoodReview.jsx
-
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import useParams from "react-router-dom";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -9,7 +7,6 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Stack from "@mui/material/Stack";
 import Rating from "@mui/material/Rating";
-import ListItemButton from "@mui/material/ListItemButton";
 import Nav from "./Nav.jsx";
 import ReadOnlyStar from "./ReadOnlyStar.jsx";
 

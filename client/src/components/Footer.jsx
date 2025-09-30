@@ -1,7 +1,5 @@
-import React from 'react'
 import Box from '@mui/material/Box'
 import Container from 'react-bootstrap/Container';
-import Button from 'react-bootstrap/Button'
 import "../App.css";
 
 export default function Footer(){

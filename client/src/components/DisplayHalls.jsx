@@ -1,4 +1,3 @@
-import React from 'react'
 import HallCard from "./HallCard.jsx"
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
