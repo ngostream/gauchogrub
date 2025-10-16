@@ -3,13 +3,13 @@ from flask_cors import CORS
 import datetime
 import requests
 import json
-# import sqlite3
-import psycopg2
+from psycopg2.pool import SimpleConnectionPool
 import os
 from dotenv import load_dotenv
 from zoneinfo import ZoneInfo
 from better_profanity import profanity
 import re
+
 load_dotenv(".env.prod")
 API_KEY = os.getenv("API_KEY")
 if not API_KEY:
@@ -19,40 +19,41 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not set!")
 
-now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
-date = now.date().isoformat()
-iso = now.isoformat()
-weekend = now.weekday() >= 5
+# create a global connection pool instead of opening new connections each request
+# this prevents Azure's freezing/slowness from too many concurrent connect() calls
+db_pool = SimpleConnectionPool(
+    1, 10, dsn=DATABASE_URL  # min=1, max=10 connections
+)
 
-url = "https://api.ucsb.edu/dining/menu/v1/" #if no internet can't make connection (obviously duh)
+url = "https://api.ucsb.edu/dining/menu/v1/"  # if no internet can't make connection (obviously duh)
 
 def getResponse(date, diningCommon, mealCode):
     link = url
     link += date + "/" + diningCommon + "/" + mealCode + "?ucsb-api-key=" + API_KEY
-    response = requests.get(link)
-    return json.loads(response.text) #returns list
+    response = requests.get(link, timeout=5)
+    return json.loads(response.text)  # returns list
 
 carrillo = {
-    "Breakfast" : {}, 
-    "Brunch":{},
-    "Lunch" : {},
-    "Dinner" : {}
+    "Breakfast": {},
+    "Brunch": {},
+    "Lunch": {},
+    "Dinner": {}
 }
 dlg = {
-    "Breakfast" : {},
-    "Brunch":{},
-    "Lunch" : {},
-    "Dinner" : {}
+    "Breakfast": {},
+    "Brunch": {},
+    "Lunch": {},
+    "Dinner": {}
 }
 ortega = {
-    "Lunch" : {},
-    "Dinner" : {}
+    "Lunch": {},
+    "Dinner": {}
 }
 portola = {
-    "Breakfast" : {},
-    "Brunch":{},
-    "Lunch" : {},
-    "Dinner" : {}
+    "Breakfast": {},
+    "Brunch": {},
+    "Lunch": {},
+    "Dinner": {}
 }
 diningHalls = {
     "Carrillo": carrillo,
@@ -81,17 +82,18 @@ profanity.load_censor_words()
 
 def is_inappropriate(text):
     norm = normalize(text)
-    return (
-        profanity.contains_profanity(norm)
-    )
+    return profanity.contains_profanity(norm)
         
 app = Flask(__name__)
 
 CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
+
 @app.route("/")
 def menu():
+    now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
+
     # return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = db_pool.getconn()  # use pooled connection
     cursor = conn.cursor()
 
     cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (now.date(),))
@@ -105,7 +107,8 @@ def menu():
         """, (now.date(),))
         row = cursor.fetchone()
 
-    conn.close()
+    # return connection to pool instead of closing it fully
+    db_pool.putconn(conn)
 
     if row:
         json_data = row[0]
@@ -113,17 +116,19 @@ def menu():
     else:
         return jsonify({"error": "No data found"}), 404
 
-@app.route("/<dining_hall>/<item_id>", methods = ["POST", "GET"])
+
+@app.route("/<dining_hall>/<item_id>", methods=["POST", "GET"])
 def submit(dining_hall, item_id):
-    item_id = item_id.replace("__slash__","/")
-    conn = psycopg2.connect(DATABASE_URL)
+    item_id = item_id.replace("__slash__", "/")
+
+    conn = db_pool.getconn()  # use connection from pool
     cursor = conn.cursor()
 
     cursor.execute("SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s", (item_id, dining_hall))
     menu_item = cursor.fetchone()
 
     if not menu_item:
-        conn.close()
+        db_pool.putconn(conn)
         return "Menu item not found", 404
     
     menu_item_id = menu_item[0]
@@ -133,7 +138,7 @@ def submit(dining_hall, item_id):
 
         # malformed json, empty text or no review
         if "rating" not in data or "review" not in data:
-            conn.close()
+            db_pool.putconn(conn)
             return jsonify({"error": "Missing review data"}), 400
         
         review_text = data["review"].strip()
@@ -141,16 +146,17 @@ def submit(dining_hall, item_id):
 
         # profanity
         if is_inappropriate(review_text):
+            db_pool.putconn(conn)
             return jsonify({"error": "Review contains inappropriate language"}), 400
 
         # 300 character limit for review text
         if len(review_text) > 300:
-            conn.close()
+            db_pool.putconn(conn)
             return jsonify({"error": "Review too long (300 character limit)"}), 400
 
         # specifying range for ratings
         if not isinstance(rating, (float, int)) or not (1.0 <= rating <= 5.0):
-            conn.close()
+            db_pool.putconn(conn)
             return jsonify({"error": "Rating must be an integer between 1 and 5"}), 400
 
         cursor.execute("""
@@ -161,7 +167,7 @@ def submit(dining_hall, item_id):
         if not cursor.fetchone():
             cursor.execute(
                 "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (%s, %s, %s)",
-                (menu_item_id, rating ,review_text)
+                (menu_item_id, rating, review_text)
             )
             conn.commit()
 
@@ -191,13 +197,18 @@ def submit(dining_hall, item_id):
     )
     conn.commit()
 
-    conn.close()
+    db_pool.putconn(conn)  # release back to pool (instead of closing)
 
-    return jsonify({"message": "received", "avg_rating": new_avg, "reviews": reviews,}), 200
+    return jsonify({
+        "message": "received",
+        "avg_rating": new_avg,
+        "reviews": reviews,
+    }), 200
+
 
 @app.route("/<dining_hall>/avg_ratings", methods=["GET"])
 def get_avg_ratings(dining_hall):
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = db_pool.getconn()  # use pooled connection
     cursor = conn.cursor()
     cursor.execute("""
         SELECT name, COALESCE(avg_rating, 0)
@@ -205,7 +216,7 @@ def get_avg_ratings(dining_hall):
         WHERE dining_hall = %s
     """, (dining_hall,))
     result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
-    conn.close()
+    db_pool.putconn(conn)  # return to pool
     return jsonify(result)
 
 # health check endpoint (for pinging to avoid cold starts)
@@ -214,6 +225,4 @@ def health():
     return "OK", 200
     
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0", port = 5000, debug=True)
-
-    
+    app.run(host="0.0.0.0", port=5000, debug=True)
