@@ -1,5 +1,6 @@
 {
   "name": "client",
+  "packageManager": "pnpm@10.18.2",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -17,7 +18,7 @@
     "@mui/material": "^7.3.6",
     "axios": "^1.13.2",
     "bootstrap": "^5.3.8",
-    "brace-expansion": "^4.0.1",
+    "brace-expansion": "^5.0.5",
     "form-data": "^4.0.5",
     "leo-profanity": "^1.8.0",
     "react": "^19.2.3",
