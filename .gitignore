@@ -3,3 +3,6 @@ venv/
 .env.*
 .venv
 dining_menu.db
+.DS_Store
+__pycache__/
+*.pyc
