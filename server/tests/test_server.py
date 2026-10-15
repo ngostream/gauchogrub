@@ -89,9 +89,29 @@ class ServerRouteTests(unittest.TestCase):
         self.conn.commit.assert_not_called()
         self.pool.putconn.assert_called_once_with(self.conn)
 
+    def test_review_rejects_missing_json_body(self):
+        self.cursor.fetchone.return_value = (7,)
+        response = self.client.post("/Carrillo/Pizza")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json["error"], "Missing review data")
+        self.pool.putconn.assert_called_once_with(self.conn)
+
+    def test_review_rejects_blank_or_non_string_text(self):
+        for review in ["   ", None, 42]:
+            with self.subTest(review=review):
+                self.cursor.fetchone.return_value = (7,)
+                response = self.client.post("/Carrillo/Pizza", json={"rating": 4, "review": review})
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.json["error"], "Review must be non-empty text")
+        self.conn.commit.assert_not_called()
+        self.assertEqual(self.pool.putconn.call_count, 3)
+
     def test_review_rejects_invalid_rating_and_long_text(self):
         for payload, expected in [
             ({"rating": 0, "review": "Good"}, "Rating must be an integer between 1 and 5"),
+            ({"rating": 6, "review": "Good"}, "Rating must be an integer between 1 and 5"),
+            ({"rating": "4", "review": "Good"}, "Rating must be an integer between 1 and 5"),
+            ({"rating": True, "review": "Good"}, "Rating must be an integer between 1 and 5"),
             ({"rating": 4, "review": "a" * 301}, "Review too long (300 character limit)"),
         ]:
             with self.subTest(payload=payload):
@@ -100,7 +120,33 @@ class ServerRouteTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 400)
                 self.assertEqual(response.json["error"], expected)
         self.conn.commit.assert_not_called()
-        self.assertEqual(self.pool.putconn.call_count, 2)
+        self.assertEqual(self.pool.putconn.call_count, 5)
+
+    def test_review_accepts_300_character_boundary(self):
+        self.cursor.fetchone.side_effect = [(7,), None, (5.0,)]
+        self.cursor.fetchall.return_value = []
+        response = self.client.post("/Carrillo/Pizza", json={"rating": 5, "review": "a" * 300})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(any("INSERT INTO Reviews" in call.args[0] for call in self.cursor.execute.call_args_list))
+
+    def test_get_reviews_returns_empty_list_and_null_average(self):
+        self.cursor.fetchone.side_effect = [(7,), (None,)]
+        self.cursor.fetchall.return_value = []
+        response = self.client.get("/Carrillo/Pizza")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json["reviews"], [])
+        self.assertIsNone(response.json["avg_rating"])
+        self.assertFalse(any("INSERT INTO Reviews" in call.args[0] for call in self.cursor.execute.call_args_list))
+
+    def test_get_response_uses_api_key_and_timeout(self):
+        with patch.object(self.server.requests, "get") as get:
+            get.return_value.text = '[{"name": "Pizza"}]'
+            result = self.server.getResponse("2026-10-14", "Carrillo", "Lunch")
+        self.assertEqual(result, [{"name": "Pizza"}])
+        get.assert_called_once_with(
+            "https://api.ucsb.edu/dining/menu/v1/2026-10-14/Carrillo/Lunch?ucsb-api-key=test-key",
+            timeout=5,
+        )
 
     def test_review_rejects_profanity(self):
         self.cursor.fetchone.return_value = (7,)

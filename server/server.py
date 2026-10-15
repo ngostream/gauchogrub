@@ -134,13 +134,17 @@ def submit(dining_hall, item_id):
     menu_item_id = menu_item[0]
 
     if request.method == "POST":
-        data = request.json
+        data = request.get_json(silent=True)
 
         # malformed json, empty text or no review
-        if "rating" not in data or "review" not in data:
+        if not isinstance(data, dict) or "rating" not in data or "review" not in data:
             db_pool.putconn(conn)
             return jsonify({"error": "Missing review data"}), 400
-        
+
+        if not isinstance(data["review"], str) or not data["review"].strip():
+            db_pool.putconn(conn)
+            return jsonify({"error": "Review must be non-empty text"}), 400
+
         review_text = data["review"].strip()
         rating = data["rating"]
 
@@ -155,7 +159,7 @@ def submit(dining_hall, item_id):
             return jsonify({"error": "Review too long (300 character limit)"}), 400
 
         # specifying range for ratings
-        if not isinstance(rating, (float, int)) or not (1.0 <= rating <= 5.0):
+        if isinstance(rating, bool) or not isinstance(rating, (float, int)) or not (1.0 <= rating <= 5.0):
             db_pool.putconn(conn)
             return jsonify({"error": "Rating must be an integer between 1 and 5"}), 400
 

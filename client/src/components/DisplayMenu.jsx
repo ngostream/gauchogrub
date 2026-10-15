@@ -4,6 +4,7 @@ import Nav from "./Nav.jsx";
 import "../App.css";
 
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js";
+import { getVisibleMeals, isHallClosed } from "../utils/menu.js";
 import BackButton from "./BackButton.jsx";
 import MealTime from "./MealTime.jsx";
 
@@ -13,18 +14,10 @@ function DisplayMenu({ dict }) {
   const prettyName = displayHallName(hN);
 
   // check if hall is closed
-  const isClosed =
-    !dict[hN] ||
-    Object.keys(dict[hN]).length === 0 ||
-    Object.values(dict[hN]).every(
-      (stations) => !stations || Object.keys(stations).length === 0
-    );
+  const isClosed = isHallClosed(dict, hN);
 
   // get visible meal times
-  const mealTimes = Object.entries(dict[hN] || {}).filter(
-    // eslint-disable-next-line no-unused-vars
-    ([time, stations]) => Object.keys(stations).length !== 0
-  );
+  const mealTimes = getVisibleMeals(dict, hN);
 
   return (
     <Container style={{ paddingBottom: "80px" }}>

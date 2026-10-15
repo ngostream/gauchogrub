@@ -13,6 +13,7 @@ import ReadOnlyStar from "./ReadOnlyStar.jsx";
 import axios from "axios";
 import leoProfanity from "leo-profanity";
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js";
+import { reviewCacheKey, reviewEndpoint, validateReview } from "../utils/reviews.js";
 import BackButton from "./BackButton.jsx";
 
 import "../App.css";
@@ -20,7 +21,6 @@ import "../App.css";
 function FoodReview() {
   // get food item and hall name from url
   let foodItem = decodeURIComponent(useParams().foodItem);
-  let safeFoodItem = foodItem.replaceAll("/", "__slash__"); //to avoid issues with slashes being interpreted as a subdirectory
   let rawHN = decodeURIComponent(useParams().hN);
   let hN = normalizeHallName(rawHN); // backend key
   let prettyHall = displayHallName(hN); // user-facing
@@ -31,7 +31,7 @@ function FoodReview() {
   const [submitted, setSubmitted] = useState(false); // track whether or not user submitted review
   const [isSubmitting, setIsSubmitting] = useState(false); // prevent double submissions
 
-  const cacheKey = `${hN}-${safeFoodItem}-reviews`; // for localstorage caching
+  const cacheKey = reviewCacheKey(hN, foodItem); // for localstorage caching
 
   // fetch reviews from backend, use localstorage cache to speed things up
   const fetchReviews = React.useCallback(async (forceRefresh = false) => {
@@ -44,18 +44,18 @@ function FoodReview() {
         }
       }
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`
+        `${import.meta.env.VITE_API_BASE_URL}${reviewEndpoint(hN, foodItem)}`
       );
       setReviewData(response.data);
       localStorage.setItem(cacheKey, JSON.stringify(response.data)); // cache latest
     } catch (error) {
       console.error("Fetch reviews failed:", error);
     }
-  }, [hN, safeFoodItem, cacheKey]);
+  }, [hN, foodItem, cacheKey]);
 
   useEffect(() => {
     fetchReviews();
-  }, [fetchReviews, safeFoodItem]); // fetch when page loads or food item changes
+  }, [fetchReviews, foodItem]); // fetch when page loads or food item changes
 
   // handle form submission
   const handleSubmission = async (e) => {
@@ -63,21 +63,9 @@ function FoodReview() {
     if (isSubmitting) return; // prevent double click
     setIsSubmitting(true);
 
-    const trimmedReview = formData.review.trim();
-
-    // validation
-    if (!trimmedReview) {
-      alert("Please enter a review before submitting.");
-      setIsSubmitting(false);
-      return;
-    }
-    if (trimmedReview.length > 300) {
-      alert("Review cannot exceed 300 characters.");
-      setIsSubmitting(false);
-      return;
-    }
-    if (leoProfanity.check(trimmedReview)) {
-      alert("Please avoid using offensive language.");
+    const validationError = validateReview(formData.review, (text) => leoProfanity.check(text));
+    if (validationError) {
+      alert(validationError);
       setIsSubmitting(false);
       return;
     }
@@ -85,7 +73,7 @@ function FoodReview() {
     try {
       // post review to backend
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/${hN}/${encodeURIComponent(safeFoodItem)}`,
+        `${import.meta.env.VITE_API_BASE_URL}${reviewEndpoint(hN, foodItem)}`,
         formData,
         { headers: { "Content-Type": "application/json" } }
       );
