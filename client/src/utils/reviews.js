@@ -3,6 +3,10 @@ export function reviewEndpoint(hall, item) {
   return `/${hall}/${encodeURIComponent(safeItem)}`
 }
 
+export function reviewUrl(base, hall, item) {
+  return `${base.replace(/\/+$/, '')}${reviewEndpoint(hall, item)}`
+}
+
 export function reviewCacheKey(hall, item) {
   return `${hall}-${item.replaceAll('/', '__slash__')}-reviews`
 }

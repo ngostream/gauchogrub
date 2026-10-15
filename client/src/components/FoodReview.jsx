@@ -13,7 +13,7 @@ import ReadOnlyStar from "./ReadOnlyStar.jsx";
 import axios from "axios";
 import leoProfanity from "leo-profanity";
 import { normalizeHallName, displayHallName } from "../utils/hallNames.js";
-import { reviewCacheKey, reviewEndpoint, validateReview } from "../utils/reviews.js";
+import { reviewCacheKey, reviewUrl, validateReview } from "../utils/reviews.js";
 import BackButton from "./BackButton.jsx";
 
 import "../App.css";
@@ -44,7 +44,7 @@ function FoodReview() {
         }
       }
       const response = await axios.get(
-        `${import.meta.env.VITE_API_BASE_URL}${reviewEndpoint(hN, foodItem)}`
+        reviewUrl(import.meta.env.VITE_API_BASE_URL, hN, foodItem)
       );
       setReviewData(response.data);
       localStorage.setItem(cacheKey, JSON.stringify(response.data)); // cache latest
@@ -73,7 +73,7 @@ function FoodReview() {
     try {
       // post review to backend
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}${reviewEndpoint(hN, foodItem)}`,
+        reviewUrl(import.meta.env.VITE_API_BASE_URL, hN, foodItem),
         formData,
         { headers: { "Content-Type": "application/json" } }
       );
