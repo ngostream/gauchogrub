@@ -26,6 +26,9 @@ class ServerRouteTests(unittest.TestCase):
         self.pool.reset_mock()
         self.conn = MagicMock()
         self.cursor = self.conn.cursor.return_value
+        self.conn.__enter__.return_value = self.conn
+        self.cursor.__enter__.return_value = self.cursor
+        self.conn.closed = 0
         self.pool.getconn.return_value = self.conn
         self.client = self.server.app.test_client()
 
@@ -41,6 +44,14 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {"Carrillo": {"Lunch": {}}})
         self.assertEqual(self.cursor.execute.call_count, 1)
+        self.pool.putconn.assert_called_once_with(self.conn)
+        self.conn.__exit__.assert_called_once()
+
+    def test_connection_returns_to_pool_after_sql_error(self):
+        self.cursor.execute.side_effect = RuntimeError("database unavailable")
+        with self.assertRaises(RuntimeError):
+            self.client.get("/")
+        self.conn.__exit__.assert_called_once()
         self.pool.putconn.assert_called_once_with(self.conn)
 
     def test_menu_falls_back_to_latest_available_day(self):
@@ -108,10 +119,11 @@ class ServerRouteTests(unittest.TestCase):
 
     def test_review_rejects_invalid_rating_and_long_text(self):
         for payload, expected in [
-            ({"rating": 0, "review": "Good"}, "Rating must be an integer between 1 and 5"),
-            ({"rating": 6, "review": "Good"}, "Rating must be an integer between 1 and 5"),
-            ({"rating": "4", "review": "Good"}, "Rating must be an integer between 1 and 5"),
-            ({"rating": True, "review": "Good"}, "Rating must be an integer between 1 and 5"),
+            ({"rating": 0, "review": "Good"}, "Rating must be between 1 and 5 in half-star steps"),
+            ({"rating": 6, "review": "Good"}, "Rating must be between 1 and 5 in half-star steps"),
+            ({"rating": "4", "review": "Good"}, "Rating must be between 1 and 5 in half-star steps"),
+            ({"rating": True, "review": "Good"}, "Rating must be between 1 and 5 in half-star steps"),
+            ({"rating": 4.25, "review": "Good"}, "Rating must be between 1 and 5 in half-star steps"),
             ({"rating": 4, "review": "a" * 301}, "Review too long (300 character limit)"),
         ]:
             with self.subTest(payload=payload):
@@ -120,7 +132,7 @@ class ServerRouteTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 400)
                 self.assertEqual(response.json["error"], expected)
         self.conn.commit.assert_not_called()
-        self.assertEqual(self.pool.putconn.call_count, 5)
+        self.assertEqual(self.pool.putconn.call_count, 6)
 
     def test_review_accepts_300_character_boundary(self):
         self.cursor.fetchone.side_effect = [(7,), None, (5.0,)]
@@ -137,16 +149,6 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(response.json["reviews"], [])
         self.assertIsNone(response.json["avg_rating"])
         self.assertFalse(any("INSERT INTO Reviews" in call.args[0] for call in self.cursor.execute.call_args_list))
-
-    def test_get_response_uses_api_key_and_timeout(self):
-        with patch.object(self.server.requests, "get") as get:
-            get.return_value.text = '[{"name": "Pizza"}]'
-            result = self.server.getResponse("2026-10-14", "Carrillo", "Lunch")
-        self.assertEqual(result, [{"name": "Pizza"}])
-        get.assert_called_once_with(
-            "https://api.ucsb.edu/dining/menu/v1/2026-10-14/Carrillo/Lunch?ucsb-api-key=test-key",
-            timeout=5,
-        )
 
     def test_review_rejects_profanity(self):
         self.cursor.fetchone.return_value = (7,)

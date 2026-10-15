@@ -45,14 +45,18 @@ describe('FoodReview', () => {
     expect(JSON.parse(localStorage.getItem('Carrillo-Pizza-reviews')).reviews[0].comment).toBe('Tasty')
   })
 
-  it('uses cached reviews on first render', async () => {
+  it('shows cached reviews while refreshing them', async () => {
     localStorage.setItem('Carrillo-Pizza-reviews', JSON.stringify({
       reviews: [{ rating: 5, comment: 'Cached review', created_at: '2026-10-14' }],
     }))
+    axios.get.mockResolvedValue({ data: { reviews: [
+      { rating: 4, comment: 'Fresh review', created_at: '2026-10-15' },
+    ] } })
     renderReview()
 
     expect(await screen.findByText('Cached review')).toBeTruthy()
-    expect(axios.get).not.toHaveBeenCalled()
+    expect(await screen.findByText('Fresh review')).toBeTruthy()
+    expect(axios.get).toHaveBeenCalledOnce()
   })
 
   it('rejects a blank review without posting', async () => {
@@ -70,12 +74,11 @@ describe('FoodReview', () => {
   })
 
   it('submits a review, refreshes the list, and invalidates rating cache', async () => {
-    axios.get
-      .mockResolvedValueOnce({ data: { reviews: [] } })
-      .mockResolvedValueOnce({ data: {
-        reviews: [{ rating: 3, comment: 'Great!', created_at: '2026-10-14' }],
-      } })
-    axios.post.mockResolvedValue({ data: { message: 'received' } })
+    axios.get.mockResolvedValue({ data: { reviews: [] } })
+    axios.post.mockResolvedValue({ data: {
+      message: 'received',
+      reviews: [{ rating: 3, comment: 'Great!', created_at: '2026-10-14' }],
+    } })
     const ratingsUpdated = vi.fn()
     window.addEventListener('ratingsUpdated', ratingsUpdated)
     const user = userEvent.setup()
@@ -92,7 +95,7 @@ describe('FoodReview', () => {
       { headers: { 'Content-Type': 'application/json' } },
     ))
     expect(await screen.findByText('Great!')).toBeTruthy()
-    expect(axios.get).toHaveBeenCalledTimes(2)
+    expect(axios.get).toHaveBeenCalledOnce()
     expect(localStorage.getItem('Carrillo-avgRatings')).toBeNull()
     expect(JSON.parse(localStorage.getItem('Carrillo-Pizza-reviews')).reviews[0].comment).toBe('Great!')
     expect(ratingsUpdated).toHaveBeenCalledOnce()
@@ -116,5 +119,6 @@ describe('FoodReview', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Submit' }).disabled).toBe(false))
     expect(localStorage.getItem('Carrillo-avgRatings')).toBe('{"Pizza":3}')
     expect(screen.getByPlaceholderText('Write your review here...').value).toBe('Good')
+    expect(screen.getByRole('alert').textContent).toContain('Could not submit your review')
   })
 })

@@ -1,232 +1,152 @@
-from flask import Flask, request, jsonify, Response
-from flask_cors import CORS
+"""Flask API for cached dining menus and food reviews."""
+
 import datetime
-import requests
-import json
-from psycopg2.pool import SimpleConnectionPool
 import os
-from dotenv import load_dotenv
-from zoneinfo import ZoneInfo
-from better_profanity import profanity
 import re
+from contextlib import contextmanager
+from zoneinfo import ZoneInfo
+
+from better_profanity import profanity
+from dotenv import load_dotenv
+from flask import Flask, Response, jsonify, request
+from flask_cors import CORS
+from psycopg2.pool import SimpleConnectionPool
 
 load_dotenv(".env.prod")
-API_KEY = os.getenv("API_KEY")
-if not API_KEY:
-    raise RuntimeError("API_KEY is not set!")
-
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise RuntimeError("DATABASE_URL is not set!")
 
-# create a global connection pool instead of opening new connections each request
-# this prevents Azure's freezing/slowness from too many concurrent connect() calls
-db_pool = SimpleConnectionPool(
-    1, 10, dsn=DATABASE_URL  # min=1, max=10 connections
-)
-
-url = "https://api.ucsb.edu/dining/menu/v1/"  # if no internet can't make connection (obviously duh)
-
-def getResponse(date, diningCommon, mealCode):
-    link = url
-    link += date + "/" + diningCommon + "/" + mealCode + "?ucsb-api-key=" + API_KEY
-    response = requests.get(link, timeout=5)
-    return json.loads(response.text)  # returns list
-
-carrillo = {
-    "Breakfast": {},
-    "Brunch": {},
-    "Lunch": {},
-    "Dinner": {}
-}
-dlg = {
-    "Breakfast": {},
-    "Brunch": {},
-    "Lunch": {},
-    "Dinner": {}
-}
-ortega = {
-    "Lunch": {},
-    "Dinner": {}
-}
-portola = {
-    "Breakfast": {},
-    "Brunch": {},
-    "Lunch": {},
-    "Dinner": {}
-}
-diningHalls = {
-    "Carrillo": carrillo,
-    "De-La-Guerra": dlg,
-    "Ortega": ortega,
-    "Portola": portola
-}
-
-# for the profanity filter
-def normalize(text):
-    substitutions = {
-        '1': 'i', '!': 'i', '3': 'e', '4': 'a', '@': 'a',
-        '0': 'o', '$': 's', '5': 's', '+': 't'
-    }
-    text = text.lower()
-    text = re.sub(r'[^a-z0-9\s]', '', text)
-    for k, v in substitutions.items():
-        text = text.replace(k, v)
-    text = re.sub(r'\s+', '', text)
-    return text
-
-def contains_fuzzy_profanity(text):
-    normalized = normalize(text)
-    return profanity.contains_profanity(normalized)
+db_pool = SimpleConnectionPool(1, 10, dsn=DATABASE_URL)
 profanity.load_censor_words()
 
-def is_inappropriate(text):
-    norm = normalize(text)
-    return profanity.contains_profanity(norm)
-        
 app = Flask(__name__)
-
 CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
+
+
+@contextmanager
+def database_connection():
+    """Finish every transaction and return its connection, including on errors."""
+    conn = db_pool.getconn()
+    try:
+        with conn:
+            yield conn
+    finally:
+        db_pool.putconn(conn)
+
+
+def is_inappropriate(text):
+    substitutions = {
+        "1": "i", "!": "i", "3": "e", "4": "a", "@": "a",
+        "0": "o", "$": "s", "5": "s", "+": "t",
+    }
+    normalized = text.lower()
+    for source, replacement in substitutions.items():
+        normalized = normalized.replace(source, replacement)
+    normalized = re.sub(r"[^a-z\s]", "", normalized)
+    return profanity.contains_profanity(re.sub(r"\s+", "", normalized))
+
 
 @app.route("/")
 def menu():
-    now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
-
-    # return json.dumps(diningHalls) #must be json.dumps() to preserve dict order
-    conn = db_pool.getconn()  # use pooled connection
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (now.date(),))
-    row = cursor.fetchone()
-
-    # fallback, get most recent
-    if not row:
-        cursor.execute("""
-            SELECT data FROM Daily_Menu WHERE DATE < %s
-            ORDER BY date DESC LIMIT 1
-        """, (now.date(),))
+    today = datetime.datetime.now(ZoneInfo("America/Los_Angeles")).date()
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute("SELECT data FROM Daily_Menu WHERE date = %s", (today,))
         row = cursor.fetchone()
-
-    # return connection to pool instead of closing it fully
-    db_pool.putconn(conn)
+        if not row:
+            cursor.execute(
+                "SELECT data FROM Daily_Menu WHERE date < %s ORDER BY date DESC LIMIT 1",
+                (today,),
+            )
+            row = cursor.fetchone()
 
     if row:
-        json_data = row[0]
-        return Response(json_data, mimetype='application/json')
-    else:
-        return jsonify({"error": "No data found"}), 404
+        return Response(row[0], mimetype="application/json")
+    return jsonify({"error": "No data found"}), 404
 
 
 @app.route("/<dining_hall>/<item_id>", methods=["POST", "GET"])
 def submit(dining_hall, item_id):
-    item_id = item_id.replace("__slash__", "/")
+    item_name = item_id.replace("__slash__", "/")
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s",
+            (item_name, dining_hall),
+        )
+        menu_item = cursor.fetchone()
+        if not menu_item:
+            return jsonify({"error": "Menu item not found"}), 404
 
-    conn = db_pool.getconn()  # use connection from pool
-    cursor = conn.cursor()
+        menu_item_id = menu_item[0]
+        if request.method == "POST":
+            data = request.get_json(silent=True)
+            if not isinstance(data, dict) or "rating" not in data or "review" not in data:
+                return jsonify({"error": "Missing review data"}), 400
+            if not isinstance(data["review"], str) or not data["review"].strip():
+                return jsonify({"error": "Review must be non-empty text"}), 400
 
-    cursor.execute("SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s", (item_id, dining_hall))
-    menu_item = cursor.fetchone()
+            review_text = data["review"].strip()
+            rating = data["rating"]
+            if len(review_text) > 300:
+                return jsonify({"error": "Review too long (300 character limit)"}), 400
+            if is_inappropriate(review_text):
+                return jsonify({"error": "Review contains inappropriate language"}), 400
+            if (
+                isinstance(rating, bool)
+                or not isinstance(rating, (float, int))
+                or not (1 <= rating <= 5)
+                or rating * 2 != int(rating * 2)
+            ):
+                return jsonify({"error": "Rating must be between 1 and 5 in half-star steps"}), 400
 
-    if not menu_item:
-        db_pool.putconn(conn)
-        return "Menu item not found", 404
-    
-    menu_item_id = menu_item[0]
-
-    if request.method == "POST":
-        data = request.get_json(silent=True)
-
-        # malformed json, empty text or no review
-        if not isinstance(data, dict) or "rating" not in data or "review" not in data:
-            db_pool.putconn(conn)
-            return jsonify({"error": "Missing review data"}), 400
-
-        if not isinstance(data["review"], str) or not data["review"].strip():
-            db_pool.putconn(conn)
-            return jsonify({"error": "Review must be non-empty text"}), 400
-
-        review_text = data["review"].strip()
-        rating = data["rating"]
-
-        # profanity
-        if is_inappropriate(review_text):
-            db_pool.putconn(conn)
-            return jsonify({"error": "Review contains inappropriate language"}), 400
-
-        # 300 character limit for review text
-        if len(review_text) > 300:
-            db_pool.putconn(conn)
-            return jsonify({"error": "Review too long (300 character limit)"}), 400
-
-        # specifying range for ratings
-        if isinstance(rating, bool) or not isinstance(rating, (float, int)) or not (1.0 <= rating <= 5.0):
-            db_pool.putconn(conn)
-            return jsonify({"error": "Rating must be an integer between 1 and 5"}), 400
-
-        cursor.execute("""
-            SELECT 1 FROM Reviews
-            WHERE menu_item_id = %s AND comment = %s
-            AND created_at > NOW() - interval '10 seconds'
-        """, (menu_item_id, review_text))
-        if not cursor.fetchone():
             cursor.execute(
-                "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (%s, %s, %s)",
-                (menu_item_id, rating, review_text)
+                """SELECT 1 FROM Reviews
+                   WHERE menu_item_id = %s AND comment = %s
+                   AND created_at > NOW() - interval '10 seconds'""",
+                (menu_item_id, review_text),
             )
-            conn.commit()
+            if not cursor.fetchone():
+                cursor.execute(
+                    "INSERT INTO Reviews (menu_item_id, rating, comment) VALUES (%s, %s, %s)",
+                    (menu_item_id, rating, review_text),
+                )
+                cursor.execute(
+                    """UPDATE Menu_Items SET avg_rating =
+                       (SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s)
+                       WHERE id = %s""",
+                    (menu_item_id, menu_item_id),
+                )
 
-    # grab the rating, comment, and reviews that match the menu item. defaults to descending based on most recent date
-    cursor.execute(
-        """
-        SELECT r.rating, r.comment, r.created_at
-        FROM Reviews r
-        JOIN Menu_Items m ON r.menu_item_id = m.id
-        WHERE m.id = %s AND m.dining_hall = %s
-        ORDER BY r.created_at DESC
-        """,
-        (menu_item_id, dining_hall),
-    )
-    reviews = [{"rating": row[0], "comment": row[1], "created_at": row[2]} for row in cursor.fetchall()]
+        cursor.execute(
+            """SELECT rating, comment, created_at FROM Reviews
+               WHERE menu_item_id = %s ORDER BY created_at DESC, id DESC""",
+            (menu_item_id,),
+        )
+        reviews = [
+            {"rating": row[0], "comment": row[1], "created_at": row[2]}
+            for row in cursor.fetchall()
+        ]
+        cursor.execute("SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s", (menu_item_id,))
+        average = cursor.fetchone()[0]
 
-    # update the average rating
-    cursor.execute(
-        "SELECT AVG(rating) FROM Reviews WHERE menu_item_id = %s",
-        (menu_item_id,)
-    )
-    new_avg = cursor.fetchone()[0]
-
-    cursor.execute(
-        "UPDATE Menu_Items SET avg_rating = %s WHERE id = %s",
-        (new_avg, menu_item_id)
-    )
-    conn.commit()
-
-    db_pool.putconn(conn)  # release back to pool (instead of closing)
-
-    return jsonify({
-        "message": "received",
-        "avg_rating": new_avg,
-        "reviews": reviews,
-    }), 200
+    return jsonify({"message": "received", "avg_rating": average, "reviews": reviews})
 
 
-@app.route("/<dining_hall>/avg_ratings", methods=["GET"])
+@app.route("/<dining_hall>/avg_ratings")
 def get_avg_ratings(dining_hall):
-    conn = db_pool.getconn()  # use pooled connection
-    cursor = conn.cursor()
-    cursor.execute("""
-        SELECT name, COALESCE(avg_rating, 0)
-        FROM Menu_Items
-        WHERE dining_hall = %s
-    """, (dining_hall,))
-    result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
-    db_pool.putconn(conn)  # return to pool
+    with database_connection() as conn, conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT name, COALESCE(avg_rating, 0) FROM Menu_Items WHERE dining_hall = %s",
+            (dining_hall,),
+        )
+        result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
     return jsonify(result)
 
-# health check endpoint (for pinging to avoid cold starts)
+
 @app.route("/health")
 def health():
     return "OK", 200
-    
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5001, debug=True)
+    app.run(host="0.0.0.0", port=5001)
