@@ -98,9 +98,16 @@ Stores pre-fetched UCSB Dining API data to reduce request latency.
 
 ## Deployment & Automation
 
-- `update_database.py` pulls new dining hall data from UCSB API every 24 hours and inserts it into PostgreSQL.
-- Flask API runs locally or can be deployed to any cloud provider.
-- React frontend runs locally or can be built for production.
+| Component | Hosted on | Role |
+|-----------|-----------|------|
+| React frontend | Vercel | Serves the website and calls the Flask API using `VITE_API_BASE_URL`. |
+| Flask backend | Azure App Service (`GauchoGrubBackend`) | Serves menus, reviews, and ratings. Connects to Supabase using `DATABASE_URL`. |
+| PostgreSQL database | Supabase | Stores menu items, reviews, ratings, and the daily menu cache. |
+| Menu refresh | GitHub Actions | Runs `server/update_database.py` daily at 10:00 UTC to fetch UCSB Dining data and update Supabase. |
+
+Pull requests run the backend tests and the frontend tests, lint, and build. On a push to `main`, the same checks must pass before GitHub Actions deploys the backend to Azure. The Azure deployment workflow can also be run manually. The frontend is hosted separately on Vercel.
+
+The frontend build needs `VITE_API_BASE_URL` set to the Azure API URL. The backend needs `DATABASE_URL` for Supabase PostgreSQL and `API_KEY` for the UCSB Dining API. The scheduled refresh workflow reads `DATABASE_URL` and `API_KEY` from GitHub Actions secrets. Keep their values out of the repository.
 
 ## Tests
 
