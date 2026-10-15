@@ -54,6 +54,26 @@ Reviews Table:
 - Flask API runs locally or can be deployed to any cloud provider.
 - React frontend runs locally or can be built for production.
 
+## Tests and CI/CD
+
+Run the backend route tests without a database or UCSB API connection:
+
+```sh
+python -m pip install -r server/requirements.txt
+python -m unittest discover -s server/tests -v
+```
+
+Run the frontend checks from `client/`:
+
+```sh
+npm ci
+npm test
+npm run lint
+npm run build
+```
+
+GitHub Actions runs these checks for pull requests and pushes to `main`. After both jobs pass on `main` (or a manual workflow run), the backend deploys to Azure. The scheduled menu update remains a separate workflow. The frontend build is checked in CI; frontend hosting is managed separately by Vercel.
+
 ## Screenshots
 
 ### Home Page – Dining Hall Selection
