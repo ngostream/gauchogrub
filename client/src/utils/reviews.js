@@ -3,8 +3,12 @@ export function reviewEndpoint(hall, item) {
   return `/${hall}/${encodeURIComponent(safeItem)}`
 }
 
+export function apiUrl(base, path) {
+  return `${base.replace(/\/+$/, '')}/${path.replace(/^\/+/, '')}`
+}
+
 export function reviewUrl(base, hall, item) {
-  return `${base.replace(/\/+$/, '')}${reviewEndpoint(hall, item)}`
+  return apiUrl(base, reviewEndpoint(hall, item))
 }
 
 export function reviewCacheKey(hall, item) {
