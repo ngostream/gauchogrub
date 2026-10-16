@@ -1,72 +1,84 @@
-"""Exercise the scheduled menu refresh without calling UCSB or PostgreSQL."""
+"""Tests for the scheduled menu refresh without external services."""
 
 import datetime
 import importlib.util
 import json
-import os
 from pathlib import Path
 import unittest
 from unittest.mock import MagicMock, patch
 
-
 UPDATE_FILE = Path(__file__).resolve().parents[1] / "update_database.py"
+spec = importlib.util.spec_from_file_location("gauchogrub_update_under_test", UPDATE_FILE)
+updater = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(updater)
 
 
 class DatabaseUpdateTests(unittest.TestCase):
-    def run_update(self):
-        connection = MagicMock()
-        response = MagicMock()
+    def setUp(self):
+        self.session = MagicMock()
+        self.connection = MagicMock()
+        self.connection.__enter__.return_value = self.connection
+        self.cursor = self.connection.cursor.return_value
+        self.cursor.__enter__.return_value = self.cursor
+        self.day = datetime.date(2026, 10, 15)
 
-        def get_menu(url):
-            result = MagicMock()
-            if "/Carrillo/Lunch?" in url:
-                result.status_code = 200
-                result.text = json.dumps([
-                    {"name": "Pizza", "station": "Grill"},
-                    {"name": "Soup"},
-                ])
+        def get_menu(url, **kwargs):
+            response = MagicMock()
+            if "/Carrillo/Lunch" in url:
+                response.status_code = 200
+                response.json.return_value = [
+                    {"name": "Pizza", "station": "Grill"}, {"name": "Soup"}
+                ]
             else:
-                result.status_code = 503
-                result.text = "upstream unavailable"
-            return result
+                response.status_code = 404
+            return response
 
-        with patch.dict(os.environ, {"API_KEY": "test-key", "DATABASE_URL": "postgres://test"}):
-            with patch("psycopg2.connect", return_value=connection) as connect:
-                with patch("requests.get", side_effect=get_menu) as get:
-                    with patch("builtins.print"):
-                        spec = importlib.util.spec_from_file_location("gauchogrub_update_under_test", UPDATE_FILE)
-                        module = importlib.util.module_from_spec(spec)
-                        spec.loader.exec_module(module)
-        return module, connection, connect, get
+        self.session.get.side_effect = get_menu
 
-    def test_refresh_fetches_every_hall_and_meal(self):
-        module, connection, connect, get = self.run_update()
-        self.assertEqual(get.call_count, 16)
-        self.assertTrue(all("ucsb-api-key=test-key" in call.args[0] for call in get.call_args_list))
-        connect.assert_called_once_with("postgres://test")
-        connection.commit.assert_called_once()
-        connection.close.assert_called_once()
-        self.assertEqual(module.dining_halls, ["Carrillo", "De-La-Guerra", "Ortega", "Portola"])
+    def refresh(self):
+        with patch.object(updater.psycopg2, "connect", return_value=self.connection):
+            updater.refresh_menu("postgres://test", "test-key", self.day, self.session)
 
-    def test_refresh_groups_items_and_uses_default_station(self):
-        _, connection, _, _ = self.run_update()
-        sql_calls = connection.cursor.return_value.execute.call_args_list
-        item_inserts = [call for call in sql_calls if "INSERT INTO Menu_Items" in call.args[0]]
-        self.assertEqual(len(item_inserts), 2)
-        self.assertEqual(item_inserts[0].args[1], ("Pizza", "Carrillo", "Lunch", "Grill"))
-        self.assertEqual(item_inserts[1].args[1], ("Soup", "Carrillo", "Lunch", "General"))
+    def test_refresh_groups_items_and_saves_snapshot(self):
+        self.refresh()
+        self.assertEqual(self.session.get.call_count, 16)
+        self.assertEqual(self.session.get.call_args.kwargs["timeout"], 10)
+        calls = self.cursor.execute.call_args_list
+        inserts = [call for call in calls if "INSERT INTO Menu_Items" in call.args[0]]
+        self.assertEqual([call.args[1] for call in inserts], [
+            ("Pizza", "Carrillo", "Lunch", "Grill"),
+            ("Soup", "Carrillo", "Lunch", "General"),
+        ])
+        daily = next(call for call in calls if "INSERT INTO Daily_Menu" in call.args[0])
+        self.assertEqual(json.loads(daily.args[1][1])["Carrillo"]["Lunch"],
+                         {"Grill": ["Pizza"], "General": ["Soup"]})
+        cleanup = next(call for call in calls if "DELETE FROM Daily_Menu" in call.args[0])
+        self.assertEqual(cleanup.args[1][0], self.day - datetime.timedelta(days=2))
+        self.connection.__exit__.assert_called_once()
+        self.connection.close.assert_called_once()
 
-        daily_insert = next(call for call in sql_calls if "INSERT INTO Daily_Menu" in call.args[0])
-        menu = json.loads(daily_insert.args[1][1])
-        self.assertEqual(menu["Carrillo"]["Lunch"], {"Grill": ["Pizza"], "General": ["Soup"]})
-        self.assertEqual(menu["Portola"]["Dinner"], {})
+    def test_server_error_preserves_existing_snapshot(self):
+        self.session.get.side_effect = None
+        self.session.get.return_value.status_code = 503
+        self.session.get.return_value.raise_for_status.side_effect = RuntimeError("upstream down")
+        with self.assertRaises(RuntimeError):
+            self.refresh()
+        self.cursor.execute.assert_not_called()
 
-    def test_refresh_cleans_up_old_menu_dates(self):
-        _, connection, _, _ = self.run_update()
-        sql_calls = connection.cursor.return_value.execute.call_args_list
-        daily_insert = next(call for call in sql_calls if "INSERT INTO Daily_Menu" in call.args[0])
-        cleanup = next(call for call in sql_calls if "DELETE FROM Daily_Menu" in call.args[0])
-        self.assertEqual(cleanup.args[1][0], daily_insert.args[1][0] - datetime.timedelta(days=2))
+    def test_empty_response_preserves_existing_snapshot(self):
+        self.session.get.side_effect = None
+        self.session.get.return_value.status_code = 200
+        self.session.get.return_value.json.return_value = []
+        with self.assertRaises(ValueError):
+            self.refresh()
+        self.cursor.execute.assert_not_called()
+
+    def test_sql_error_rolls_back_and_closes(self):
+        self.cursor.execute.side_effect = RuntimeError("write failed")
+        with self.assertRaises(RuntimeError):
+            self.refresh()
+        self.connection.__exit__.assert_called_once()
+        self.connection.close.assert_called_once()
 
 
 if __name__ == "__main__":

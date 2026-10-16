@@ -30,7 +30,7 @@ Gaucho Grub is a full-stack web application that allows UCSB students to view re
 
 **Database**:
 - Supabase (PostgreSQL)
-- Profanity-checked review system with one-review-per-user enforcement via `localStorage`
+- Profanity-checked reviews with brief duplicate-submission suppression
 
 **API**:
 - UCSB Dining API
@@ -86,7 +86,7 @@ Stores pre-fetched UCSB Dining API data to reduce request latency.
 |----------------|------------|---------------------------------------------|
 | `date`         | date       | Primary key (one row per day)               |
 | `data`         | text       | Full JSON blob of menu data for the day     |
-| `last_updated` | timestamptz| Timestamp of last successful refresh        |
+| `last_updated` | timestamp | Timestamp of last successful refresh        |
 
 ## API Routes
 
@@ -108,6 +108,106 @@ Stores pre-fetched UCSB Dining API data to reduce request latency.
 Pull requests run the backend tests and the frontend tests, lint, and build. On a push to `main`, the same checks must pass before GitHub Actions deploys the backend to Azure. The Azure deployment workflow can also be run manually. The frontend is hosted separately on Vercel.
 
 The frontend build needs `VITE_API_BASE_URL` set to the Azure API URL. The backend needs `DATABASE_URL` for Supabase PostgreSQL and `API_KEY` for the UCSB Dining API. The scheduled refresh workflow reads `DATABASE_URL` and `API_KEY` from GitHub Actions secrets. Keep their values out of the repository.
+
+Before first deployment to a new database, run `python server/database_setup.py` with `DATABASE_URL` set. Then run `python server/update_database.py` with both `DATABASE_URL` and `API_KEY` set to populate the first menu. Schema creation is a manual bootstrap step; the nightly refresh only inserts data. A failed or empty UCSB response now leaves the previous daily snapshot intact and causes the scheduled job to fail visibly.
+
+Reviews are anonymous. The server suppresses identical comments on the same item for 10 seconds; there is no user identity or one-review-per-user enforcement. For a future public launch, consider account-backed rate limits and moderation.
+
+## Local Development with Docker
+
+The Flask backend is containerized using Docker to provide a consistent development environment without requiring a local Python installation or manual dependency setup.
+
+### Prerequisites
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- A PostgreSQL database (the application currently uses Supabase)
+- Valid `DATABASE_URL` and `API_KEY` environment variables
+
+### Build the Docker Image
+
+From the project root, run:
+
+```bash
+docker build -t gauchogrub-backend ./server
+```
+
+This builds an image using Python 3.13 and installs the backend dependencies from `server/requirements.txt`.
+
+### Run the Backend
+
+Create a `server/.env.prod` file containing the required environment variables:
+
+```env
+DATABASE_URL=your_postgresql_connection_string
+API_KEY=your_ucsb_dining_api_key
+```
+
+Start the container:
+
+```bash
+docker run -d \
+  --rm \
+  -p 8080:8080 \
+  --env-file server/.env.prod \
+  --name gauchogrub-api \
+  gauchogrub-backend
+```
+
+The Flask API runs through Gunicorn and is accessible at `http://localhost:8080`.
+
+### Verify the API
+
+Check the health endpoint:
+
+```bash
+curl http://localhost:8080/health
+```
+
+Expected response:
+
+```text
+OK
+```
+
+Fetch the dining hall menus:
+
+```bash
+curl http://localhost:8080/
+```
+
+The endpoint returns JSON containing menus for the UCSB dining halls.
+
+### Manage the Container
+
+View running containers:
+
+```bash
+docker ps
+```
+
+View application logs:
+
+```bash
+docker logs gauchogrub-api
+```
+
+Stop the backend:
+
+```bash
+docker stop gauchogrub-api
+```
+
+The container is automatically removed after stopping because it was started with `--rm`.
+
+### Architecture
+
+- **Frontend:** React + Vite, hosted on Vercel
+- **Backend:** Flask + Gunicorn, containerized for local development
+- **Database:** Supabase PostgreSQL
+- **CI/CD:** GitHub Actions for automated testing
+- **Deployment:** Vercel
+
+Docker is used for reproducible local backend execution. The production backend is deployed separately.
 
 ## Tests
 

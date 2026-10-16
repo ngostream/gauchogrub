@@ -25,22 +25,24 @@ function FoodReview() {
   let hN = normalizeHallName(rawHN); // backend key
   let prettyHall = displayHallName(hN); // user-facing
 
-  const [reviewData, setReviewData] = useState([{}]); // from db
+  const [reviewData, setReviewData] = useState({ reviews: [] }); // from db
   const initialState = { name: foodItem, review: "", rating: 3 };
   const [formData, setFormData] = useState(initialState); // to db
   const [submitted, setSubmitted] = useState(false); // track whether or not user submitted review
   const [isSubmitting, setIsSubmitting] = useState(false); // prevent double submissions
+  const [errorMessage, setErrorMessage] = useState("");
 
   const cacheKey = reviewCacheKey(hN, foodItem); // for localstorage caching
 
   // fetch reviews from backend, use localstorage cache to speed things up
-  const fetchReviews = React.useCallback(async (forceRefresh = false) => {
+  const fetchReviews = React.useCallback(async () => {
     try {
-      if (!forceRefresh) {
-        const cached = localStorage.getItem(cacheKey);
-        if (cached) {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
           setReviewData(JSON.parse(cached));
-          return; // use cached data
+        } catch {
+          localStorage.removeItem(cacheKey);
         }
       }
       const response = await axios.get(
@@ -50,6 +52,7 @@ function FoodReview() {
       localStorage.setItem(cacheKey, JSON.stringify(response.data)); // cache latest
     } catch (error) {
       console.error("Fetch reviews failed:", error);
+      setErrorMessage("Could not load the latest reviews. Please try again later.");
     }
   }, [hN, foodItem, cacheKey]);
 
@@ -62,6 +65,7 @@ function FoodReview() {
     e.preventDefault();
     if (isSubmitting) return; // prevent double click
     setIsSubmitting(true);
+    setErrorMessage("");
 
     const validationError = validateReview(formData.review, (text) => leoProfanity.check(text));
     if (validationError) {
@@ -72,7 +76,7 @@ function FoodReview() {
 
     try {
       // post review to backend
-      await axios.post(
+      const response = await axios.post(
         reviewUrl(import.meta.env.VITE_API_BASE_URL, hN, foodItem),
         formData,
         { headers: { "Content-Type": "application/json" } }
@@ -86,11 +90,13 @@ function FoodReview() {
       localStorage.removeItem(cacheKey); // this food’s reviews
       localStorage.removeItem(`${hN}-avgRatings`); // hall-wide avg ratings
 
-      // refresh UI
-      fetchReviews(true); // force latest reviews
+      // The POST response already contains the current reviews.
+      setReviewData(response.data);
+      localStorage.setItem(cacheKey, JSON.stringify(response.data));
       window.dispatchEvent(new Event("ratingsUpdated")); // notify other components if needed
     } catch (error) {
       console.error("Submission failed:", error);
+      setErrorMessage(error.response?.data?.error || "Could not submit your review. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -223,6 +229,7 @@ function FoodReview() {
         </Col>
       </Row>
       <ReviewList />
+      {errorMessage && <p role="alert">{errorMessage}</p>}
     </Container>
   );
 }

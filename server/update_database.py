@@ -1,76 +1,81 @@
-import os
-# import sqlite3
-import psycopg2
-from collections import OrderedDict
-import requests
-import json
+"""Refresh the daily menu snapshot from the UCSB Dining API."""
+
 import datetime
-from dotenv import load_dotenv
+import json
+import os
+from collections import OrderedDict
 from zoneinfo import ZoneInfo
-load_dotenv(".env.prod")
-# ucsb dining api
-API_KEY = os.getenv("API_KEY")
+
+import psycopg2
+import requests
+from dotenv import load_dotenv
+
 BASE_URL = "https://api.ucsb.edu/dining/menu/v1/"
-now = datetime.datetime.now(ZoneInfo("America/Los_Angeles"))
-date = now.date().isoformat()
-# get menu data from the api
-def get_menu_data(date, dining_hall, meal):
-    url = f"{BASE_URL}{date}/{dining_hall}/{meal}?ucsb-api-key={API_KEY}"
-    response = requests.get(url)
-    return json.loads(response.text) if response.status_code == 200 else []
+DINING_HALLS = ("Carrillo", "De-La-Guerra", "Ortega", "Portola")
+MEALS = ("Breakfast", "Brunch", "Lunch", "Dinner")
 
-# connect to database
-# conn = sqlite3.connect("dining_menu.db")
-conn = psycopg2.connect(os.getenv("DATABASE_URL"))
-cursor = conn.cursor()
 
-# dining halls and meals
-dining_halls = ["Carrillo", "De-La-Guerra", "Ortega", "Portola"]
-meals = ["Breakfast", "Brunch", "Lunch", "Dinner"]
+def get_menu_data(session, day, hall, meal, api_key):
+    response = session.get(
+        f"{BASE_URL}{day}/{hall}/{meal}",
+        params={"ucsb-api-key": api_key},
+        timeout=10,
+    )
+    # The API returns 404 for meals that are not served. Other failures must not
+    # replace a good menu snapshot with an empty one.
+    if response.status_code == 404:
+        return []
+    response.raise_for_status()
+    data = response.json()
+    if not isinstance(data, list):
+        raise ValueError(f"Unexpected menu response for {hall} {meal}")
+    return data
 
-diningHalls = OrderedDict()
-for hall in dining_halls:
-    diningHalls[hall] = OrderedDict()
-    for meal in meals:
-        diningHalls[hall][meal] = OrderedDict()
 
-# get api data and insert into database
-for hall in dining_halls:
-    for meal in meals:
-        menu_items = get_menu_data(date, hall, meal)
-        if isinstance(menu_items, list):
-            for item in menu_items:
+def refresh_menu(database_url, api_key, day=None, session=requests):
+    if not database_url or not api_key:
+        raise ValueError("DATABASE_URL and API_KEY are required")
+    day = day or datetime.datetime.now(ZoneInfo("America/Los_Angeles")).date()
+    menu = OrderedDict(
+        (hall, OrderedDict((meal, OrderedDict()) for meal in MEALS))
+        for hall in DINING_HALLS
+    )
+    items = []
+    for hall in DINING_HALLS:
+        for meal in MEALS:
+            for item in get_menu_data(session, day.isoformat(), hall, meal, api_key):
                 name = item["name"]
-                station = item.get("station", "General")  # Some items may not have stations
-                try:
-                    cursor.execute(
-                        """INSERT INTO Menu_Items (name, dining_hall, meal, station)
-                            VALUES (%s, %s, %s, %s)
-                            ON CONFLICT (name, dining_hall) DO NOTHING""",
-                        (name, hall, meal, station),
-                    )
-                except Exception as e:
-                    print(f"Error inserting {name}: {e}")
-                if station not in diningHalls[hall][meal]:
-                    diningHalls[hall][meal][station] = []
-                diningHalls[hall][meal][station].append(name)
-print('done inserting into menu_items')
+                station = item.get("station") or "General"
+                menu[hall][meal].setdefault(station, []).append(name)
+                items.append((name, hall, meal, station))
 
-cursor.execute(
-    """
-    INSERT INTO Daily_Menu (date, data)
-    VALUES (%s, %s)
-    ON CONFLICT (date) DO UPDATE SET data = EXCLUDED.data, last_updated = CURRENT_TIMESTAMP
-    """,
-    (now.date(), json.dumps(diningHalls, sort_keys=False))
-)
-print('inserted into daily menu')
+    if not items:
+        raise ValueError("Dining API returned no menu items; keeping existing snapshot")
 
-# delete rows older than 2 days
-cursor.execute("DELETE FROM Daily_Menu WHERE date < %s", (now.date() - datetime.timedelta(days=2),))
-print('deleted entries in Daily_Menu older than 2 days')
+    conn = psycopg2.connect(database_url)
+    try:
+        with conn, conn.cursor() as cursor:
+            for item in items:
+                cursor.execute(
+                    """INSERT INTO Menu_Items (name, dining_hall, meal, station)
+                       VALUES (%s, %s, %s, %s)
+                       ON CONFLICT (name, dining_hall) DO NOTHING""",
+                    item,
+                )
+            cursor.execute(
+                """INSERT INTO Daily_Menu (date, data) VALUES (%s, %s)
+                   ON CONFLICT (date) DO UPDATE
+                   SET data = EXCLUDED.data, last_updated = CURRENT_TIMESTAMP""",
+                (day, json.dumps(menu)),
+            )
+            cursor.execute(
+                "DELETE FROM Daily_Menu WHERE date < %s",
+                (day - datetime.timedelta(days=2),),
+            )
+    finally:
+        conn.close()
 
-# commit and close
-conn.commit()
-conn.close()
 
+if __name__ == "__main__":
+    load_dotenv(".env.prod")
+    refresh_menu(os.getenv("DATABASE_URL"), os.getenv("API_KEY"))

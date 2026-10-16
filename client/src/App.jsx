@@ -13,6 +13,8 @@ function App() {
   const [data,setData] = useState([{}])
   const [loading, setLoading] = useState(true);
   const [slowLoading, setSlowLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const loadingMessages = [
     "Checking what's cooking…",
@@ -31,8 +33,10 @@ function App() {
       try {
   const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
   setData(response.data);
+  setLoadError(false);
       } catch (err) {
         console.error("Error loading menu:", err);
+        setLoadError(true);
       } finally {
         clearTimeout(slowTimer);
         setLoading(false);
@@ -42,7 +46,7 @@ function App() {
     fetch();
 
     return () => clearTimeout(slowTimer);
-  }, []);
+  }, [retryCount]);
   
 if (loading) {
   return (
@@ -54,6 +58,19 @@ if (loading) {
           : randomMessage}
       </p>
     </div>
+  );
+}
+
+if (loadError) {
+  return (
+    <main style={{ textAlign: 'center', marginTop: '25vh' }}>
+      <p>Could not load the dining menu. Please try again.</p>
+      <button type="button" onClick={() => {
+        setLoading(true);
+        setSlowLoading(false);
+        setRetryCount((count) => count + 1);
+      }}>Retry</button>
+    </main>
   );
 }
 
