@@ -38,6 +38,29 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(response.data, b"OK")
         self.pool.getconn.assert_not_called()
 
+    def test_cors_allows_frontend_preview_deployment(self):
+        response = self.client.options(
+            "/De-La-Guerra/Pizza",
+            headers={
+                "Origin": "https://gauchogrub-git-vercel-deployment-pnp-8ab1f1-ngostreams-projects.vercel.app",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+        self.assertEqual(
+            response.headers["Access-Control-Allow-Origin"],
+            "https://gauchogrub-git-vercel-deployment-pnp-8ab1f1-ngostreams-projects.vercel.app",
+        )
+        self.assertIn("POST", response.headers["Access-Control-Allow-Methods"])
+        self.assertIn("content-type", response.headers["Access-Control-Allow-Headers"])
+
+    def test_cors_rejects_unrelated_vercel_deployment(self):
+        response = self.client.get(
+            "/health",
+            headers={"Origin": "https://unrelated-app-ngostreams-projects.vercel.app"},
+        )
+        self.assertNotIn("Access-Control-Allow-Origin", response.headers)
+
     def test_menu_returns_todays_data(self):
         self.cursor.fetchone.return_value = ('{"Carrillo": {"Lunch": {}}}',)
         response = self.client.get("/")
@@ -73,7 +96,11 @@ class ServerRouteTests(unittest.TestCase):
         self.cursor.fetchall.return_value = [("Pizza", 4.256), ("Salad", 0)]
         response = self.client.get("/Carrillo/avg_ratings")
         self.assertEqual(response.json, {"Pizza": 4.26, "Salad": 0})
-        self.assertEqual(self.cursor.execute.call_args.args[1], ("Carrillo",))
+        ratings_query = next(
+            call for call in self.cursor.execute.call_args_list
+            if "WHERE dining_hall = %s" in call.args[0]
+        )
+        self.assertEqual(ratings_query.args[1], ("Carrillo",))
         self.pool.putconn.assert_called_once_with(self.conn)
 
     def test_unknown_review_item_returns_404(self):
@@ -91,6 +118,16 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(response.json["reviews"][0]["comment"], "Good")
         self.assertEqual(self.cursor.execute.call_args_list[0].args[1], ("Soup/Salad", "Carrillo"))
         self.pool.putconn.assert_called_once_with(self.conn)
+
+    def test_review_path_decodes_percent_encoded_item_name(self):
+        self.cursor.fetchone.side_effect = [(7,), (None,)]
+        self.cursor.fetchall.return_value = []
+        response = self.client.get("/Carrillo/Split%2520Pea%2520Soup%2520(vgn)")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            self.cursor.execute.call_args_list[0].args[1],
+            ("Split Pea Soup (vgn)", "Carrillo"),
+        )
 
     def test_review_rejects_missing_fields(self):
         self.cursor.fetchone.return_value = (7,)

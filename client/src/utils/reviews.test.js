@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { reviewCacheKey, reviewEndpoint, reviewUrl, validateReview } from './reviews.js'
+import { apiUrl, reviewCacheKey, reviewEndpoint, reviewUrl, validateReview } from './reviews.js'
 
 test('review endpoints encode spaces and reserved characters', () => {
   assert.equal(reviewEndpoint('Carrillo', 'Fish & Chips'), '/Carrillo/Fish%20%26%20Chips')
@@ -14,6 +14,11 @@ test('review endpoints preserve slash-containing item names for the backend', ()
 test('review URLs contain one slash after the API base', () => {
   assert.equal(reviewUrl('https://api.example/', 'Carrillo', 'Pizza'), 'https://api.example/Carrillo/Pizza')
   assert.equal(reviewUrl('https://api.example', 'Carrillo', 'Pizza'), 'https://api.example/Carrillo/Pizza')
+})
+
+test('API URLs normalize trailing and leading slashes', () => {
+  assert.equal(apiUrl('https://api.example/', '/'), 'https://api.example/')
+  assert.equal(apiUrl('https://api.example///', '//De-La-Guerra/avg_ratings'), 'https://api.example/De-La-Guerra/avg_ratings')
 })
 
 test('review validation rejects blank text without checking profanity', () => {

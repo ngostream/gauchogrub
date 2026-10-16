@@ -4,6 +4,7 @@ import datetime
 import os
 import re
 from contextlib import contextmanager
+from urllib.parse import unquote
 from zoneinfo import ZoneInfo
 
 from better_profanity import profanity
@@ -21,7 +22,14 @@ db_pool = SimpleConnectionPool(1, 10, dsn=DATABASE_URL)
 profanity.load_censor_words()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
+CORS(
+    app,
+    origins=[
+        "http://localhost:5173",
+        "https://gauchogrub.vercel.app",
+        re.compile(r"^https://gauchogrub(?:-[a-z0-9]+)*-ngostreams-projects\.vercel\.app$"),
+    ],
+)
 
 
 @contextmanager
@@ -67,7 +75,7 @@ def menu():
 
 @app.route("/<dining_hall>/<item_id>", methods=["POST", "GET"])
 def submit(dining_hall, item_id):
-    item_name = item_id.replace("__slash__", "/")
+    item_name = unquote(item_id).replace("__slash__", "/")
     with database_connection() as conn, conn.cursor() as cursor:
         cursor.execute(
             "SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s",

@@ -36,16 +36,17 @@ Gaucho Grub is a full-stack web application that allows UCSB students to view re
 - UCSB Dining API
 
 **Deployment**:
-- Frontend: Vercel  
-- Backend: Microsoft Azure  
+- Frontend and backend: Vercel (separate projects rooted at `client/` and `server/`)
+- Database: Supabase PostgreSQL
 - Automation: GitHub Actions (runs nightly data pulls)
 
 **Package Managers**:
 - pip (Python)
-- npm (Node.js)
+- pnpm (Node.js frontend)
 
 **DevOps**:
 - GitHub Actions
+- Docker for local backend development
 - .env files
 
 ## Database Schema
@@ -100,14 +101,14 @@ Stores pre-fetched UCSB Dining API data to reduce request latency.
 
 | Component | Hosted on | Role |
 |-----------|-----------|------|
-| React frontend | Vercel | Serves the website and calls the Flask API using `VITE_API_BASE_URL`. |
-| Flask backend | Azure App Service (`GauchoGrubBackend`) | Serves menus, reviews, and ratings. Connects to Supabase using `DATABASE_URL`. |
+| React frontend | Vercel (`client/` project root) | Serves the website and calls the Flask API using `VITE_API_BASE_URL`. |
+| Flask backend | Vercel (`server/` project root) | Serves menus, reviews, and ratings. Connects to Supabase using `DATABASE_URL`. |
 | PostgreSQL database | Supabase | Stores menu items, reviews, ratings, and the daily menu cache. |
 | Menu refresh | GitHub Actions | Runs `server/update_database.py` daily at 10:00 UTC to fetch UCSB Dining data and update Supabase. |
 
-Pull requests run the backend tests and the frontend tests, lint, and build. On a push to `main`, the same checks must pass before GitHub Actions deploys the backend to Azure. The Azure deployment workflow can also be run manually. The frontend is hosted separately on Vercel.
+Pull requests and pushes to `main` run backend tests, frontend tests, lint, and build in GitHub Actions. Vercel handles frontend and backend deployments separately from this CI workflow.
 
-The frontend build needs `VITE_API_BASE_URL` set to the Azure API URL. The backend needs `DATABASE_URL` for Supabase PostgreSQL and `API_KEY` for the UCSB Dining API. The scheduled refresh workflow reads `DATABASE_URL` and `API_KEY` from GitHub Actions secrets. Keep their values out of the repository.
+The frontend build needs `VITE_API_BASE_URL` set to the Vercel backend URL. The backend needs `DATABASE_URL` for Supabase PostgreSQL and `API_KEY` for the UCSB Dining API. The scheduled refresh workflow reads `DATABASE_URL` and `API_KEY` from GitHub Actions secrets. Keep their values out of the repository.
 
 Before first deployment to a new database, run `python server/database_setup.py` with `DATABASE_URL` set. Then run `python server/update_database.py` with both `DATABASE_URL` and `API_KEY` set to populate the first menu. Schema creation is a manual bootstrap step; the nightly refresh only inserts data. A failed or empty UCSB response now leaves the previous daily snapshot intact and causes the scheduled job to fail visibly.
 
@@ -202,12 +203,12 @@ The container is automatically removed after stopping because it was started wit
 ### Architecture
 
 - **Frontend:** React + Vite, hosted on Vercel
-- **Backend:** Flask + Gunicorn, containerized for local development
+- **Backend:** Flask + Gunicorn, hosted on Vercel and containerized for local development
 - **Database:** Supabase PostgreSQL
 - **CI/CD:** GitHub Actions for automated testing
-- **Deployment:** Vercel
+- **Deployment:** Vercel projects rooted at `client/` and `server/`
 
-Docker is used for reproducible local backend execution. The production backend is deployed separately.
+Docker provides reproducible local backend execution. Vercel deploys the production frontend and backend as separate projects.
 
 ## Tests
 
@@ -223,10 +224,10 @@ Set `TEST_DATABASE_URL` to a PostgreSQL test database URL to also run the integr
 Run the frontend utility and React interaction tests from `client/`:
 
 ```sh
-npm ci
-npm test
-npm run lint
-npm run build
+pnpm install --frozen-lockfile
+pnpm test
+pnpm run lint
+pnpm run build
 ```
 
 ## Screenshots

@@ -5,6 +5,7 @@ import FoodReview from "./components/FoodReview.jsx"
 import DisplayHalls from "./components/DisplayHalls.jsx"
 import About from "./components/About.jsx"
 import axios from 'axios'
+import { apiUrl } from './utils/reviews.js'
 import './App.css'
 import CircularProgress from '@mui/material/CircularProgress';
 import Footer from './components/Footer.jsx';
@@ -31,7 +32,7 @@ function App() {
 
     const fetch = async () => {
       try {
-  const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/`);
+  const response = await axios.get(apiUrl(import.meta.env.VITE_API_BASE_URL, '/'));
   setData(response.data);
   setLoadError(false);
       } catch (err) {

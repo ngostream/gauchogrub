@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import ReadOnlyStar from "./ReadOnlyStar.jsx";
 import axios from "axios";
 import { normalizeHallName } from "../utils/hallNames.js";
+import { apiUrl } from "../utils/reviews.js";
 
 export default function MealTime({ time, sections, ogHn }) {
   const [open, setOpen] = useState(true);
@@ -27,7 +28,7 @@ export default function MealTime({ time, sections, ogHn }) {
     const fetchAvgRatings = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_BASE_URL}/${hN}/avg_ratings`
+          apiUrl(import.meta.env.VITE_API_BASE_URL, `/${hN}/avg_ratings`)
         );
         setAvgRatings(response.data);
         localStorage.setItem(cacheKey, JSON.stringify(response.data));
