@@ -22,7 +22,14 @@ db_pool = SimpleConnectionPool(1, 10, dsn=DATABASE_URL)
 profanity.load_censor_words()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
+CORS(
+    app,
+    origins=[
+        "http://localhost:5173",
+        "https://gauchogrub.vercel.app",
+        re.compile(r"^https://gauchogrub(?:-[a-z0-9]+)*-ngostreams-projects\.vercel\.app$"),
+    ],
+)
 
 
 @contextmanager

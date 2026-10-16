@@ -38,6 +38,29 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(response.data, b"OK")
         self.pool.getconn.assert_not_called()
 
+    def test_cors_allows_frontend_preview_deployment(self):
+        response = self.client.options(
+            "/De-La-Guerra/Pizza",
+            headers={
+                "Origin": "https://gauchogrub-git-vercel-deployment-pnp-8ab1f1-ngostreams-projects.vercel.app",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "content-type",
+            },
+        )
+        self.assertEqual(
+            response.headers["Access-Control-Allow-Origin"],
+            "https://gauchogrub-git-vercel-deployment-pnp-8ab1f1-ngostreams-projects.vercel.app",
+        )
+        self.assertIn("POST", response.headers["Access-Control-Allow-Methods"])
+        self.assertIn("content-type", response.headers["Access-Control-Allow-Headers"])
+
+    def test_cors_rejects_unrelated_vercel_deployment(self):
+        response = self.client.get(
+            "/health",
+            headers={"Origin": "https://unrelated-app-ngostreams-projects.vercel.app"},
+        )
+        self.assertNotIn("Access-Control-Allow-Origin", response.headers)
+
     def test_menu_returns_todays_data(self):
         self.cursor.fetchone.return_value = ('{"Carrillo": {"Lunch": {}}}',)
         response = self.client.get("/")
