@@ -39,16 +39,6 @@ jobs:
         run: python -m pip install -r server/requirements.txt
       - name: Test backend
         run: python -m unittest discover -s server/tests -v
-      - name: Upload backend for deployment
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-app
-          path: |
-            startup.sh
-            server/*.py
-            server/requirements.txt
-          if-no-files-found: error
 
   frontend:
     runs-on: ubuntu-latest
@@ -70,26 +60,3 @@ jobs:
         run: npm run lint
       - name: Build frontend
         run: npm run build
-
-  deploy:
-    if: github.event_name != 'pull_request'
-    needs: [backend, frontend]
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: python-app
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D7482684C0E4447EA5FA455509779077 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4103B79566BF4350918C9A9F9BA6D69B }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_9C2C5056B5D74AB0B4A1C43C6A503DB8 }}
-      - name: Deploy backend to Azure
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: GauchoGrubBackend
-          slot-name: Production
