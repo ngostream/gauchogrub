@@ -37,14 +37,19 @@ def database_connection():
         db_pool.putconn(conn)
 
 
-def log_database_context(cursor, route, item_found):
+def log_database_context(cursor, route, dining_hall, item_name, item_found):
     cursor.execute(
-        "SELECT current_database(), current_schema(), current_setting('search_path')"
+        """SELECT current_database(), current_schema(),
+                  current_setting('search_path'), current_user, session_user,
+                  pg_backend_pid()"""
     )
     database_context = cursor.fetchone()
     app.logger.info(
-        "db_diagnostic route=%s database_schema_search_path=%s item_found=%s",
+        "db_diagnostic route=%s dining_hall=%r item_name=%r "
+        "database_context=%s item_found=%s",
         route,
+        dining_hall,
+        item_name,
         database_context,
         item_found,
     )
@@ -89,7 +94,13 @@ def submit(dining_hall, item_id):
             (item_name, dining_hall),
         )
         menu_item = cursor.fetchone()
-        log_database_context(cursor, "review", bool(menu_item))
+        log_database_context(
+            cursor,
+            "review",
+            dining_hall,
+            item_name,
+            bool(menu_item),
+        )
         if not menu_item:
             return jsonify({"error": "Menu item not found"}), 404
 
@@ -156,10 +167,17 @@ def get_avg_ratings(dining_hall):
             (dining_hall,),
         )
         result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
+        cursor.execute(
+            "SELECT id FROM Menu_Items WHERE name = %s AND dining_hall = %s",
+            (DIAGNOSTIC_ITEM_NAME, dining_hall),
+        )
+        diagnostic_item = cursor.fetchone()
         log_database_context(
             cursor,
             "avg_ratings",
-            DIAGNOSTIC_ITEM_NAME in result,
+            dining_hall,
+            DIAGNOSTIC_ITEM_NAME,
+            bool(diagnostic_item),
         )
     return jsonify(result)
 
