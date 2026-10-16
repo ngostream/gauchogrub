@@ -73,7 +73,11 @@ class ServerRouteTests(unittest.TestCase):
         self.cursor.fetchall.return_value = [("Pizza", 4.256), ("Salad", 0)]
         response = self.client.get("/Carrillo/avg_ratings")
         self.assertEqual(response.json, {"Pizza": 4.26, "Salad": 0})
-        self.assertEqual(self.cursor.execute.call_args.args[1], ("Carrillo",))
+        ratings_query = next(
+            call for call in self.cursor.execute.call_args_list
+            if "WHERE dining_hall = %s" in call.args[0]
+        )
+        self.assertEqual(ratings_query.args[1], ("Carrillo",))
         self.pool.putconn.assert_called_once_with(self.conn)
 
     def test_unknown_review_item_returns_404(self):
@@ -83,7 +87,7 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(self.pool.putconn.call_count, 1)
 
     def test_review_path_decodes_slashes(self):
-        self.cursor.fetchone.side_effect = [(7,), (4.5,)]
+        self.cursor.fetchone.side_effect = [(7,), ("test_db", "public", "public"), (4.5,)]
         self.cursor.fetchall.return_value = [(4.5, "Good", "2026-10-14")]
         response = self.client.get("/Carrillo/Soup__slash__Salad")
         self.assertEqual(response.status_code, 200)
@@ -135,14 +139,14 @@ class ServerRouteTests(unittest.TestCase):
         self.assertEqual(self.pool.putconn.call_count, 6)
 
     def test_review_accepts_300_character_boundary(self):
-        self.cursor.fetchone.side_effect = [(7,), None, (5.0,)]
+        self.cursor.fetchone.side_effect = [(7,), ("test_db", "public", "public"), None, (5.0,)]
         self.cursor.fetchall.return_value = []
         response = self.client.post("/Carrillo/Pizza", json={"rating": 5, "review": "a" * 300})
         self.assertEqual(response.status_code, 200)
         self.assertTrue(any("INSERT INTO Reviews" in call.args[0] for call in self.cursor.execute.call_args_list))
 
     def test_get_reviews_returns_empty_list_and_null_average(self):
-        self.cursor.fetchone.side_effect = [(7,), (None,)]
+        self.cursor.fetchone.side_effect = [(7,), ("test_db", "public", "public"), (None,)]
         self.cursor.fetchall.return_value = []
         response = self.client.get("/Carrillo/Pizza")
         self.assertEqual(response.status_code, 200)
@@ -160,7 +164,7 @@ class ServerRouteTests(unittest.TestCase):
         self.pool.putconn.assert_called_once_with(self.conn)
 
     def test_review_submission_inserts_and_returns_reviews(self):
-        self.cursor.fetchone.side_effect = [(7,), None, (4.5,)]
+        self.cursor.fetchone.side_effect = [(7,), ("test_db", "public", "public"), None, (4.5,)]
         self.cursor.fetchall.return_value = [(4.5, "Tasty", "2026-10-14")]
         response = self.client.post("/Carrillo/Pizza", json={"rating": 4.5, "review": "  Tasty  "})
         self.assertEqual(response.status_code, 200)
@@ -172,7 +176,7 @@ class ServerRouteTests(unittest.TestCase):
         self.pool.putconn.assert_called_once_with(self.conn)
 
     def test_duplicate_review_is_not_inserted_again(self):
-        self.cursor.fetchone.side_effect = [(7,), (1,), (4.0,)]
+        self.cursor.fetchone.side_effect = [(7,), ("test_db", "public", "public"), (1,), (4.0,)]
         self.cursor.fetchall.return_value = []
         response = self.client.post("/Carrillo/Pizza", json={"rating": 4, "review": "Tasty"})
         self.assertEqual(response.status_code, 200)

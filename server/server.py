@@ -23,6 +23,8 @@ profanity.load_censor_words()
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173", "https://gauchogrub.vercel.app"])
 
+DIAGNOSTIC_ITEM_NAME = "Split Pea Soup (vgn)"
+
 
 @contextmanager
 def database_connection():
@@ -33,6 +35,19 @@ def database_connection():
             yield conn
     finally:
         db_pool.putconn(conn)
+
+
+def log_database_context(cursor, route, item_found):
+    cursor.execute(
+        "SELECT current_database(), current_schema(), current_setting('search_path')"
+    )
+    database_context = cursor.fetchone()
+    app.logger.info(
+        "db_diagnostic route=%s database_schema_search_path=%s item_found=%s",
+        route,
+        database_context,
+        item_found,
+    )
 
 
 def is_inappropriate(text):
@@ -74,6 +89,7 @@ def submit(dining_hall, item_id):
             (item_name, dining_hall),
         )
         menu_item = cursor.fetchone()
+        log_database_context(cursor, "review", bool(menu_item))
         if not menu_item:
             return jsonify({"error": "Menu item not found"}), 404
 
@@ -140,6 +156,11 @@ def get_avg_ratings(dining_hall):
             (dining_hall,),
         )
         result = {row[0]: round(row[1], 2) for row in cursor.fetchall()}
+        log_database_context(
+            cursor,
+            "avg_ratings",
+            DIAGNOSTIC_ITEM_NAME in result,
+        )
     return jsonify(result)
 
 
