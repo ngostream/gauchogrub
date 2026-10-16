@@ -42,7 +42,7 @@ Gaucho Grub is a full-stack web application that allows UCSB students to view re
 
 **Package Managers**:
 - pip (Python)
-- pnpm for the Vercel frontend deployment; npm for local development and GitHub Actions
+- pnpm (Node.js frontend)
 
 **DevOps**:
 - GitHub Actions
@@ -224,10 +224,10 @@ Set `TEST_DATABASE_URL` to a PostgreSQL test database URL to also run the integr
 Run the frontend utility and React interaction tests from `client/`:
 
 ```sh
-npm ci
-npm test
-npm run lint
-npm run build
+pnpm install --frozen-lockfile
+pnpm test
+pnpm run lint
+pnpm run build
 ```
 
 ## Screenshots
